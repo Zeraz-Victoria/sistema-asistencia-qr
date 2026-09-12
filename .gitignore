@@ -1,0 +1,34 @@
+# Dependencias
+node_modules/
+
+# Variables de entorno - NUNCA subir al repo
+.env
+.env.*
+!.env.example
+
+# Bases de datos locales
+*.db
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+
+# Logs
+*.log
+logs/
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# PDFs y reportes generados
+*.pdf
+*.csv
+
+# Scripts de debug/utilidades que no van a producción
+debug_*.js
+verify_*.js
+test_*.js
+seed_*.js
+create_user.js
+setup_test_maestro.js
+alumnos_raw.txt

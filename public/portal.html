@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Escolar | Estudiantes y Padres</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            /* Admin Panel Palette (Light Theme) */
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --secondary: #6366f1;
+            --bg-dark: #f3f4f6;
+            /* Actually Light Body BG */
+            --bg-card: #ffffff;
+            --text-light: #1f2937;
+            /* Main Text (Dark) */
+            --text-muted: #6b7280;
+            --success: #10b981;
+            --danger: #ef4444;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* HISTORY LIST */
+        .history-list {
+            margin-top: 1rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+
+        .tag {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .tag-presente {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .tag-falta {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .tag-retardo {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .tag-justificada {
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+
+        /* CALENDAR PREVIEW */
+        .calendar-preview {
+            display: block;
+            width: 100%;
+        }
+
+        .day-badge {
+            background: #f1f5f9;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        @media (max-width: 768px) {
+            .portal-grid {
+                grid-template-columns: 1fr;
+            }
+
+            header {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+                padding: 1rem;
+            }
+
+            main {
+                padding: 1rem;
+            }
+
+            .status-banner {
+                padding: 1.5rem;
+            }
+
+            .status-text {
+                font-size: 1.5rem;
+            }
+
+            .status-icon {
+                font-size: 2.5rem;
+            }
+        }
+
+        /* HEADER */
+        header {
+            background: #1e293b;
+            /* Sidebar color for contrast header */
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            color: white;
+            /* Force white text in header */
+        }
+
+        header h1 {
+            font-size: 1.5rem;
+            color: white;
+            margin: 0;
+            font-weight: 600;
+        }
+
+        /* ... (Keep styles same until main content) ... */
+
+        /* MAIN CONTENT */
+        main {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* STATUS BANNER - More neutral */
+        .status-banner {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+        }
+
+        /* ... */
+
+        /* CARD */
+        .card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-light);
+            /* Dark text for light mode */
+        }
+
+        .card h2 i {
+            color: var(--primary);
+            /* Indigo Icon */
+        }
+
+        /* FORMS */
+        input.input-dark {
+            width: 100%;
+            background: #f9fafb;
+            border: 1px solid var(--border);
+            padding: 12px;
+            border-radius: 8px;
+            color: var(--text-light);
+            font-family: inherit;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Portal Escolar</h1>
+        <div style="font-size: 0.9rem; color: var(--text-muted);">
+            <i class="fa-regular fa-clock"></i> <span id="clock">--:--</span>
+        </div>
+    </header>
+
+    <main>
+
+        <!-- STATUS BANNER -->
+        <div class="status-banner" id="status-banner">
+            <div class="status-icon" id="status-icon">Checking...</div>
+            <h2 class="status-text" id="status-text">Cargando estado...</h2>
+            <p class="status-sub" id="status-sub">Verificando calendario escolar</p>
+        </div>
+
+        <!-- NOTICES SECTION (New) -->
+        <div id="avisos-container" style="display:none; margin-bottom: 2rem;">
+            <!-- Avisos Injected Here -->
+        </div>
+
+        <div class="portal-grid">
+
+            <!-- SCHOOL CALENDAR (MOVED FIRST) -->
+            <div class="card">
+                <h2><i class="fa-regular fa-calendar-days"></i> Calendario Escolar</h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Próximos días inhábiles:</p>
+                <div class="calendar-preview" id="calendar-container">
+                    Cargando...
+                </div>
+            </div>
+
+            <!-- STUDENT HISTORY (MOVED SECOND) -->
+            <div class="card">
+                <h2><i class="fa-solid fa-id-card"></i> Consultar Asistencia</h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 15px;">Ingresa el ID de la tarjeta
+                    escolar (NFC) para ver el historial.</p>
+                <form id="history-form">
+                    <input type="text" id="nfc-input" class="input-dark" placeholder="Ej: 04:A3:..." required>
+                    <button type="submit" class="btn-primary">Buscar</button>
+                </form>
+
+                <div id="student-info" style="margin-top: 20px; display: none;">
+                    <h3 style="margin:0; font-size:1.1rem; color:white;" id="student-name">...</h3>
+                    <p style="margin:0; font-size:0.9rem; color:var(--text-muted);" id="student-group">...</p>
+                </div>
+
+                <div class="history-list" id="history-list">
+                    <!-- JS populated -->
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <script>
+        // --- LOGIC ---
+
+        // 0. Get School ID (Tenant)
+        const urlParams = new URLSearchParams(window.location.search);
+        const schoolId = urlParams.get('school') || 1; // Default to 1 if missing
+
+        // 1. Clock
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('clock').textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }, 1000);
+
+        // 2. Load Status
+        async function loadStatus(dateInput = null) {
+            try {
+                // Determine date to check
+                const dateToCheck = dateInput || new Date();
+                const dateStr = dateToCheck.toLocaleDateString('sv-SE'); // YYYY-MM-DD
+
+                // Update UI Date Display
+                const dateDisplayOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                const formattedDate = dateToCheck.toLocaleDateString('es-ES', dateDisplayOptions);
+
+                const res = await fetch(`/api/portal/status?institucion_id=${schoolId}&fecha=${dateStr}`);
+                const data = await res.json();
+                
+                // Guardamos configuración para uso global (especialmente en calendario)
+                window.portalConfig = {
+                    admitir_sabado: !!data.admitir_sabado,
+                    admitir_domingo: !!data.admitir_domingo
+                };
+
+                const banner = document.getElementById('status-banner');
+                const icon = document.getElementById('status-icon');
+                const text = document.getElementById('status-text');
+                const sub = document.getElementById('status-sub');
+
+                // Update Date Indicator in Banner (or add if missing)
+                let dateIndicator = document.getElementById('status-date-indicator');
+                if (!dateIndicator) {
+                    dateIndicator = document.createElement('div');
+                    dateIndicator.id = 'status-date-indicator';
+                    dateIndicator.style.fontSize = '0.9rem';
+                    dateIndicator.style.color = 'var(--text-muted)';
+                    dateIndicator.style.marginBottom = '5px';
+                    dateIndicator.style.textTransform = 'capitalize';
+                    banner.insertBefore(dateIndicator, banner.firstChild);
+                }
+                dateIndicator.textContent = formattedDate;
+
+                // Set School Name Dynamic
+                if (data.nombre_escuela) {
+                    document.querySelector('header h1').textContent = data.nombre_escuela;
+                }
+
+                if (data.hay_clases) {
+                    banner.style.background = 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(6, 95, 70, 0.2))';
+                    banner.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+                    icon.textContent = '✅';
+                    text.textContent = 'SÍ HAY CLASES';
+                    text.style.color = '#34d399';
+                    sub.textContent = 'Día regular de actividades.';
+                } else {
+                    banner.style.background = 'linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(153, 27, 27, 0.2))';
+                    banner.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+                    icon.textContent = '🛑';
+                    text.textContent = 'NO HAY CLASES';
+                    text.style.color = '#f87171';
+                    sub.textContent = data.motivo || 'Suspensión de labores.';
+                }
+
+                // Sync Calendar Selection
+                window.currentSelectedDate = dateToCheck;
+                if (window.currentViewDate && window.currentViewDate.getMonth() === dateToCheck.getMonth()) {
+                    renderCalendar(window.currentViewDate); // Re-render to show selection
+                } else {
+                    renderCalendar(dateToCheck); // Jump to that month
+                }
+
+            } catch (error) {
+                console.error('Error status', error);
+            }
+        }
+
+        // 3. Load Calendar (Graphical)
+        const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+        let currentMonthMap = {}; // fecha -> tipo
+
+        async function loadCalendar() {
+            try {
+                const res = await fetch(`/api/portal/calendar?institucion_id=${schoolId}`);
+                const days = await res.json();
+
+                // Mapear días inhábiles
+                currentMonthMap = {};
+                days.forEach(d => {
+                    // d.fecha es ISO string YYYY-MM-DDT... o YYYY-MM-DD
+                    const k = d.fecha.split('T')[0];
+                    currentMonthMap[k] = 'inhabil';
+                });
+
+                renderCalendar(new Date());
+
+            } catch (error) {
+                const c = document.getElementById('calendar-container');
+                if (c) c.innerHTML = '<p>Error cargando calendario.</p>';
+            }
+        }
+
+        function renderCalendar(date) {
+            const container = document.getElementById('calendar-container');
+            if (!container) return;
+
+            const year = date.getFullYear();
+            const month = date.getMonth();
+
+            // Header del mes
+            let html = `
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; width:100%;">
+                <h3 style="margin:0; text-transform:capitalize; color:var(--text-light);">${monthNames[month]} ${year}</h3>
+                <div style="display:flex; gap:5px;">
+                     <button onclick="changeMonth(-1)" style="background:var(--bg-dark); border:1px solid var(--border); color:var(--text-light); border-radius:4px; cursor:pointer; padding:5px 10px;"><i class="fa-solid fa-chevron-left"></i></button>
+                     <button onclick="changeMonth(1)" style="background:var(--bg-dark); border:1px solid var(--border); color:var(--text-light); border-radius:4px; cursor:pointer; padding:5px 10px;"><i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+            </div>`;
+
+            // Grid Headers
+            html += `<div style="display:grid; grid-template-columns:repeat(7, 1fr); gap:5px; text-align:center; font-size:0.8rem; font-weight:bold; color:var(--text-muted); margin-bottom:5px;">
+                <div>D</div><div>L</div><div>M</div><div>M</div><div>J</div><div>V</div><div>S</div>
+            </div>`;
+
+            // Grid Days
+            html += `<div style="display:grid; grid-template-columns:repeat(7, 1fr); gap:5px;">`;
+
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            // Espacios vacíos
+            for (let i = 0; i < firstDay; i++) {
+                html += `<div></div>`;
+            }
+
+            // Días
+            const todayStr = new Date().toLocaleDateString('sv-SE');
+            // Selected Day
+            const selectedStr = window.currentSelectedDate ? window.currentSelectedDate.toLocaleDateString('sv-SE') : todayStr;
+
+            for (let d = 1; d <= daysInMonth; d++) {
+                const dateObj = new Date(year, month, d);
+                const dateStr = dateObj.toLocaleDateString('sv-SE');
+
+                let bg = '#f9fafb';
+                let color = 'var(--text-light)';
+                let border = '1px solid transparent';
+                let cursor = 'pointer';
+
+                // Checar inhabilitado
+                if (currentMonthMap[dateStr]) {
+                    bg = '#fee2e2'; // Red tint
+                    color = '#991b1b';
+                }
+
+                // Checar fin de semana
+                const day = dateObj.getDay();
+                const esWeekend = (day === 0 || day === 6);
+                const esSabadoHabilitado = (day === 6 && window.portalConfig && window.portalConfig.admitir_sabado);
+                const esDomingoHabilitado = (day === 0 && window.portalConfig && window.portalConfig.admitir_domingo);
+
+                if (esWeekend && !esSabadoHabilitado && !esDomingoHabilitado) {
+                    bg = '#f3f4f6';
+                    color = '#9ca3af';
+                }
+
+                // Checar seleccionado
+                if (dateStr === selectedStr) {
+                    border = '2px solid var(--primary)';
+                    bg = '#e0e7ff';
+                    color = 'var(--primary)';
+                    font_weight = 'bold';
+                }
+
+                // Checar hoy (simple dot or underline if not selected)
+                if (dateStr === todayStr && dateStr !== selectedStr) {
+                    border = '1px dashed var(--primary)';
+                }
+
+                html += `<div onclick="selectDate(${d})" style="
+                    aspect-ratio:1; 
+                    display:flex; 
+                    align-items:center; 
+                    justify-content:center; 
+                    background:${bg}; 
+                    color:${color}; 
+                    border-radius:8px; 
+                    font-size:0.9rem;
+                    border:${border};
+                    cursor:${cursor};
+                ">${d}</div>`;
+            }
+
+            html += `</div>`; // Close grid
+            html += `<div style="margin-top:10px; font-size:0.75rem; color:var(--text-muted); display:flex; gap:10px; justify-content:center;">
+                <span style="display:flex; align-items:center; gap:4px;"><span style="width:8px; height:8px; background:#fee2e2; border-radius:50%;"></span> Inhábil</span>
+                <span style="display:flex; align-items:center; gap:4px;"><span style="width:8px; height:8px; background:#f9fafb; border:1px solid #e5e7eb; border-radius:50%;"></span> Clase Regular</span>
+            </div>`;
+
+            container.innerHTML = html;
+            window.currentViewDate = date; // Save state
+        }
+
+        window.changeMonth = function (offset) {
+            const d = window.currentViewDate || new Date();
+            d.setMonth(d.getMonth() + offset);
+            renderCalendar(d);
+        }
+
+        window.selectDate = function (day) {
+            if (!window.currentViewDate) return;
+            const year = window.currentViewDate.getFullYear();
+            const month = window.currentViewDate.getMonth();
+            const selectedDate = new Date(year, month, day);
+
+            // Reload status for this date
+            loadStatus(selectedDate);
+        }
+
+
+
+        // 5. Check History
+        document.getElementById('history-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const nfc = document.getElementById('nfc-input').value.trim();
+            if (!nfc) return;
+
+            const list = document.getElementById('history-list');
+            const info = document.getElementById('student-info');
+            list.innerHTML = '<p style="text-align:center; color:var(--text-muted);">Buscando...</p>';
+            info.style.display = 'none';
+
+            try {
+                const res = await fetch(`/api/portal/history/${encodeURIComponent(nfc)}`);
+                if (!res.ok) {
+                    list.innerHTML = '<p style="text-align:center; color:var(--danger);">No encontrado.</p>';
+                    return;
+                }
+                const data = await res.json();
+
+                // Show Info
+                document.getElementById('student-name').textContent = data.alumno.nombre_completo;
+                document.getElementById('student-name').style.color = 'var(--text-light)';
+                // We don't have group name in this endpoint response yet, only ID. 
+                // Just Show "Estudiante"
+                document.getElementById('student-group').textContent = `ID: ${data.alumno.id}`;
+                info.style.display = 'block';
+
+                // Show List
+                if (data.historial.length === 0) {
+                    list.innerHTML = '<p style="text-align:center;">Sin historial reciente.</p>';
+                    return;
+                }
+
+                 list.innerHTML = data.historial.map(h => {
+                     const date = new Date(h.fecha_hora);
+                     const dateStr = date.toLocaleDateString();
+                     const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                     let tagClass = 'tag-presente';
+                     if (h.status === 'falta') tagClass = 'tag-falta';
+                     if (h.status === 'retardo') tagClass = 'tag-retardo';
+                     if (h.status === 'justificada') tagClass = 'tag-justificada';
+ 
+                     const materiaTag = h.nombre_materia 
+                         ? `<div style="font-size:0.75rem; color:#4f46e5; font-weight:700; margin-top:3px;">📚 ${h.nombre_materia}</div>` 
+                         : '';
+ 
+                     return `
+                     <div class="history-item">
+                         <div>
+                             <div style="font-weight:600; color:var(--text-light);">${dateStr}</div>
+                             <div style="font-size:0.8em; color:var(--text-muted);">${timeStr}</div>
+                             ${materiaTag}
+                         </div>
+                         <div>
+                             <span class="tag ${tagClass}">${h.status ? h.status.toUpperCase() : 'PRESENTE'}</span>
+                         </div>
+                     </div>`;
+                 }).join('');
+
+            } catch (error) {
+                list.innerHTML = '<p style="text-align:center; color:var(--danger);">Error consultando.</p>';
+            }
+        });
+
+
+        async function loadAvisos() {
+            try {
+                const res = await fetch(`/api/portal/avisos?institucion_id=${schoolId}`);
+                const avisos = await res.json();
+
+                if (avisos && avisos.length > 0) {
+                    const container = document.getElementById('avisos-container');
+
+                    const html = avisos.map(a => {
+                        const fecha = new Date(a.fecha_creacion).toLocaleDateString('es-MX', { day: 'numeric', month: 'long' });
+                        return `
+                        <div style="background: var(--bg-card); border-left: 5px solid var(--primary); padding: 1.5rem; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 15px; animation: fadeIn 0.5s ease-out;">
+                            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+                                <h3 style="margin:0; color:var(--text-light); font-size:1.2rem;">
+                                    <i class="fa-solid fa-bullhorn" style="color:var(--primary); margin-right:10px;"></i> ${a.titulo}
+                                </h3>
+                                <span style="font-size:0.8rem; background:#e0e7ff; color:var(--primary-dark); padding:3px 8px; border-radius:4px;">${fecha}</span>
+                            </div>
+                            <p style="margin:0; color:var(--text-muted); line-height:1.6;">${a.mensaje}</p>
+                        </div>`;
+                    }).join('');
+
+                    container.innerHTML = html;
+                    container.style.display = 'block';
+                }
+            } catch (error) {
+                console.error("Error loading avisos", error);
+            }
+        }
+
+        // Init
+        loadStatus();
+        loadCalendar();
+        loadAvisos();
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,2518 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Panel Docente | AsistenciaQR</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- QR Code Generator -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- HTML5 QR Camera Scanner -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #065f46;
+            --primary-hover: #047857;
+            --primary-light: #ecfdf5;
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-nav: #065f46;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --text-light: #f8fafc;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --success-light: #ecfdf5;
+            --warning: #f59e0b;
+            --warning-light: #fffbeb;
+            --danger: #ef4444;
+            --danger-light: #fef2f2;
+            --info: #0284c7;
+            --info-light: #f0f9ff;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 18px;
+            --shadow: 0 2px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 4px 12px -2px rgba(0, 0, 0, 0.08), 0 2px 6px -2px rgba(0, 0, 0, 0.04);
+            --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            font-size: 15px;
+            line-height: 1.5;
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ------------------------------------------------------------- */
+        /* CABECERA SUPERIOR SLIM */
+        /* ------------------------------------------------------------- */
+        .app-topbar {
+            position: sticky;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #065f46;
+            color: white;
+            z-index: 500;
+            padding: calc(env(safe-area-inset-top, 0px) + 10px) 16px 10px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(167, 243, 208, 0.25);
+            box-shadow: 0 3px 12px rgba(6, 95, 70, 0.25);
+        }
+
+        .topbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .school-badge {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.18);
+            color: #a7f3d0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .topbar-brand h1 {
+            font-size: 1.05rem;
+            font-weight: 800;
+            margin: 0;
+            color: #ffffff;
+            letter-spacing: -0.01em;
+            line-height: 1.2;
+        }
+
+        .topbar-brand .subtitle {
+            font-size: 0.75rem;
+            color: #a7f3d0;
+            margin-top: 1px;
+            font-weight: 500;
+        }
+
+        .btn-logout {
+            background: rgba(239, 68, 68, 0.15);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 7px 14px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 0.82rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-logout:hover, .btn-logout:active {
+            background: var(--danger);
+            color: white;
+            border-color: var(--danger);
+        }
+
+        /* ------------------------------------------------------------- */
+        /* BANNER COMPACTO Y ELEGANTE DE PRUEBA / WHATSAPP */
+        /* ------------------------------------------------------------- */
+        .trial-banner {
+            background: #ecfdf5;
+            border-bottom: 1px solid #a7f3d0;
+            padding: 5px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.78rem;
+            color: #065f46;
+            z-index: 490;
+        }
+
+        .trial-banner-info {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+        }
+
+        .trial-banner-info strong {
+            font-weight: 700;
+            color: #047857;
+        }
+
+        .btn-trial-wa {
+            background: #25d366;
+            color: #ffffff;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.74rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+            transition: all 0.2s;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .btn-trial-wa:hover, .btn-trial-wa:active {
+            background: #1ebc59;
+            transform: translateY(-1px);
+        }
+
+        /* ------------------------------------------------------------- */
+        /* LAYOUT PRINCIPAL (DESKTOP SIDEBAR + MAIN CONTENT) */
+
+        /* ------------------------------------------------------------- */
+        .app-layout {
+            display: flex;
+            flex: 1;
+            width: 100%;
+        }
+
+        /* SIDEBAR (Desktop >= 769px) */
+        .desktop-sidebar {
+            width: 240px;
+            background: #ffffff;
+            border-right: 1px solid var(--border);
+            padding: 24px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .desktop-sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .desktop-sidebar .nav-btn {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 12px 14px;
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.15s ease;
+            text-align: left;
+        }
+
+        .desktop-sidebar .nav-btn:hover {
+            background: #f1f5f9;
+            color: var(--text-main);
+        }
+
+        .desktop-sidebar .nav-btn.activo {
+            background: var(--primary-light);
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .desktop-sidebar .nav-btn.activo i {
+            color: var(--primary);
+        }
+
+        /* MAIN CONTENT AREA */
+        .app-main {
+            flex: 1;
+            padding: 24px 20px;
+            max-width: 1100px;
+            margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* VISTAS */
+        .vista {
+            display: none;
+            animation: fadeIn 0.25s ease-out;
+        }
+
+        .vista.activa {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ------------------------------------------------------------- */
+        /* TARJETAS Y COMPONENTES */
+        /* ------------------------------------------------------------- */
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            padding: 20px 18px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .card-header h2 {
+            font-size: 1.18rem;
+            font-weight: 750;
+            margin: 0;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: -0.01em;
+        }
+
+        /* BOTONES GLOBALES */
+        .btn-primario {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.15s ease;
+        }
+
+        .btn-primario:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-primario:active {
+            transform: scale(0.98);
+        }
+
+        .btn-secundario {
+            background: #ffffff;
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            padding: 10px 16px;
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.15s ease;
+        }
+
+        .btn-secundario:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+        }
+
+        /* INPUTS Y SELECTS */
+        input[type="text"], input[type="tel"], input[type="date"], input[type="month"], select, textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 0.95rem;
+            color: var(--text-main);
+            background: #ffffff;
+            box-sizing: border-box;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(6, 95, 70, 0.18);
+        }
+
+        /* TABLAS MODERNAS */
+        .tabla-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: white;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            background: #f8fafc;
+            color: var(--text-muted);
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+            vertical-align: middle;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background-color: #f8fafc;
+        }
+
+        /* BADGES */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+
+        .badge-presente { background: var(--success-light); color: #065f46; border: 1px solid #a7f3d0; }
+        .badge-retardo { background: var(--warning-light); color: #92400e; border: 1px solid #fde68a; }
+        .badge-falta { background: var(--danger-light); color: #991b1b; border: 1px solid #fecaca; }
+        .badge-pendiente { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+        .badge-justificada { background: var(--info-light); color: #075985; border: 1px solid #bae6fd; }
+
+        /* BOTONES DE ASISTENCIA RÁPIDA (TOUCH FRIENDLY) */
+        .btn-asistencia-mini {
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            min-height: 36px;
+        }
+
+        .btn-asistencia-mini:active {
+            transform: scale(0.95);
+        }
+
+        /* ESCÁNER CARD */
+        .scanner-card {
+            background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+            border-radius: var(--radius-md);
+            padding: 18px 16px;
+            margin-bottom: 20px;
+            color: white;
+            box-shadow: var(--shadow-md);
+            border: 1px solid #a7f3d0;
+        }
+
+        .scanner-viewport-container {
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            background: #064e3b;
+            max-width: 440px;
+            margin: 0 auto;
+            border: 2px dashed #a7f3d0;
+            min-height: 220px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .scanner-viewport-container video {
+            width: 100% !important;
+            height: auto !important;
+            object-fit: cover !important;
+        }
+
+        /* FEEDBACK BANNERS */
+        .feedback-banner {
+            padding: 12px 14px;
+            border-radius: var(--radius-sm);
+            margin-top: 14px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            text-align: center;
+            display: none;
+        }
+
+        .feedback-banner.success { display: block; background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+        .feedback-banner.warning { display: block; background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+        .feedback-banner.error { display: block; background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+
+        /* CHIPS DE CLASES */
+        .chip-clase {
+            background: #f1f5f9;
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chip-clase .btn-borrar-chip {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            padding: 0;
+            font-size: 0.85rem;
+        }
+
+        .chip-clase .btn-borrar-chip:hover {
+            color: var(--danger);
+        }
+
+        /* ------------------------------------------------------------- */
+        /* MODALES */
+        /* ------------------------------------------------------------- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--radius-md);
+            padding: 22px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* ------------------------------------------------------------- */
+        /* BARRA DE NAVEGACIÓN INFERIOR MÓVIL (NATIVE APP FEEL) */
+        /* ------------------------------------------------------------- */
+        .mobile-bottom-nav {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .desktop-sidebar {
+                display: none;
+            }
+
+            .app-main {
+                padding: 16px 12px calc(env(safe-area-inset-bottom, 0px) + 80px) 12px;
+            }
+
+            .card {
+                padding: 16px 12px;
+                border-radius: var(--radius-sm);
+            }
+
+            .card-header h2 {
+                font-size: 1.05rem;
+            }
+
+            /* BARRA INFERIOR FIJA TIPO APP NATIVA */
+            .mobile-bottom-nav {
+                display: flex;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: #065f46;
+                border-top: 1px solid rgba(167, 243, 208, 0.25);
+                padding: 6px 8px calc(env(safe-area-inset-bottom, 0px) + 6px) 8px;
+                z-index: 1000;
+                justify-content: space-around;
+                align-items: center;
+                box-shadow: 0 -4px 20px rgba(6, 95, 70, 0.35);
+            }
+
+            .bottom-nav-item {
+                background: none;
+                border: none;
+                color: #a7f3d0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 4px;
+                font-size: 0.72rem;
+                font-weight: 600;
+                padding: 6px 8px;
+                border-radius: 10px;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                flex: 1;
+                max-width: 85px;
+            }
+
+            .bottom-nav-item i {
+                font-size: 1.15rem;
+            }
+
+            .bottom-nav-item.activo {
+                color: #ffffff;
+                background: rgba(255, 255, 255, 0.22);
+            }
+
+            .bottom-nav-item.activo i {
+                color: #a7f3d0;
+                transform: scale(1.08);
+            }
+
+            th, td {
+                padding: 10px 8px;
+                font-size: 0.82rem;
+            }
+
+            .btn-asistencia-mini {
+                padding: 6px 9px;
+                font-size: 0.75rem;
+                min-height: 34px;
+            }
+        }
+
+        /* IMPRESIÓN CREDENCIALES */
+        @media print {
+            body * { visibility: hidden !important; }
+            #modal-credenciales-qr, #modal-credenciales-qr *,
+            #contenedor-impresion-qr, #contenedor-impresion-qr * {
+                visibility: visible !important;
+            }
+            #modal-credenciales-qr {
+                position: absolute !important;
+                left: 0 !important; top: 0 !important;
+                width: 100% !important; background: white !important;
+                display: block !important; padding: 0 !important; margin: 0 !important;
+            }
+            #modal-credenciales-qr .modal-content {
+                max-width: 100% !important; max-height: none !important;
+                box-shadow: none !important; border: none !important; padding: 0 !important;
+            }
+            #modal-credenciales-qr > div > div:first-child,
+            #modal-credenciales-qr > div > div:nth-child(2) {
+                display: none !important;
+            }
+            #contenedor-impresion-qr {
+                display: grid !important;
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 15px !important; padding: 10px !important;
+            }
+            .tarjeta-credencial {
+                page-break-inside: avoid !important;
+                box-shadow: none !important;
+                border: 1px dashed #94a3b8 !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ======================================================= -->
+    <!-- 1. CABECERA SUPERIOR SLIM -->
+    <!-- ======================================================= -->
+    <header class="app-topbar">
+        <div class="topbar-brand" style="min-width: 0; flex: 1; margin-right: 8px;">
+            <div class="school-badge"><i class="fa-solid fa-graduation-cap"></i></div>
+            <div style="min-width: 0; overflow: hidden;">
+                <h1 id="tituloEscuela" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px;">Mi Aula</h1>
+                <div class="subtitle" id="subtituloDocente">Panel Docente</div>
+            </div>
+        </div>
+        <div>
+            <button class="btn-logout" onclick="cerrarSesion()" title="Cerrar Sesión">
+                <i class="fa-solid fa-right-from-bracket"></i> <span>Salir</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- BANNER DISCRETO Y ELEGANTE DE PRUEBA GRATUITA -->
+    <div id="trialBanner" class="trial-banner" style="display: none;">
+        <div class="trial-banner-info">
+            <span style="font-size: 0.95rem;">⏱️</span>
+            <span>Prueba: <strong id="trialDaysText">7 días restantes</strong></span>
+        </div>
+        <button type="button" class="btn-trial-wa" onclick="contactarWhatsAppActivar(event)" title="Activar por WhatsApp">
+            <i class="fa-brands fa-whatsapp" style="font-size: 0.9rem;"></i> Activar ($99)
+        </button>
+    </div>
+
+
+    <!-- ======================================================= -->
+    <!-- 2. LAYOUT CON SIDEBAR DESKTOP Y CONTENIDO -->
+    <!-- ======================================================= -->
+    <div class="app-layout">
+        
+        <!-- SIDEBAR PARA ESCRITORIO (Oculto en celular) -->
+        <aside class="desktop-sidebar">
+            <ul>
+                <li>
+                    <button class="nav-btn activo" data-vista="vista-asistencia" onclick="cambiarVista('vista-asistencia')">
+                        <i class="fa-solid fa-clipboard-check"></i> Tomar Lista
+                    </button>
+                </li>
+                <li>
+                    <button class="nav-btn" data-vista="vista-tareas" onclick="cambiarVista('vista-tareas')">
+                        <i class="fa-solid fa-book-bookmark"></i> Tareas
+                    </button>
+                </li>
+                <li>
+                    <button class="nav-btn" data-vista="vista-alumnos" onclick="cambiarVista('vista-alumnos')">
+                        <i class="fa-solid fa-users"></i> Alumnos y Clases
+                    </button>
+                </li>
+                <li>
+                    <button class="nav-btn" data-vista="vista-reportes" onclick="cambiarVista('vista-reportes')">
+                        <i class="fa-solid fa-file-pdf"></i> Reportes
+                    </button>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <main class="app-main">
+
+            <!-- ======================================================= -->
+            <!-- VISTA 1: TOMAR LISTA (ACTIVA POR DEFECTO) -->
+            <!-- ======================================================= -->
+            <section id="vista-asistencia" class="vista activa">
+                
+                <!-- CÁMARA ESCÁNER QR -->
+                <div class="scanner-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                        <div>
+                            <h2 style="margin:0; font-size:1.15rem; font-weight:700; color:white; display:flex; align-items:center; gap:8px;">
+                                <i class="fa-solid fa-camera" style="color:#a7f3d0;"></i> Escáner QR
+                            </h2>
+                        </div>
+                        <div style="display:flex; gap:8px;">
+                            <button type="button" id="btn-toggle-camara-asistencia" class="btn-primario" onclick="toggleCamaraAsistencia()">
+                                <i class="fa-solid fa-video"></i> Iniciar Cámara
+                            </button>
+                            <button type="button" id="btn-flip-camara-asistencia" class="btn-secundario" style="display:none; background:#1e293b; color:white; border-color:#334155;" onclick="cambiarCamaraAsistencia()">
+                                <i class="fa-solid fa-rotate"></i> Girar
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="scanner-viewport-container" id="scanner-container-asistencia" style="margin-top:14px;">
+                        <div id="reader-asistencia-qr"></div>
+                        <div id="scanner-placeholder-asistencia" style="text-align:center; padding:28px 16px; color:#64748b;">
+                            <i class="fa-solid fa-qrcode" style="font-size:2.8rem; margin-bottom:8px; display:block; opacity:0.35;"></i>
+                            <span style="font-size:0.9rem;">Pulsa "Iniciar Cámara" para escanear el QR</span>
+                        </div>
+                    </div>
+
+                    <input type="hidden" id="input-asistencia-codigo-manual">
+
+                    <div id="asistencia-feedback" class="feedback-banner"></div>
+                </div>
+
+                <!-- PASE DE LISTA RÁPIDO / MANUAL -->
+                <div class="card">
+                    <div class="card-header" style="flex-wrap:wrap; gap:12px;">
+                        <div>
+                            <h2 style="margin:0; font-size:1.15rem; font-weight:700;">
+                                <i class="fa-solid fa-list-check" style="color:var(--primary);"></i> Pase de Lista del Día
+                            </h2>
+                        </div>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+                            <input type="date" id="asistencia-fecha-filtro" onchange="cargarAsistenciasHoy()" style="width:auto; height:38px; font-weight:600;">
+                            <select id="asistencia-clase-filtro" onchange="cargarAsistenciasHoy()" style="width:auto; height:38px; font-weight:600;">
+                                <option value="todas">Todas las clases</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Resumen de Contadores del Día -->
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:10px; margin-bottom:18px;">
+                        <div style="background:var(--success-light); border:1px solid #a7f3d0; border-radius:var(--radius-sm); padding:10px; text-align:center;">
+                            <div style="font-size:1.4rem; font-weight:800; color:#065f46;" id="count-presentes">0</div>
+                            <div style="font-size:0.7rem; font-weight:700; color:#047857; text-transform:uppercase;">Presentes</div>
+                        </div>
+                        <div style="background:var(--warning-light); border:1px solid #fde68a; border-radius:var(--radius-sm); padding:10px; text-align:center;">
+                            <div style="font-size:1.4rem; font-weight:800; color:#92400e;" id="count-retardos">0</div>
+                            <div style="font-size:0.7rem; font-weight:700; color:#b45309; text-transform:uppercase;">Retardos</div>
+                        </div>
+                        <div style="background:var(--danger-light); border:1px solid #fecaca; border-radius:var(--radius-sm); padding:10px; text-align:center;">
+                            <div style="font-size:1.4rem; font-weight:800; color:#991b1b;" id="count-faltas">0</div>
+                            <div style="font-size:0.7rem; font-weight:700; color:#b91c1c; text-transform:uppercase;">Faltas</div>
+                        </div>
+                        <div style="background:#f1f5f9; border:1px solid #cbd5e1; border-radius:var(--radius-sm); padding:10px; text-align:center;">
+                            <div style="font-size:1.4rem; font-weight:800; color:#475569;" id="count-pendientes">0</div>
+                            <div style="font-size:0.7rem; font-weight:700; color:#64748b; text-transform:uppercase;">Sin Registrar</div>
+                        </div>
+                    </div>
+
+                    <div class="tabla-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Alumno</th>
+                                    <th>Clase</th>
+                                    <th>Estado</th>
+                                    <th style="text-align:right;">Pase Rápido</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabla-asistencia-hoy-cuerpo">
+                                <tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:20px;">Cargando lista de asistencia...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ======================================================= -->
+            <!-- VISTA 2: TAREAS Y ACTIVIDADES -->
+            <!-- ======================================================= -->
+            <section id="vista-tareas" class="vista">
+                
+                <!-- CÁMARA TAREAS -->
+                <div class="scanner-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                        <div>
+                            <h2 style="margin:0; font-size:1.15rem; font-weight:700; color:white; display:flex; align-items:center; gap:8px;">
+                                <i class="fa-solid fa-book-open-reader" style="color:#a7f3d0;"></i> Tareas QR
+                            </h2>
+                        </div>
+                        <div style="display:flex; gap:8px;">
+                            <button type="button" id="btn-toggle-camara-tareas" class="btn-primario" style="background:#0284c7;" onclick="toggleCamaraTareas()">
+                                <i class="fa-solid fa-video"></i> Iniciar Cámara
+                            </button>
+                            <button type="button" id="btn-flip-camara-tareas" class="btn-secundario" style="display:none; background:#1e293b; color:white; border-color:#334155;" onclick="cambiarCamaraTareas()">
+                                <i class="fa-solid fa-rotate"></i> Girar
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Selector de Tarea Destacado -->
+                    <div style="max-width:500px; margin:14px auto 14px auto;">
+                        <label style="font-size:0.85rem; font-weight:700; color:#a7f3d0; margin-bottom:5px; display:block;">
+                            <i class="fa-solid fa-file-circle-check"></i> Tarea Activa para Revisión:
+                        </label>
+                        <select id="select-tarea-activa" onchange="cambiarTareaActiva()" style="background:#064e3b; border-color:#a7f3d0; color:white; font-weight:600;">
+                            <option value="">-- Selecciona una tarea --</option>
+                        </select>
+                    </div>
+
+                    <div class="scanner-viewport-container" id="scanner-container-tareas">
+                        <div id="reader-tareas-qr"></div>
+                        <div id="scanner-placeholder-tareas" style="text-align:center; padding:28px 16px; color:#64748b;">
+                            <i class="fa-solid fa-qrcode" style="font-size:2.8rem; margin-bottom:8px; display:block; opacity:0.35;"></i>
+                            <span style="font-size:0.9rem;">Apunta al QR del alumno para marcar la entrega</span>
+                        </div>
+                    </div>
+
+                    <input type="hidden" id="input-tareas-codigo-manual">
+
+                    <div id="tareas-feedback" class="feedback-banner"></div>
+                </div>
+
+                <!-- CONTROL DE ENTREGAS -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fa-solid fa-list-check" style="color:var(--primary);"></i> Control de Entregas</h2>
+                        <button type="button" class="btn-primario" onclick="abrirModalNuevaTarea()">
+                            <i class="fa-solid fa-plus"></i> Nueva Tarea
+                        </button>
+                    </div>
+
+                    <!-- Banner de grupo asignado y barra de progreso -->
+                    <div id="info-tarea-clase-banner" style="margin-bottom:12px; font-size:0.85rem; color:#475569; background:#f1f5f9; padding:10px 14px; border-radius:var(--radius-sm); border:1px solid var(--border); display:flex; align-items:center; gap:8px;">
+                        <i class="fa-solid fa-circle-info" style="color:var(--primary); font-size:1rem;"></i>
+                        <span id="txt-info-tarea-clase">Selecciona una tarea en la parte superior.</span>
+                    </div>
+
+                    <div id="resumen-entregas-tarea" style="margin-bottom:15px; padding:12px; background:#ffffff; border-radius:var(--radius-sm); border:1px solid var(--border);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                            <strong id="label-progreso-tarea" style="font-size:0.88rem;">Progreso de Entregas</strong>
+                            <span id="badge-conteo-entregas" style="font-weight:750; color:var(--primary); font-size:0.88rem;">0 / 0 Alumnos</span>
+                        </div>
+                        <div style="background:#e2e8f0; height:8px; border-radius:4px; overflow:hidden;">
+                            <div id="barra-progreso-entregas" style="width:0%; height:100%; background:var(--primary); transition:width 0.3s ease;"></div>
+                        </div>
+                    </div>
+
+                    <div class="tabla-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Alumno</th>
+                                    <th>Clase</th>
+                                    <th>Estado</th>
+                                    <th style="text-align:right;">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabla-entregas-tarea-cuerpo">
+                                <tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:20px;">Selecciona o crea una tarea para ver entregas.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ======================================================= -->
+            <!-- VISTA 3: ALUMNOS Y CLASES -->
+            <!-- ======================================================= -->
+            <section id="vista-alumnos" class="vista">
+                
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+                    <div>
+                        <h2 style="margin:0; font-size:1.25rem; font-weight:800;"><i class="fa-solid fa-users" style="color:var(--primary);"></i> Alumnos y Clases</h2>
+                    </div>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                        <button type="button" class="btn-primario" onclick="abrirModalNuevoAlumno()">
+                            <i class="fa-solid fa-user-plus"></i> + Alumno
+                        </button>
+                        <button type="button" class="btn-secundario" onclick="abrirModalNuevaClase()">
+                            <i class="fa-solid fa-chalkboard-user"></i> + Clase
+                        </button>
+                        <button type="button" class="btn-secundario" onclick="abrirModalCredencialesQR()" style="background:#ecfdf5; color:#065f46; border-color:#a7f3d0;">
+                            <i class="fa-solid fa-qrcode"></i> Credenciales QR
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CHIPS DE CLASES -->
+                <div class="card" style="padding:12px 14px; margin-bottom:16px;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+                        <span style="font-weight:700; font-size:0.85rem; color:#475569;">Mis Clases Registradas:</span>
+                        <div id="contenedor-chips-clases" style="display:flex; gap:8px; flex-wrap:wrap;">
+                            <span style="color:var(--text-muted); font-size:0.85rem;">Cargando clases...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DIRECTORIO DE ALUMNOS -->
+                <div class="card">
+                    <div style="display:flex; gap:10px; margin-bottom:15px; flex-wrap:wrap;">
+                        <input type="text" id="buscador-alumnos" placeholder="🔍 Buscar por nombre o código..." oninput="filtrarAlumnosEnTabla()" style="flex:1; min-width:200px;">
+                        <select id="filtro-clase-directorio" onchange="filtrarAlumnosEnTabla()" style="width:200px;">
+                            <option value="todas">Todas las clases</option>
+                        </select>
+                    </div>
+
+                    <div class="tabla-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Alumno</th>
+                                    <th>Clase</th>
+                                    <th>Código QR</th>
+                                    <th>Tutor</th>
+                                    <th style="text-align:right;">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabla-alumnos-cuerpo">
+                                <tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:20px;">Cargando lista de alumnos...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ======================================================= -->
+            <!-- VISTA 4: REPORTES -->
+            <!-- ======================================================= -->
+            <section id="vista-reportes" class="vista">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fa-solid fa-file-invoice" style="color:var(--primary);"></i> Descarga de Reportes Oficiales</h2>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:14px; margin-bottom:18px;">
+                        <div>
+                            <label style="font-weight:700; font-size:0.82rem; margin-bottom:4px; display:block;">Periodo (Mes y Año)</label>
+                            <input type="month" id="reporte-mes-input">
+                        </div>
+                        <div>
+                            <label style="font-weight:700; font-size:0.82rem; margin-bottom:4px; display:block;">Clase / Grupo</label>
+                            <select id="reporte-clase-select">
+                                <option value="">-- Seleccionar Clase --</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:14px;">
+                        <button type="button" class="btn-primario" onclick="descargarReporteAsistenciaPDF(this)" style="padding:14px; text-align:center;">
+                            <i class="fa-solid fa-file-pdf" style="font-size:1.2rem;"></i> Reporte de Asistencia (PDF)
+                        </button>
+                        <button type="button" class="btn-primario" onclick="descargarReporteTareasPDF(this)" style="padding:14px; background:#0284c7; text-align:center;">
+                            <i class="fa-solid fa-file-circle-check" style="font-size:1.2rem;"></i> Reporte de Tareas (PDF)
+                        </button>
+                    </div>
+
+                    <div id="reporte-feedback" class="feedback-banner"></div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- BARRA DE NAVEGACIÓN INFERIOR MÓVIL (SOLO CELULARES) -->
+    <!-- ======================================================= -->
+    <nav class="mobile-bottom-nav">
+        <button class="bottom-nav-item activo" data-vista="vista-asistencia" onclick="cambiarVista('vista-asistencia')">
+            <i class="fa-solid fa-clipboard-check"></i>
+            <span>Pase Lista</span>
+        </button>
+        <button class="bottom-nav-item" data-vista="vista-tareas" onclick="cambiarVista('vista-tareas')">
+            <i class="fa-solid fa-book-bookmark"></i>
+            <span>Tareas</span>
+        </button>
+        <button class="bottom-nav-item" data-vista="vista-alumnos" onclick="cambiarVista('vista-alumnos')">
+            <i class="fa-solid fa-users"></i>
+            <span>Alumnos</span>
+        </button>
+        <button class="bottom-nav-item" data-vista="vista-reportes" onclick="cambiarVista('vista-reportes')">
+            <i class="fa-solid fa-file-pdf"></i>
+            <span>Reportes</span>
+        </button>
+    </nav>
+
+    <!-- ======================================================= -->
+    <!-- MODALES -->
+    <!-- ======================================================= -->
+
+    <!-- MODAL NUEVO ALUMNO -->
+    <div id="modal-nuevo-alumno" class="modal-overlay" style="display:none;">
+        <div class="modal-content">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h3 style="margin:0;"><i class="fa-solid fa-user-plus" style="color:var(--primary);"></i> Registrar Alumno</h3>
+                <button type="button" onclick="cerrarModal('modal-nuevo-alumno')" style="background:none; border:none; font-size:1.4rem; cursor:pointer; color:#64748b;">&times;</button>
+            </div>
+            <form id="registroForm">
+                <div style="margin-bottom:12px;">
+                    <label style="font-weight:600; font-size:0.85rem; margin-bottom:4px; display:block;">Nombre Completo del Alumno *</label>
+                    <input type="text" id="nombre_completo" required placeholder="Ej: Juan Pérez Morales">
+                </div>
+                <div style="margin-bottom:12px;">
+                    <label style="font-weight:600; font-size:0.85rem; margin-bottom:4px; display:block;">Clase / Grupo *</label>
+                    <select id="select_clase" required>
+                        <option value="">Selecciona una clase</option>
+                    </select>
+                </div>
+                <div style="margin-bottom:12px;">
+                    <label style="font-weight:600; font-size:0.85rem; margin-bottom:4px; display:block;">Teléfono del Tutor (WhatsApp)</label>
+                    <input type="tel" id="telefono_tutor" placeholder="Ej: 5512345678">
+                </div>
+                <div style="margin-bottom:16px;">
+                    <label style="font-weight:600; font-size:0.85rem; margin-bottom:4px; display:block;">Código QR (Vacío para automático)</label>
+                    <div style="display:flex; gap:8px;">
+                        <input type="text" id="nfc_uid" placeholder="Auto-generar">
+                        <button type="button" onclick="generarQRManual()" title="Generar Código" class="btn-secundario">🎲</button>
+                    </div>
+                </div>
+                <div style="display:flex; justify-content:flex-end; gap:10px;">
+                    <button type="button" class="btn-secundario" onclick="cerrarModal('modal-nuevo-alumno')">Cancelar</button>
+                    <button type="submit" class="btn-primario">Guardar Alumno</button>
+                </div>
+                <div id="mensaje-registro" class="feedback-banner"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL NUEVA CLASE -->
+    <div id="modal-nueva-clase" class="modal-overlay" style="display:none;">
+        <div class="modal-content">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h3 style="margin:0;"><i class="fa-solid fa-chalkboard-user" style="color:var(--primary);"></i> Crear Nueva Clase</h3>
+                <button type="button" onclick="cerrarModal('modal-nueva-clase')" style="background:none; border:none; font-size:1.4rem; cursor:pointer; color:#64748b;">&times;</button>
+            </div>
+            <form id="formCrearClaseRapida">
+                <div style="margin-bottom:16px;">
+                    <label style="font-weight:600; font-size:0.85rem; margin-bottom:4px; display:block;">Nombre de la Clase o Grupo *</label>
+                    <input type="text" id="input_nombre_clase_rapida" placeholder="Ej: 1° A, 3° B, Matemáticas 2do" required>
+                </div>
+                <div style="display:flex; justify-content:flex-end; gap:10px;">
+                    <button type="button" class="btn-secundario" onclick="cerrarModal('modal-nueva-clase')">Cancelar</button>
+                    <button type="submit" class="btn-primario">Crear Clase</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL NUEVA TAREA -->
+    <div id="modal-nueva-tarea" class="modal-overlay" style="display:none;">
+        <div class="modal-content">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h3 style="margin:0;"><i class="fa-solid fa-plus-circle" style="color:var(--primary);"></i> Crear Nueva Tarea</h3>
+                <button type="button" onclick="cerrarModal('modal-nueva-tarea')" style="background:none; border:none; font-size:1.4rem; cursor:pointer; color:#64748b;">&times;</button>
+            </div>
+            <form id="formNuevaTarea">
+                <div style="margin-bottom:12px;">
+                    <label style="font-weight:600; font-size:0.85rem; margin-bottom:4px; display:block;">Título de la Tarea / Actividad *</label>
+                    <input type="text" id="nueva_tarea_titulo" required placeholder="Ej: Maqueta del Sistema Solar, Ejercicios pág. 45">
+                </div>
+                <div style="margin-bottom:12px;">
+                    <label style="font-weight:600; font-size:0.85rem; margin-bottom:4px; display:block;">Clase Asignada (Opcional)</label>
+                    <select id="nueva_tarea_clase">
+                        <option value="">Todas mis clases (Cualquier grupo)</option>
+                    </select>
+                </div>
+                <div style="margin-bottom:18px;">
+                    <label style="font-weight:600; font-size:0.85rem; margin-bottom:4px; display:block;">Descripción / Indicaciones</label>
+                    <textarea id="nueva_tarea_descripcion" rows="3" placeholder="Instrucciones para la entrega..."></textarea>
+                </div>
+                <div style="display:flex; justify-content:flex-end; gap:10px;">
+                    <button type="button" class="btn-secundario" onclick="cerrarModal('modal-nueva-tarea')">Cancelar</button>
+                    <button type="submit" class="btn-primario">Guardar Tarea</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL EDITAR ALUMNO -->
+    <div id="modal-editar-alumno" class="modal-overlay" style="display:none;">
+        <div class="modal-content">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h3 style="margin:0;"><i class="fa-solid fa-user-pen" style="color:var(--primary);"></i> Editar Alumno</h3>
+                <button type="button" onclick="cerrarModal('modal-editar-alumno')" style="background:none; border:none; font-size:1.4rem; cursor:pointer; color:#64748b;">&times;</button>
+            </div>
+            <form id="formEditarAlumno">
+                <input type="hidden" id="edit_alumno_id">
+                <div style="margin-bottom:12px;">
+                    <label style="font-weight:600; font-size:0.85rem; margin-bottom:4px; display:block;">Nombre Completo</label>
+                    <input type="text" id="edit_alumno_nombre" required>
+                </div>
+                <div style="margin-bottom:12px;">
+                    <label style="font-weight:600; font-size:0.85rem; margin-bottom:4px; display:block;">Clase Asignada</label>
+                    <select id="edit_alumno_clase" required></select>
+                </div>
+                <div style="margin-bottom:12px;">
+                    <label style="font-weight:600; font-size:0.85rem; margin-bottom:4px; display:block;">Teléfono Tutor</label>
+                    <input type="tel" id="edit_alumno_telefono">
+                </div>
+                <div style="margin-bottom:18px;">
+                    <label style="font-weight:600; font-size:0.85rem; margin-bottom:4px; display:block;">Código QR</label>
+                    <input type="text" id="edit_alumno_nfc" required>
+                </div>
+                <div style="display:flex; justify-content:flex-end; gap:10px;">
+                    <button type="button" class="btn-secundario" onclick="cerrarModal('modal-editar-alumno')">Cancelar</button>
+                    <button type="submit" class="btn-primario">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL IMPRESIÓN DE CREDENCIALES QR -->
+    <div id="modal-credenciales-qr" class="modal-overlay" style="display:none;">
+        <div class="modal-content" style="max-width: 880px; max-height: 90vh;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid #e2e8f0; padding-bottom:10px;">
+                <h3 style="margin:0; display:flex; align-items:center; gap:8px;">
+                    <i class="fa-solid fa-qrcode" style="color:var(--primary);"></i> Impresión de Credenciales y Stickers QR
+                </h3>
+                <button type="button" onclick="cerrarModal('modal-credenciales-qr')" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:#64748b;">&times;</button>
+            </div>
+
+            <div style="display:flex; gap:12px; margin-bottom:15px; flex-wrap:wrap; background:#f8fafc; padding:12px; border-radius:var(--radius-sm); border:1px solid var(--border);">
+                <div style="flex:1; min-width:180px;">
+                    <label style="font-weight:600; font-size:0.85rem; display:block; margin-bottom:4px;">Filtrar por Clase:</label>
+                    <select id="filtro-clase-credenciales" onchange="renderizarCredencialesQR()">
+                        <option value="todas">Todos los alumnos</option>
+                    </select>
+                </div>
+                <div style="flex:1; min-width:180px;">
+                    <label style="font-weight:600; font-size:0.85rem; display:block; margin-bottom:4px;">Formato:</label>
+                    <select id="formato-credenciales" onchange="renderizarCredencialesQR()">
+                        <option value="credencial">Gafete / Credencial Escolar (8.5 x 5.5 cm)</option>
+                        <option value="sticker">Sticker para Libreta (5 x 5 cm)</option>
+                    </select>
+                </div>
+                <div style="display:flex; align-items:flex-end;">
+                    <button type="button" class="btn-primario" onclick="imprimirCredenciales()" style="background:#059669;">
+                        <i class="fa-solid fa-print"></i> Imprimir en Hoja Carta
+                    </button>
+                </div>
+            </div>
+
+            <div id="contenedor-impresion-qr" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:14px; margin-top:10px;">
+                <!-- Tarjetas QR renderizadas dinámicamente -->
+            </div>
+        </div>
+    <!-- ======================================================= -->
+    <!-- MODAL BLOQUEO TOTAL / FIN DE PRUEBA 7 DÍAS (INEVITABLE) -->
+    <!-- ======================================================= -->
+    <div id="modal-bloqueo-licencia" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(15, 23, 42, 0.88); backdrop-filter:blur(10px); z-index:999999; justify-content:center; align-items:center; padding:20px; box-sizing:border-box;">
+        <div style="background:#ffffff; max-width:460px; width:100%; border-radius:18px; padding:32px 28px; text-align:center; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5); border:2px solid #10b981; animation:slideUp 0.4s ease-out;">
+            <div style="width:70px; height:70px; background:#ecfdf5; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 16px auto; font-size:2rem; color:#065f46; border:2px solid #a7f3d0;">
+                🔒
+            </div>
+            <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin:0 0 10px 0;">Periodo de Prueba Finalizado</h2>
+            <p style="font-size:0.9rem; color:#64748b; line-height:1.5; margin:0 0 20px 0;">
+                Tus <strong>7 días de prueba gratuita</strong> han concluido. Para seguir usando el escáner QR, calificar tareas y descargar reportes, activa tu Licencia Vitalicia.
+            </p>
+
+            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:14px 16px; margin-bottom:22px; text-align:left;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <span style="font-weight:800; font-size:1rem; color:#065f46;">Licencia Vitalicia</span>
+                    <span style="background:#065f46; color:white; font-size:1.05rem; font-weight:900; padding:4px 10px; border-radius:8px;">$99 MXN</span>
+                </div>
+                <div style="font-size:0.82rem; color:#334155; line-height:1.5;">
+                    <div>✓ <strong>Pago Único:</strong> Sin mensualidades ni cobros sorpresa.</div>
+                    <div>✓ <strong>Alumnos y Datos Intactos:</strong> Todo tu registro se conserva.</div>
+                    <div>✓ Paga con Tarjeta, SPEI o Efectivo en <strong>OXXO</strong>.</div>
+                </div>
+            </div>
+
+            <button type="button" id="btnPagarBloqueo" onclick="contactarWhatsAppActivar(event)" style="width:100%; background:#25d366; color:white; border:none; padding:14px; font-size:1.05rem; font-weight:800; border-radius:10px; cursor:pointer; transition:all 0.2s; box-shadow:0 4px 6px -1px rgba(37, 211, 102, 0.3); margin-bottom:12px; display:flex; align-items:center; justify-content:center; gap:8px;">
+                <i class="fa-brands fa-whatsapp" style="font-size:1.3rem;"></i> Activar por WhatsApp ($99 MXN)
+            </button>
+
+            <div id="simulacionBloqueoContainer" style="display:none; margin-top:8px;">
+                <button type="button" onclick="simularPagoInmediato()" style="width:100%; background:#10b981; color:white; border:none; padding:10px; font-size:0.85rem; font-weight:700; border-radius:8px; cursor:pointer;">
+                    ⚡ Simular Pago Aprobado ($99 MXN)
+                </button>
+            </div>
+
+            <div style="margin-top:14px;">
+                <a href="#" onclick="cerrarSesion()" style="color:#94a3b8; font-size:0.82rem; text-decoration:none;">Cerrar Sesión</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- MODAL VOLUNTARIO DE ACTIVACIÓN VITALICIA (TOPBAR) -->
+    <!-- ======================================================= -->
+    <div id="modal-pago-licencia" class="modal-overlay" style="display:none; justify-content:center; align-items:center;">
+        <div class="modal-content" style="max-width:440px; padding:28px 24px; text-align:center;">
+            <div style="display:flex; justify-content:flex-end; margin-top:-10px; margin-right:-5px;">
+                <button type="button" onclick="cerrarModal('modal-pago-licencia')" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:#94a3b8;">&times;</button>
+            </div>
+            <div style="width:60px; height:60px; background:#ecfdf5; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 12px auto; font-size:1.8rem; color:#065f46;">
+                ⭐
+            </div>
+            <h3 style="margin:0 0 8px 0; font-size:1.3rem; font-weight:800;">Activar Licencia Vitalicia</h3>
+            <p style="font-size:0.88rem; color:#64748b; margin:0 0 16px 0;">
+                Asegura tu sistema de por vida. Un solo pago, sin suscripciones mensuales.
+            </p>
+
+            <div style="background:#ecfdf5; border:1px solid #a7f3d0; border-radius:12px; padding:14px; margin-bottom:20px; text-align:left;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <span style="font-weight:800; font-size:0.95rem; color:#065f46;">AsistenciaQR Pro</span>
+                    <span style="background:#065f46; color:white; font-size:1rem; font-weight:900; padding:3px 8px; border-radius:6px;">$99 MXN</span>
+                </div>
+                <div style="font-size:0.8rem; color:#047857; line-height:1.4;">
+                    ✓ Código QR ilimitado para asistencias y tareas<br>
+                    ✓ Reportes PDF mensuales para padres y dirección<br>
+                    ✓ Soporte y actualizaciones continuas
+                </div>
+            </div>
+
+            <button type="button" id="btnPagarModal" onclick="contactarWhatsAppActivar(event)" style="width:100%; background:#25d366; color:white; border:none; padding:13px; font-size:1rem; font-weight:800; border-radius:10px; cursor:pointer; margin-bottom:10px; display:flex; align-items:center; justify-content:center; gap:8px;">
+                <i class="fa-brands fa-whatsapp" style="font-size:1.2rem;"></i> Activar por WhatsApp ($99 MXN)
+            </button>
+
+            <div id="simulacionVoluntariaContainer" style="display:none; margin-top:6px;">
+                <button type="button" onclick="simularPagoInmediato()" style="width:100%; background:#10b981; color:white; border:none; padding:9px; font-size:0.82rem; font-weight:700; border-radius:8px; cursor:pointer;">
+                    ⚡ Simular Pago Aprobado ($99 MXN)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- JAVASCRIPT DEL DASHBOARD UNIFICADO -->
+    <!-- ======================================================= -->
+    <script>
+
+        // 1. SESIÓN Y AUTENTICACIÓN
+        const token = localStorage.getItem('authToken');
+        let usuario = null;
+        try { usuario = JSON.parse(localStorage.getItem('usuario')); } catch (e) { }
+
+        if (!token || !usuario) {
+            window.location.href = '/login.html';
+        }
+
+        const authHeaders = {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        };
+
+        // --- Interceptor Global 402 (Fin de Prueba Gratuita) ---
+        const _fetchOriginal = window.fetch;
+        window.fetch = async function(...args) {
+            const res = await _fetchOriginal.apply(this, args);
+            if (res.status === 402) {
+                const url = typeof args[0] === 'string' ? args[0] : (args[0]?.url || '');
+                if (!url.includes('/api/pagos') && !url.includes('/estado-licencia')) {
+                    mostrarBloqueoLicencia();
+                }
+            }
+            return res;
+        };
+
+        // --- Control de Licencia y Prueba Gratuita (7 Días) ---
+        let datosLicencia = null;
+
+        async function verificarEstadoLicencia() {
+            try {
+                const res = await fetch('/api/auth/estado-licencia', { headers: authHeaders });
+                if (res.status === 402) {
+                    mostrarBloqueoLicencia();
+                    return;
+                }
+                if (res.ok) {
+                    datosLicencia = await res.json();
+                    
+                    // Si está suspendida o prueba vencida
+                    if (datosLicencia.status === 'suspendido' || datosLicencia.expiredTrial) {
+                        mostrarBloqueoLicencia();
+                        return;
+                    }
+
+                    // Si está en periodo de prueba activo
+                    const banner = document.getElementById('trialBanner');
+                    const text = document.getElementById('trialDaysText');
+                    if (datosLicencia.isTrial && datosLicencia.daysLeft !== undefined) {
+                        if (banner && text) {
+                            banner.style.display = 'flex';
+                            const d = datosLicencia.daysLeft;
+                            text.textContent = d === 1 ? '1 día restante' : `${d} días restantes`;
+                            if (d <= 2) {
+                                text.style.color = '#dc2626';
+                            }
+                        }
+                    } else {
+                        if (banner) banner.style.display = 'none';
+                    }
+                }
+            } catch(e) {
+                console.error('Error al verificar licencia:', e);
+            }
+        }
+
+        function contactarWhatsAppActivar(e) {
+            if (e && e.preventDefault) e.preventDefault();
+
+            const telefono = "522723303963";
+            const nombreDocente = (usuario && usuario.nombre_completo) ? usuario.nombre_completo : 'Docente';
+            const escuela = (nombreEscuela && nombreEscuela !== 'Mi Aula') ? nombreEscuela : (usuario?.nombre_escuela || 'Mi Escuela');
+            const email = (usuario && usuario.email) ? usuario.email : '';
+
+            const mensaje = `Hola, quiero activar mi cuenta de AsistenciaQR ($99 MXN pago único).\n\n🏫 Escuela: ${escuela}\n👤 Docente: ${nombreDocente}\n📧 Correo/Usuario: ${email}`;
+            
+            const url = `https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`;
+            window.open(url, '_blank');
+        }
+
+        function mostrarBloqueoLicencia() {
+            const modalBloqueo = document.getElementById('modal-bloqueo-licencia');
+            if (modalBloqueo) {
+                modalBloqueo.style.display = 'flex';
+            }
+            if (scannerAsistencia) { try { scannerAsistencia.stop(); } catch(e){} }
+            if (scannerTareas) { try { scannerTareas.stop(); } catch(e){} }
+        }
+
+        function abrirModalPagoLicencia() {
+            contactarWhatsAppActivar();
+        }
+
+
+        async function iniciarPagoLicencia() {
+            const btnB = document.getElementById('btnPagarBloqueo');
+            const btnM = document.getElementById('btnPagarModal');
+            if (btnB) { btnB.disabled = true; btnB.textContent = 'Conectando con pasarela...'; }
+            if (btnM) { btnM.disabled = true; btnM.textContent = 'Conectando con pasarela...'; }
+
+            try {
+                const res = await fetch('/api/pagos/orden-upgrade', {
+                    method: 'POST',
+                    headers: authHeaders,
+                    body: JSON.stringify({
+                        institucion_id: usuario?.institucion_id,
+                        email: usuario?.email,
+                        nombre: usuario?.nombre_completo
+                    })
+                });
+
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'No se pudo generar la orden de pago');
+
+                if (data.modo === 'mercadopago' && data.init_point) {
+                    window.location.href = data.init_point;
+                } else {
+                    const simB = document.getElementById('simulacionBloqueoContainer');
+                    const simV = document.getElementById('simulacionVoluntariaContainer');
+                    if (simB) simB.style.display = 'block';
+                    if (simV) simV.style.display = 'block';
+                    alert('⚙️ Modo Simulación de Pago Activo (Token de Mercado Pago no configurado). Haz clic en "Simular Pago Aprobado" para desbloquear de inmediato.');
+                    if (btnB) { btnB.disabled = false; btnB.textContent = '💳 Pagar $99 MXN y Desbloquear'; }
+                    if (btnM) { btnM.disabled = false; btnM.textContent = '💳 Pagar $99 MXN (Mercado Pago / OXXO)'; }
+                }
+            } catch(err) {
+                alert('Error: ' + err.message);
+                if (btnB) { btnB.disabled = false; btnB.textContent = '💳 Pagar $99 MXN y Desbloquear'; }
+                if (btnM) { btnM.disabled = false; btnM.textContent = '💳 Pagar $99 MXN (Mercado Pago / OXXO)'; }
+            }
+        }
+
+        async function simularPagoInmediato() {
+            try {
+                const res = await fetch('/api/pagos/confirmar-simulacion', {
+                    method: 'POST',
+                    headers: authHeaders,
+                    body: JSON.stringify({
+                        institucion_id: usuario?.institucion_id,
+                        email: usuario?.email
+                    })
+                });
+                const d = await res.json();
+                if (res.ok) {
+                    alert('🎉 ¡Pago de $99 MXN confirmado con éxito! Tu Licencia Vitalicia ha sido activada de por vida.');
+                    window.location.href = '/admin.html?pago=aprobado';
+                } else {
+                    throw new Error(d.error || 'Error al confirmar simulación');
+                }
+            } catch(e) {
+                alert('Error: ' + e.message);
+            }
+        }
+
+        // Revisar retorno de pasarela en URL
+        (function revisarRetornoPago() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const estadoPago = urlParams.get('pago');
+            if (estadoPago === 'aprobado') {
+                alert('🎉 ¡Pago completado exitosamente! Tu Licencia Vitalicia está 100% activa.');
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        })();
+
+        // Header docente
+        const nombreEscuela = localStorage.getItem('nombreEscuela');
+        if (nombreEscuela) {
+            document.getElementById('tituloEscuela').textContent = nombreEscuela;
+            document.title = `${nombreEscuela} - Panel Docente`;
+        }
+        if (usuario && usuario.nombre_completo) {
+            const sub = document.getElementById('subtituloDocente');
+            if (sub) sub.textContent = `Docente: ${usuario.nombre_completo}`;
+        }
+
+
+        // 2. ESTADO GLOBAL
+        let globalAlumnos = [];
+        let globalClases = [];
+        let globalActividades = [];
+        let globalAsistenciasHoy = [];
+        let globalEntregasActividad = [];
+        let actividadSeleccionadaId = null;
+
+        // Cámaras HTML5 QR
+        let scannerAsistencia = null;
+        let scannerTareas = null;
+        let camaraActualIndex = 0;
+        let camarasDisponibles = [];
+
+        // 3. AUDIO SYNTHESIZER PARA ESCANEO
+        function playBeep(tipo = 'success') {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                if (tipo === 'success') {
+                    osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+                    osc.frequency.setValueAtTime(880, ctx.currentTime + 0.08);
+                    gain.gain.setValueAtTime(0.2, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.25);
+                    osc.start(ctx.currentTime);
+                    osc.stop(ctx.currentTime + 0.25);
+                } else if (tipo === 'warning') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(440, ctx.currentTime);
+                    osc.frequency.setValueAtTime(440, ctx.currentTime + 0.1);
+                    gain.gain.setValueAtTime(0.2, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+                    osc.start(ctx.currentTime);
+                    osc.stop(ctx.currentTime + 0.3);
+                } else {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(220, ctx.currentTime);
+                    osc.frequency.setValueAtTime(160, ctx.currentTime + 0.12);
+                    gain.gain.setValueAtTime(0.25, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.35);
+                    osc.start(ctx.currentTime);
+                    osc.stop(ctx.currentTime + 0.35);
+                }
+            } catch (e) {
+                console.warn('Audio no permitido o no soportado:', e);
+            }
+        }
+
+        // 4. CLIENTE API UNIVERSAL
+        async function api(endpoint, method = 'GET', body = null) {
+            const opts = { method, headers: authHeaders };
+            if (body) opts.body = JSON.stringify(body);
+            const res = await fetch(endpoint, opts);
+            if (res.status === 401) {
+                cerrarSesion();
+                throw new Error('Sesión expirada.');
+            }
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || data.message || 'Error en el servidor');
+            return data;
+        }
+
+        // 5. CAMBIO DE VISTAS (Pase de Lista, Tareas, Alumnos, Reportes)
+        function cambiarVista(vistaId) {
+            document.querySelectorAll('.vista').forEach(v => v.classList.remove('activa'));
+            
+            // Actualizar botones de desktop y móvil
+            document.querySelectorAll('[data-vista]').forEach(b => {
+                if (b.getAttribute('data-vista') === vistaId) {
+                    b.classList.add('activo');
+                } else {
+                    b.classList.remove('activo');
+                }
+            });
+
+            const target = document.getElementById(vistaId);
+            if (target) target.classList.add('activa');
+
+            window.scrollTo({ top: 0, behavior: 'instant' });
+
+            if (vistaId !== 'vista-asistencia' && scannerAsistencia) {
+                detenerCamaraAsistencia();
+            }
+            if (vistaId !== 'vista-tareas' && scannerTareas) {
+                detenerCamaraTareas();
+            }
+
+            if (vistaId === 'vista-asistencia') {
+                cargarAsistenciasHoy();
+            } else if (vistaId === 'vista-tareas') {
+                cargarActividades();
+            }
+        }
+
+        // 6. GESTIÓN DE CLASES
+        async function cargarClases() {
+            try {
+                const clases = await api('/api/gestion/clases');
+                globalClases = Array.isArray(clases) ? clases : [];
+
+                const contenedorChips = document.getElementById('contenedor-chips-clases');
+                if (contenedorChips) {
+                    if (globalClases.length === 0) {
+                        contenedorChips.innerHTML = '<span style="color:var(--text-muted); font-size:0.85rem;">No tienes clases creadas aún. Pulsa "+ Clase".</span>';
+                    } else {
+                        contenedorChips.innerHTML = globalClases.map(c => {
+                            const desc = c.nombre_materia ? `${c.nombre_grado} "${c.nombre_grupo}" (${c.nombre_materia})` : `${c.nombre_grado} "${c.nombre_grupo}"`;
+                            return `
+                                <div class="chip-clase">
+                                    <span>${desc}</span>
+                                    <button type="button" class="btn-borrar-chip" onclick="eliminarClase(${c.id})" title="Eliminar clase">&times;</button>
+                                </div>
+                            `;
+                        }).join('');
+                    }
+                }
+
+                // Llenar selectores de clase estándar
+                const optionsHtml = '<option value="">-- Seleccionar Clase --</option>' + globalClases.map(c => {
+                    const desc = c.nombre_materia ? `${c.nombre_grado} "${c.nombre_grupo}" (${c.nombre_materia})` : `${c.nombre_grado} "${c.nombre_grupo}"`;
+                    return `<option value="${c.id}">${desc}</option>`;
+                }).join('');
+
+                ['select_clase', 'edit_alumno_clase', 'reporte-clase-select'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.innerHTML = optionsHtml;
+                });
+
+                // Selector para crear tarea con opción clara "Todas mis clases"
+                const elTareaClase = document.getElementById('nueva_tarea_clase');
+                if (elTareaClase) {
+                    elTareaClase.innerHTML = '<option value="">Todas mis clases (Cualquier grupo)</option>' + globalClases.map(c => {
+                        const desc = c.nombre_materia ? `${c.nombre_grado} "${c.nombre_grupo}" (${c.nombre_materia})` : `${c.nombre_grado} "${c.nombre_grupo}"`;
+                        return `<option value="${c.id}">${desc}</option>`;
+                    }).join('');
+                }
+
+                // Selectores con opción "Todas las clases"
+                const optionsConTodas = '<option value="todas">Todas las clases</option>' + globalClases.map(c => {
+                    const desc = c.nombre_materia ? `${c.nombre_grado} "${c.nombre_grupo}" (${c.nombre_materia})` : `${c.nombre_grado} "${c.nombre_grupo}"`;
+                    return `<option value="${c.id}">${desc}</option>`;
+                }).join('');
+
+                ['filtro-clase-directorio', 'asistencia-clase-filtro', 'filtro-clase-credenciales'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.innerHTML = optionsConTodas;
+                });
+
+            } catch (e) {
+                console.error('Error al cargar clases:', e);
+            }
+        }
+
+        document.getElementById('formCrearClaseRapida').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const input = document.getElementById('input_nombre_clase_rapida');
+            const nombre = input.value.trim();
+            if (!nombre) return;
+
+            try {
+                await api('/api/gestion/clases/rapida', 'POST', { nombre });
+                input.value = '';
+                cerrarModal('modal-nueva-clase');
+                await cargarClases();
+            } catch (err) {
+                alert(err.message);
+            }
+        });
+
+        async function eliminarClase(id) {
+            if (!confirm('¿Deseas eliminar esta clase? Los alumnos asignados a ella quedarán sin clase.')) return;
+            try {
+                await api(`/api/gestion/clases/${id}`, 'DELETE');
+                await cargarClases();
+                await cargarAlumnos();
+            } catch (err) {
+                alert(err.message);
+            }
+        }
+
+        // 7. GESTIÓN DE ALUMNOS
+        function generarQRManual() {
+            const input = document.getElementById('nfc_uid');
+            if (input) {
+                input.value = 'ALU-' + Math.random().toString(36).substring(2, 6).toUpperCase() + '-' + Date.now().toString(36).substring(4).toUpperCase();
+            }
+        }
+
+        function abrirModalNuevoAlumno() {
+            document.getElementById('registroForm').reset();
+            document.getElementById('modal-nuevo-alumno').style.display = 'flex';
+        }
+
+        function abrirModalNuevaClase() {
+            document.getElementById('input_nombre_clase_rapida').value = '';
+            document.getElementById('modal-nueva-clase').style.display = 'flex';
+        }
+
+        async function cargarAlumnos() {
+            try {
+                const list = await api('/api/alumnos');
+                globalAlumnos = Array.isArray(list) ? list : [];
+                filtrarAlumnosEnTabla();
+            } catch (e) {
+                console.error('Error al cargar alumnos:', e);
+            }
+        }
+
+        function filtrarAlumnosEnTabla() {
+            const tb = document.getElementById('tabla-alumnos-cuerpo');
+            if (!tb) return;
+
+            const q = (document.getElementById('buscador-alumnos')?.value || '').toLowerCase().trim();
+            const claseFiltro = document.getElementById('filtro-clase-directorio')?.value || 'todas';
+
+            let filtrados = globalAlumnos.filter(a => {
+                const coincideNombre = (a.nombre_completo || '').toLowerCase().includes(q) || (a.codigo_qr || a.nfc_uid || '').toLowerCase().includes(q);
+                const coincideClase = claseFiltro === 'todas' || String(a.clase_id) === String(claseFiltro);
+                return coincideNombre && coincideClase;
+            });
+
+            if (filtrados.length === 0) {
+                tb.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:24px;"><i class="fa-solid fa-users" style="margin-right:6px;"></i> No se encontraron alumnos.</td></tr>';
+                return;
+            }
+
+            tb.innerHTML = filtrados.map(a => {
+                const descClase = (a.nombre_grado || a.nombre_grupo)
+                    ? `${a.nombre_grado || ''} "${a.nombre_grupo || ''}"`
+                    : '<span style="color:var(--danger); font-size:0.8rem; font-weight:600;"><i class="fa-solid fa-triangle-exclamation"></i> Sin asignar</span>';
+                const qrVal = a.codigo_qr || a.nfc_uid || '-';
+                const dataJson = encodeURIComponent(JSON.stringify(a));
+
+                const nombresPartes = (a.nombre_completo || 'A').trim().split(' ');
+                const iniciales = (nombresPartes[0][0] + (nombresPartes[1] ? nombresPartes[1][0] : '')).toUpperCase();
+
+                return `
+                    <tr>
+                        <td>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <div style="width:34px; height:34px; border-radius:50%; background:var(--primary-light); color:var(--primary); font-weight:750; font-size:0.8rem; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                                    ${iniciales}
+                                </div>
+                                <div style="font-weight:700; color:var(--text-main);">${a.nombre_completo}</div>
+                            </div>
+                        </td>
+                        <td><span style="font-size:0.82rem; font-weight:600; color:#475569; background:#f1f5f9; padding:3px 8px; border-radius:6px;">${descClase}</span></td>
+                        <td>
+                            <span style="font-family:monospace; background:#f8fafc; padding:3px 8px; border-radius:4px; font-size:0.82rem; border:1px solid var(--border); display:inline-flex; align-items:center; gap:5px;">
+                                <i class="fa-solid fa-qrcode" style="color:var(--primary);"></i> ${qrVal}
+                            </span>
+                        </td>
+                        <td>${a.telefono_tutor || '-'}</td>
+                        <td style="text-align:right; white-space:nowrap;">
+                            <button type="button" class="btn-secundario" style="padding:6px 10px;" onclick="abrirModalEditarAlumno('${dataJson}')" title="Editar"><i class="fa-solid fa-pen"></i></button>
+                            <button type="button" class="btn-secundario" style="padding:6px 10px; color:var(--danger);" onclick="eliminarAlumno(${a.id})" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        document.getElementById('registroForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const msgEl = document.getElementById('mensaje-registro');
+            msgEl.className = 'feedback-banner';
+            msgEl.style.display = 'none';
+
+            const qrVal = document.getElementById('nfc_uid').value.trim();
+            const body = {
+                nombre_completo: document.getElementById('nombre_completo').value.trim(),
+                telefono_tutor: document.getElementById('telefono_tutor').value.trim() || 'Sin teléfono',
+                clase_id: Number(document.getElementById('select_clase').value),
+                codigo_qr: qrVal || null,
+                nfc_uid: qrVal || null
+            };
+
+            if (!body.clase_id) {
+                alert('Por favor selecciona una clase para el alumno.');
+                return;
+            }
+
+            try {
+                await api('/api/registrar', 'POST', body);
+                cerrarModal('modal-nuevo-alumno');
+                e.target.reset();
+                await cargarAlumnos();
+            } catch (err) {
+                msgEl.textContent = `❌ ${err.message}`;
+                msgEl.className = 'feedback-banner error';
+                msgEl.style.display = 'block';
+            }
+        });
+
+        function abrirModalEditarAlumno(dataJsonEncoded) {
+            const a = JSON.parse(decodeURIComponent(dataJsonEncoded));
+            document.getElementById('edit_alumno_id').value = a.id;
+            document.getElementById('edit_alumno_nombre').value = a.nombre_completo || '';
+            document.getElementById('edit_alumno_clase').value = a.clase_id || '';
+            document.getElementById('edit_alumno_telefono').value = a.telefono_tutor || '';
+            document.getElementById('edit_alumno_nfc').value = a.codigo_qr || a.nfc_uid || '';
+            document.getElementById('modal-editar-alumno').style.display = 'flex';
+        }
+
+        document.getElementById('formEditarAlumno').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('edit_alumno_id').value;
+            const body = {
+                nombre_completo: document.getElementById('edit_alumno_nombre').value.trim(),
+                clase_id: Number(document.getElementById('edit_alumno_clase').value),
+                telefono_tutor: document.getElementById('edit_alumno_telefono').value.trim() || 'Sin teléfono',
+                nfc_uid: document.getElementById('edit_alumno_nfc').value.trim()
+            };
+
+            try {
+                await api(`/api/alumnos/${id}`, 'PUT', body);
+                cerrarModal('modal-editar-alumno');
+                await cargarAlumnos();
+            } catch (err) {
+                alert(err.message);
+            }
+        });
+
+        async function eliminarAlumno(id) {
+            if (!confirm('¿Eliminar definitivamente a este alumno? Se perderán sus asistencias y tareas.')) return;
+            try {
+                await api('/api/alumnos/borrar', 'POST', { id });
+                await cargarAlumnos();
+            } catch (err) {
+                alert(err.message);
+            }
+        }
+
+        // 8. PASE DE LISTA (ASISTENCIA)
+        async function cargarAsistenciasHoy() {
+            try {
+                const fecha = document.getElementById('asistencia-fecha-filtro').value;
+                const asistencias = await api(`/api/asistencias/hoy?fecha=${fecha}`);
+                globalAsistenciasHoy = Array.isArray(asistencias) ? asistencias : [];
+                renderizarTablaAsistenciaHoy();
+            } catch (e) {
+                console.error('Error al cargar asistencias de hoy:', e);
+            }
+        }
+
+        function renderizarTablaAsistenciaHoy() {
+            const tb = document.getElementById('tabla-asistencia-hoy-cuerpo');
+            if (!tb) return;
+
+            const claseFiltro = document.getElementById('asistencia-clase-filtro').value;
+            let alumnosFiltrados = globalAlumnos;
+            if (claseFiltro !== 'todas') {
+                alumnosFiltrados = globalAlumnos.filter(a => String(a.clase_id) === String(claseFiltro));
+            }
+
+            const mapaAsistencias = new Map();
+            globalAsistenciasHoy.forEach(asis => {
+                mapaAsistencias.set(Number(asis.alumno_id), asis);
+            });
+
+            let countP = 0, countR = 0, countF = 0, countPend = 0;
+
+            if (alumnosFiltrados.length === 0) {
+                tb.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:20px;">No hay alumnos registrados en esta clase.</td></tr>';
+                actualizarContadoresAsistencia(0, 0, 0, 0);
+                return;
+            }
+
+            tb.innerHTML = alumnosFiltrados.map(a => {
+                const asis = mapaAsistencias.get(Number(a.id));
+                const status = asis ? asis.status : 'pendiente';
+                
+                if (status === 'presente') countP++;
+                else if (status === 'retardo') countR++;
+                else if (status === 'falta') countF++;
+                else countPend++;
+
+                let badgeHtml = '<span class="badge badge-pendiente">Sin Registrar</span>';
+                if (status === 'presente') badgeHtml = '<span class="badge badge-presente"><i class="fa-solid fa-check"></i> Presente</span>';
+                else if (status === 'retardo') badgeHtml = '<span class="badge badge-retardo"><i class="fa-solid fa-clock"></i> Retardo</span>';
+                else if (status === 'falta') badgeHtml = '<span class="badge badge-falta"><i class="fa-solid fa-xmark"></i> Falta</span>';
+                else if (status === 'justificada') badgeHtml = '<span class="badge badge-justificada"><i class="fa-solid fa-file-medical"></i> Justificada</span>';
+
+                const descClase = (a.nombre_grado || a.nombre_grupo) ? `${a.nombre_grado || ''} "${a.nombre_grupo || ''}"` : '-';
+                const nombresPartes = (a.nombre_completo || 'A').trim().split(' ');
+                const iniciales = (nombresPartes[0][0] + (nombresPartes[1] ? nombresPartes[1][0] : '')).toUpperCase();
+
+                const isP = status === 'presente';
+                const isR = status === 'retardo';
+                const isF = status === 'falta';
+
+                const btnPStyle = isP 
+                    ? 'background:#10b981; color:#ffffff; border-color:#059669; font-weight:700; box-shadow:0 2px 5px rgba(16,185,129,0.35);' 
+                    : 'background:#ecfdf5; color:#065f46; border-color:#a7f3d0;';
+                const btnRStyle = isR 
+                    ? 'background:#f59e0b; color:#ffffff; border-color:#d97706; font-weight:700; box-shadow:0 2px 5px rgba(245,158,11,0.35);' 
+                    : 'background:#fffbeb; color:#92400e; border-color:#fde68a;';
+                const btnFStyle = isF 
+                    ? 'background:#ef4444; color:#ffffff; border-color:#dc2626; font-weight:700; box-shadow:0 2px 5px rgba(239,68,68,0.35);' 
+                    : 'background:#fef2f2; color:#991b1b; border-color:#fecaca;';
+
+                return `
+                    <tr>
+                        <td>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <div style="width:34px; height:34px; border-radius:50%; background:var(--primary-light); color:var(--primary); font-weight:750; font-size:0.8rem; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                                    ${iniciales}
+                                </div>
+                                <div>
+                                    <div style="font-weight:700; color:var(--text-main);">${a.nombre_completo}</div>
+                                    <div style="font-size:0.75rem; color:var(--text-muted);">${a.telefono_tutor && a.telefono_tutor !== 'Sin teléfono' ? '📞 ' + a.telefono_tutor : ''}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span style="font-size:0.82rem; font-weight:600; color:#475569; background:#f1f5f9; padding:3px 8px; border-radius:6px;">${descClase}</span></td>
+                        <td>${badgeHtml}</td>
+                        <td style="text-align:right; white-space:nowrap;">
+                            <div style="display:inline-flex; gap:6px;">
+                                <button type="button" class="btn-asistencia-mini" style="${btnPStyle}" onclick="marcarAsistenciaDirecta(${a.id}, 'presente')" title="Marcar Presente">
+                                    <i class="fa-solid fa-check"></i> Pres
+                                </button>
+                                <button type="button" class="btn-asistencia-mini" style="${btnRStyle}" onclick="marcarAsistenciaDirecta(${a.id}, 'retardo')" title="Marcar Retardo">
+                                    <i class="fa-solid fa-clock"></i> Ret
+                                </button>
+                                <button type="button" class="btn-asistencia-mini" style="${btnFStyle}" onclick="marcarAsistenciaDirecta(${a.id}, 'falta')" title="Marcar Falta">
+                                    <i class="fa-solid fa-xmark"></i> Falta
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            actualizarContadoresAsistencia(countP, countR, countF, countPend);
+        }
+
+        function actualizarContadoresAsistencia(p, r, f, pend) {
+            document.getElementById('count-presentes').textContent = p;
+            document.getElementById('count-retardos').textContent = r;
+            document.getElementById('count-faltas').textContent = f;
+            document.getElementById('count-pendientes').textContent = pend;
+        }
+
+        async function marcarAsistenciaDirecta(alumnoId, status) {
+            const fecha = document.getElementById('asistencia-fecha-filtro').value;
+            try {
+                await api('/api/asistencias/manual', 'POST', { alumno_id: alumnoId, status, fecha });
+                playBeep('success');
+                await cargarAsistenciasHoy();
+            } catch (err) {
+                alert(err.message);
+            }
+        }
+
+        async function procesarEscaneoQRAsistencia(codigoQR) {
+            if (!codigoQR || !codigoQR.trim()) return;
+            const code = codigoQR.trim();
+            const banner = document.getElementById('asistencia-feedback');
+
+            try {
+                const res = await api('/api/marcar', 'POST', { codigo_qr: code });
+                playBeep(res.status === 'warning' ? 'warning' : 'success');
+                banner.textContent = res.message || 'Asistencia registrada con éxito';
+                banner.className = res.status === 'warning' ? 'feedback-banner warning' : 'feedback-banner success';
+                await cargarAsistenciasHoy();
+            } catch (err) {
+                playBeep('error');
+                banner.textContent = `❌ ${err.message}`;
+                banner.className = 'feedback-banner error';
+            }
+        }
+
+        function marcarAsistenciaManualInput() {
+            const input = document.getElementById('input-asistencia-codigo-manual');
+            const val = input.value.trim();
+            if (!val) return;
+            input.value = '';
+            procesarEscaneoQRAsistencia(val);
+        }
+
+        document.getElementById('input-asistencia-codigo-manual')?.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') marcarAsistenciaManualInput();
+        });
+
+        // 9. CÁMARAS HTML5 QR (Pase de Lista)
+        async function toggleCamaraAsistencia() {
+            if (scannerAsistencia) {
+                await detenerCamaraAsistencia();
+            } else {
+                await iniciarCamaraAsistencia();
+            }
+        }
+
+        async function iniciarCamaraAsistencia() {
+            const btnToggle = document.getElementById('btn-toggle-camara-asistencia');
+            const btnFlip = document.getElementById('btn-flip-camara-asistencia');
+            const placeholder = document.getElementById('scanner-placeholder-asistencia');
+
+            if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+                const abrirHttps = confirm(
+                    "🔒 Apple (Safari en iPhone) bloquea el acceso a la cámara en direcciones locales 'http://192.168...'.\n\n" +
+                    "Para usar la cámara de tu celular, debes abrir el enlace seguro HTTPS:\n" +
+                    "https://dealt-rick-dock-mins.trycloudflare.com\n\n" +
+                    "¿Deseas abrir la versión segura HTTPS ahora?"
+                );
+                if (abrirHttps) {
+                    window.location.href = "https://dealt-rick-dock-mins.trycloudflare.com/admin.html";
+                }
+                return;
+            }
+
+            try {
+                if (!scannerAsistencia) {
+                    scannerAsistencia = new Html5Qrcode("reader-asistencia-qr");
+                }
+                placeholder.style.display = 'none';
+
+                const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+                const qrCallback = (decodedText) => {
+                    procesarEscaneoQRAsistencia(decodedText);
+                };
+
+                const modoCamara = (camaraActualIndex % 2 === 0) ? { facingMode: "environment" } : { facingMode: "user" };
+
+                try {
+                    await scannerAsistencia.start(modoCamara, config, qrCallback, () => {});
+                } catch (errFacing) {
+                    camarasDisponibles = await Html5Qrcode.getCameras();
+                    if (camarasDisponibles && camarasDisponibles.length > 0) {
+                        const cameraId = camarasDisponibles[camaraActualIndex % camarasDisponibles.length].id;
+                        await scannerAsistencia.start(cameraId, config, qrCallback, () => {});
+                    } else {
+                        throw errFacing;
+                    }
+                }
+
+                btnToggle.innerHTML = '<i class="fa-solid fa-stop"></i> Detener';
+                btnToggle.style.background = 'var(--danger)';
+                btnFlip.style.display = 'inline-flex';
+            } catch (err) {
+                console.error('Error al iniciar cámara asistencia:', err);
+                placeholder.style.display = 'block';
+                alert('No se pudo acceder a la cámara.\n\nDetalle: ' + (err.message || err));
+            }
+        }
+
+        async function detenerCamaraAsistencia() {
+            if (!scannerAsistencia) return;
+            try {
+                await scannerAsistencia.stop();
+                scannerAsistencia = null;
+            } catch (e) { }
+            const btnToggle = document.getElementById('btn-toggle-camara-asistencia');
+            const btnFlip = document.getElementById('btn-flip-camara-asistencia');
+            const placeholder = document.getElementById('scanner-placeholder-asistencia');
+
+            if (btnToggle) {
+                btnToggle.innerHTML = '<i class="fa-solid fa-video"></i> Iniciar Cámara';
+                btnToggle.style.background = 'var(--primary)';
+            }
+            if (btnFlip) btnFlip.style.display = 'none';
+            if (placeholder) placeholder.style.display = 'block';
+        }
+
+        async function cambiarCamaraAsistencia() {
+            if (!scannerAsistencia || camarasDisponibles.length < 2) return;
+            await detenerCamaraAsistencia();
+            camaraActualIndex++;
+            await iniciarCamaraAsistencia();
+        }
+
+        // 10. GESTIÓN DE TAREAS / ACTIVIDADES
+        async function cargarActividades() {
+            try {
+                const actividades = await api('/api/actividades');
+                globalActividades = Array.isArray(actividades) ? actividades : [];
+
+                const select = document.getElementById('select-tarea-activa');
+                if (select) {
+                    if (globalActividades.length === 0) {
+                        select.innerHTML = '<option value="">-- No hay tareas creadas aún --</option>';
+                        actividadSeleccionadaId = null;
+                    } else {
+                        select.innerHTML = globalActividades.map((act, i) => {
+                            let claseTxt = 'Todas las clases';
+                            if (act.clase_id) {
+                                const c = globalClases.find(k => String(k.id) === String(act.clase_id));
+                                if (c) claseTxt = `${c.nombre_grado} "${c.nombre_grupo}"`;
+                            }
+                            return `<option value="${act.id}" ${i === 0 ? 'selected' : ''}>${act.titulo} [${claseTxt}]</option>`;
+                        }).join('');
+                        actividadSeleccionadaId = globalActividades[0].id;
+                    }
+                }
+                await cargarEntregasTareaActual();
+            } catch (e) {
+                console.error('Error al cargar tareas:', e);
+            }
+        }
+
+        function cambiarTareaActiva() {
+            const select = document.getElementById('select-tarea-activa');
+            actividadSeleccionadaId = select ? select.value : null;
+            cargarEntregasTareaActual();
+        }
+
+        async function cargarEntregasTareaActual() {
+            const tb = document.getElementById('tabla-entregas-tarea-cuerpo');
+            if (!tb) return;
+
+            if (!actividadSeleccionadaId) {
+                tb.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:20px;">No hay tareas seleccionadas. Crea una con "+ Nueva Tarea".</td></tr>';
+                document.getElementById('badge-conteo-entregas').textContent = '0 / 0 Alumnos';
+                document.getElementById('barra-progreso-entregas').style.width = '0%';
+                const bannerInfo = document.getElementById('txt-info-tarea-clase');
+                if (bannerInfo) bannerInfo.textContent = 'Selecciona o crea una tarea en la parte superior.';
+                return;
+            }
+
+            try {
+                const entregas = await api(`/api/actividades/${actividadSeleccionadaId}/entregas`);
+                globalEntregasActividad = Array.isArray(entregas) ? entregas : [];
+
+                const mapaEntregas = new Map();
+                globalEntregasActividad.forEach(e => mapaEntregas.set(Number(e.alumno_id), e));
+
+                const actActual = globalActividades.find(a => String(a.id) === String(actividadSeleccionadaId));
+                let alumnosParaTarea = globalAlumnos;
+                let infoClaseTxt = 'Esta tarea aplica para <strong>Todas las clases</strong> (cualquier alumno puede entregarla).';
+
+                if (actActual && actActual.clase_id) {
+                    alumnosParaTarea = globalAlumnos.filter(a => String(a.clase_id) === String(actActual.clase_id));
+                    const c = globalClases.find(k => String(k.id) === String(actActual.clase_id));
+                    const nomClase = c ? `${c.nombre_grado} "${c.nombre_grupo}"` : `Clase #${actActual.clase_id}`;
+                    infoClaseTxt = `Tarea asignada exclusivamente al grupo: <strong>${nomClase}</strong> (${alumnosParaTarea.length} alumnos matriculados)`;
+                }
+
+                const bannerInfo = document.getElementById('txt-info-tarea-clase');
+                if (bannerInfo) bannerInfo.innerHTML = infoClaseTxt;
+
+                let totalEntregadas = 0;
+                tb.innerHTML = alumnosParaTarea.map(a => {
+                    const entregada = mapaEntregas.has(Number(a.id));
+                    if (entregada) totalEntregadas++;
+
+                    const statusBadge = entregada
+                        ? '<span class="badge badge-presente"><i class="fa-solid fa-circle-check"></i> Entregada</span>'
+                        : '<span class="badge badge-pendiente">Pendiente</span>';
+
+                    const actionBtn = entregada
+                        ? `<button type="button" class="btn-secundario" style="padding:6px 12px; font-size:0.82rem; color:var(--danger); border-color:#fecaca;" onclick="toggleEntregaTareaAlumno(${a.id})">Desmarcar</button>`
+                        : `<button type="button" class="btn-primario" style="padding:6px 14px; font-size:0.82rem; background:#10b981; border:none;" onclick="toggleEntregaTareaAlumno(${a.id})">✔️ Entregar</button>`;
+
+                    const descClase = (a.nombre_grado || a.nombre_grupo) ? `${a.nombre_grado || ''} "${a.nombre_grupo || ''}"` : '-';
+                    const nombresPartes = (a.nombre_completo || 'A').trim().split(' ');
+                    const iniciales = (nombresPartes[0][0] + (nombresPartes[1] ? nombresPartes[1][0] : '')).toUpperCase();
+
+                    return `
+                        <tr>
+                            <td>
+                                <div style="display:flex; align-items:center; gap:10px;">
+                                    <div style="width:34px; height:34px; border-radius:50%; background:var(--info-light); color:var(--info); font-weight:750; font-size:0.8rem; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                                        ${iniciales}
+                                    </div>
+                                    <div style="font-weight:700; color:var(--text-main);">${a.nombre_completo}</div>
+                                </div>
+                            </td>
+                            <td><span style="font-size:0.82rem; font-weight:600; color:#475569; background:#f1f5f9; padding:3px 8px; border-radius:6px;">${descClase}</span></td>
+                            <td>${statusBadge}</td>
+                            <td style="text-align:right; white-space:nowrap;">${actionBtn}</td>
+                        </tr>
+                    `;
+                }).join('');
+
+                const totalAlumnos = alumnosParaTarea.length;
+                const porcentaje = totalAlumnos > 0 ? Math.round((totalEntregadas / totalAlumnos) * 100) : 0;
+
+                document.getElementById('badge-conteo-entregas').textContent = `${totalEntregadas} / ${totalAlumnos} Entregadas (${porcentaje}%)`;
+                document.getElementById('barra-progreso-entregas').style.width = `${porcentaje}%`;
+
+            } catch (e) {
+                console.error('Error al cargar entregas de tarea:', e);
+            }
+        }
+
+        async function toggleEntregaTareaAlumno(alumnoId) {
+            if (!actividadSeleccionadaId) return;
+            try {
+                const res = await api('/api/actividades/toggle-entrega', 'POST', {
+                    actividad_id: actividadSeleccionadaId,
+                    alumno_id: alumnoId
+                });
+                playBeep(res.entregado ? 'success' : 'warning');
+                await cargarEntregasTareaActual();
+            } catch (err) {
+                alert(err.message);
+            }
+        }
+
+        async function procesarEscaneoQRTareas(codigoQR) {
+            if (!actividadSeleccionadaId) {
+                alert('Por favor selecciona primero una tarea activa.');
+                return;
+            }
+            if (!codigoQR || !codigoQR.trim()) return;
+            const code = codigoQR.trim();
+            const banner = document.getElementById('tareas-feedback');
+
+            try {
+                const res = await api('/api/actividades/marcar', 'POST', {
+                    codigo_qr: code,
+                    actividad_id: actividadSeleccionadaId
+                });
+                playBeep(res.status === 'warning' ? 'warning' : 'success');
+                banner.textContent = res.message || 'Tarea entregada con éxito';
+                banner.className = res.status === 'warning' ? 'feedback-banner warning' : 'feedback-banner success';
+                await cargarEntregasTareaActual();
+            } catch (err) {
+                playBeep('error');
+                banner.textContent = `❌ ${err.message}`;
+                banner.className = 'feedback-banner error';
+            }
+        }
+
+        function marcarTareaManualInput() {
+            const input = document.getElementById('input-tareas-codigo-manual');
+            const val = input.value.trim();
+            if (!val) return;
+            input.value = '';
+            procesarEscaneoQRTareas(val);
+        }
+
+        document.getElementById('input-tareas-codigo-manual')?.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') marcarTareaManualInput();
+        });
+
+        // 11. CÁMARA QR PARA TAREAS
+        async function toggleCamaraTareas() {
+            if (scannerTareas) {
+                await detenerCamaraTareas();
+            } else {
+                await iniciarCamaraTareas();
+            }
+        }
+
+        async function iniciarCamaraTareas() {
+            const btnToggle = document.getElementById('btn-toggle-camara-tareas');
+            const btnFlip = document.getElementById('btn-flip-camara-tareas');
+            const placeholder = document.getElementById('scanner-placeholder-tareas');
+
+            if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+                const abrirHttps = confirm(
+                    "🔒 Apple (Safari en iPhone) bloquea el acceso a la cámara en direcciones locales 'http://192.168...'.\n\n" +
+                    "Para usar la cámara de tu celular, debes abrir el enlace seguro HTTPS:\n" +
+                    "https://dealt-rick-dock-mins.trycloudflare.com\n\n" +
+                    "¿Deseas abrir la versión segura HTTPS ahora?"
+                );
+                if (abrirHttps) {
+                    window.location.href = "https://dealt-rick-dock-mins.trycloudflare.com/admin.html";
+                }
+                return;
+            }
+
+            try {
+                if (!scannerTareas) {
+                    scannerTareas = new Html5Qrcode("reader-tareas-qr");
+                }
+                placeholder.style.display = 'none';
+
+                const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+                const qrCallback = (decodedText) => {
+                    procesarEscaneoQRTareas(decodedText);
+                };
+
+                const modoCamara = (camaraActualIndex % 2 === 0) ? { facingMode: "environment" } : { facingMode: "user" };
+
+                try {
+                    await scannerTareas.start(modoCamara, config, qrCallback, () => {});
+                } catch (errFacing) {
+                    camarasDisponibles = await Html5Qrcode.getCameras();
+                    if (camarasDisponibles && camarasDisponibles.length > 0) {
+                        const cameraId = camarasDisponibles[camaraActualIndex % camarasDisponibles.length].id;
+                        await scannerTareas.start(cameraId, config, qrCallback, () => {});
+                    } else {
+                        throw errFacing;
+                    }
+                }
+
+                btnToggle.innerHTML = '<i class="fa-solid fa-stop"></i> Detener';
+                btnToggle.style.background = 'var(--danger)';
+                btnFlip.style.display = 'inline-flex';
+            } catch (err) {
+                console.error('Error al iniciar cámara tareas:', err);
+                placeholder.style.display = 'block';
+                alert('No se pudo acceder a la cámara.\n\nDetalle: ' + (err.message || err));
+            }
+        }
+
+        async function detenerCamaraTareas() {
+            if (!scannerTareas) return;
+            try {
+                await scannerTareas.stop();
+                scannerTareas = null;
+            } catch (e) { }
+            const btnToggle = document.getElementById('btn-toggle-camara-tareas');
+            const btnFlip = document.getElementById('btn-flip-camara-tareas');
+            const placeholder = document.getElementById('scanner-placeholder-tareas');
+
+            if (btnToggle) {
+                btnToggle.innerHTML = '<i class="fa-solid fa-video"></i> Iniciar Cámara';
+                btnToggle.style.background = '#0284c7';
+            }
+            if (btnFlip) btnFlip.style.display = 'none';
+            if (placeholder) placeholder.style.display = 'block';
+        }
+
+        async function cambiarCamaraTareas() {
+            if (!scannerTareas || camarasDisponibles.length < 2) return;
+            await detenerCamaraTareas();
+            camaraActualIndex++;
+            await iniciarCamaraTareas();
+        }
+
+        function abrirModalNuevaTarea() {
+            document.getElementById('formNuevaTarea').reset();
+            document.getElementById('modal-nueva-tarea').style.display = 'flex';
+        }
+
+        document.getElementById('formNuevaTarea').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const titulo = document.getElementById('nueva_tarea_titulo').value.trim();
+            const claseId = document.getElementById('nueva_tarea_clase').value || null;
+            const descripcion = document.getElementById('nueva_tarea_descripcion').value.trim();
+
+            try {
+                await api('/api/actividades', 'POST', {
+                    titulo,
+                    descripcion,
+                    clase_id: claseId ? Number(claseId) : null
+                });
+                cerrarModal('modal-nueva-tarea');
+                await cargarActividades();
+            } catch (err) {
+                alert(err.message);
+            }
+        });
+
+        // 12. DESCARGA DE REPORTES
+        async function descargarReporteAsistenciaPDF(btn) {
+            const mes = document.getElementById('reporte-mes-input').value;
+            const claseId = document.getElementById('reporte-clase-select').value;
+            const feedback = document.getElementById('reporte-feedback');
+
+            if (!mes) {
+                alert('Por favor selecciona el periodo (mes y año).');
+                return;
+            }
+            if (!claseId) {
+                alert('Por favor selecciona una clase o grupo para generar el reporte.');
+                return;
+            }
+
+            const textoOriginal = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generando PDF...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`/api/reporte/pdf_detallado?mes=${mes}&clase_id=${claseId}`, {
+                    headers: authHeaders
+                });
+
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.error || 'Error al generar el reporte.');
+                }
+
+                const blob = await res.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Reporte_Asistencia_${mes}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+
+                feedback.textContent = '✅ Reporte de asistencia descargado correctamente.';
+                feedback.className = 'feedback-banner success';
+            } catch (err) {
+                feedback.textContent = `❌ ${err.message}`;
+                feedback.className = 'feedback-banner error';
+            } finally {
+                btn.innerHTML = textoOriginal;
+                btn.disabled = false;
+            }
+        }
+
+        async function descargarReporteTareasPDF(btn) {
+            const mes = document.getElementById('reporte-mes-input').value;
+            const claseId = document.getElementById('reporte-clase-select').value;
+            const feedback = document.getElementById('reporte-feedback');
+
+            const textoOriginal = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generando PDF...';
+            btn.disabled = true;
+
+            try {
+                const query = new URLSearchParams();
+                if (mes) query.append('mes', mes);
+                if (claseId) query.append('clase_id', claseId);
+
+                const res = await fetch(`/api/reporte/pdf_tareas?${query.toString()}`, {
+                    headers: authHeaders
+                });
+
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.error || 'Error al generar el reporte de tareas.');
+                }
+
+                const blob = await res.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Reporte_Tareas_${mes || 'general'}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+
+                feedback.textContent = '✅ Reporte de tareas descargado correctamente.';
+                feedback.className = 'feedback-banner success';
+            } catch (err) {
+                feedback.textContent = `❌ ${err.message}`;
+                feedback.className = 'feedback-banner error';
+            } finally {
+                btn.innerHTML = textoOriginal;
+                btn.disabled = false;
+            }
+        }
+
+        // 13. MODAL Y RENDERIZADO DE CREDENCIALES QR
+        function abrirModalCredencialesQR() {
+            document.getElementById('modal-credenciales-qr').style.display = 'flex';
+            renderizarCredencialesQR();
+        }
+
+        function renderizarCredencialesQR() {
+            const cont = document.getElementById('contenedor-impresion-qr');
+            if (!cont) return;
+
+            const filtroClase = document.getElementById('filtro-clase-credenciales')?.value || 'todas';
+            const formato = document.getElementById('formato-credenciales')?.value || 'credencial';
+
+            let alumnos = globalAlumnos;
+            if (filtroClase !== 'todas') {
+                alumnos = globalAlumnos.filter(a => String(a.clase_id) === String(filtroClase));
+            }
+
+            if (alumnos.length === 0) {
+                cont.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:30px; color:var(--text-muted);">No hay alumnos para mostrar con este filtro.</div>';
+                return;
+            }
+
+            cont.innerHTML = '';
+            alumnos.forEach(alumno => {
+                const card = document.createElement('div');
+                card.className = 'tarjeta-credencial';
+                const descClase = (alumno.nombre_grado || alumno.nombre_grupo)
+                    ? `${alumno.nombre_grado || ''} "${alumno.nombre_grupo || ''}"`
+                    : 'Sin Grupo';
+                const qrCodeValue = alumno.codigo_qr || alumno.nfc_uid || `ALU-${alumno.id}`;
+
+                if (formato === 'sticker') {
+                    card.style.cssText = 'background:white; border:1px solid #cbd5e1; border-radius:8px; padding:10px; display:flex; flex-direction:column; align-items:center; text-align:center; box-shadow:0 1px 3px rgba(0,0,0,0.05);';
+                    card.innerHTML = `
+                        <div style="font-size:0.7rem; font-weight:700; color:#475569; text-transform:uppercase; margin-bottom:4px;">${nombreEscuela || 'Control Escolar'}</div>
+                        <div class="qr-target-${alumno.id}" style="margin:4px 0;"></div>
+                        <div style="font-size:0.8rem; font-weight:800; color:#0f172a; margin-top:4px; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${alumno.nombre_completo}</div>
+                        <div style="font-size:0.7rem; color:#64748b; font-weight:600;">${descClase}</div>
+                        <div style="font-family:monospace; font-size:0.65rem; color:#94a3b8; margin-top:2px;">${qrCodeValue}</div>
+                    `;
+                } else {
+                    card.style.cssText = 'background:white; border:1px solid #cbd5e1; border-radius:12px; overflow:hidden; box-shadow:0 2px 4px rgba(0,0,0,0.06); display:flex; flex-direction:column;';
+                    card.innerHTML = `
+                        <div style="background:#065f46; color:white; padding:8px 12px; display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-size:0.75rem; font-weight:800; text-transform:uppercase; letter-spacing:0.04em;">${nombreEscuela || 'Credencial de Alumno'}</span>
+                            <span style="font-size:0.65rem; background:rgba(255,255,255,0.2); padding:2px 6px; border-radius:4px; font-weight:700;">QR DOCENTE</span>
+                        </div>
+                        <div style="padding:12px; display:flex; gap:12px; align-items:center; flex-grow:1;">
+                            <div class="qr-target-${alumno.id}"></div>
+                            <div style="flex:1; min-width:0;">
+                                <div style="font-size:0.88rem; font-weight:800; color:#0f172a; line-height:1.2; margin-bottom:4px;">${alumno.nombre_completo}</div>
+                                <div style="font-size:0.75rem; color:#475569; margin-bottom:2px;"><strong style="color:#0f172a;">Grupo:</strong> ${descClase}</div>
+                                <div style="font-size:0.7rem; color:#64748b;"><strong style="color:#0f172a;">Tutor:</strong> ${alumno.telefono_tutor || 'No registrado'}</div>
+                                <div style="font-family:monospace; font-size:0.68rem; background:#ecfdf5; padding:2px 6px; border-radius:4px; margin-top:6px; display:inline-block; border:1px solid #a7f3d0; color:#065f46;">${qrCodeValue}</div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                cont.appendChild(card);
+
+                const targetEl = card.querySelector(`.qr-target-${alumno.id}`);
+                if (targetEl && window.QRCode) {
+                    new QRCode(targetEl, {
+                        text: qrCodeValue,
+                        width: formato === 'sticker' ? 80 : 85,
+                        height: formato === 'sticker' ? 80 : 85,
+                        colorDark: "#0f172a",
+                        colorLight: "#ffffff",
+                        correctLevel: QRCode.CorrectLevel.M
+                    });
+                }
+            });
+        }
+
+        function imprimirCredenciales() {
+            window.print();
+        }
+
+        // 14. HELPERS GENERALES
+        function cerrarModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) modal.style.display = 'none';
+        }
+
+        function cerrarSesion() {
+            localStorage.clear();
+            window.location.href = '/login.html';
+        }
+
+        // 15. INICIALIZACIÓN
+        window.addEventListener('DOMContentLoaded', async () => {
+            const ahora = new Date();
+            const hoyStr = `${ahora.getFullYear()}-${String(ahora.getMonth() + 1).padStart(2, '0')}-${String(ahora.getDate()).padStart(2, '0')}`;
+            const inputFecha = document.getElementById('asistencia-fecha-filtro');
+            if (inputFecha) inputFecha.value = hoyStr;
+
+            const inputMes = document.getElementById('reporte-mes-input');
+            if (inputMes) inputMes.value = hoyStr.substring(0, 7);
+
+            // Verificar estado de prueba gratuita o licencia vitalicia
+            await verificarEstadoLicencia();
+
+            // Cargar datos iniciales
+            await cargarClases();
+            await cargarAlumnos();
+            await cargarAsistenciasHoy();
+        });
+
+    </script>
+</body>
+
+</html>

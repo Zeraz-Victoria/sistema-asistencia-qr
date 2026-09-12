@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión | AsistenciaQR</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+
+        :root {
+            /* Tema Pro (Verde Bosque Institucional) */
+            --primary: #065f46;
+            --primary-hover: #047857;
+            --bg-body: #f3f4f6;
+            --bg-card: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border: #e2e8f0;
+            --danger: #ef4444;
+            --radius-lg: 12px;
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-body);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: var(--text-main);
+        }
+
+        .login-card {
+            background-color: var(--bg-card);
+            padding: 2.5rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-xl);
+            width: 100%;
+            max-width: 380px;
+            text-align: center;
+            border: 1px solid var(--border);
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .icon-header {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: inline-block;
+        }
+
+        h2 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        p.subtitle {
+            margin: 0 0 2rem 0;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-main);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-sizing: border-box;
+            background-color: #f9fafb;
+            transition: var(--transition);
+            color: var(--text-main);
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background-color: #fff;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        button {
+            width: 100%;
+            padding: 0.85rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            background-color: var(--primary);
+            color: white;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 0.5rem;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        button:disabled {
+            background-color: #cbd5e1;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-msg {
+            color: var(--danger);
+            margin-top: 1.5rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+            padding: 10px;
+            background-color: #fef2f2;
+            border-radius: 8px;
+            border: 1px solid #fee2e2;
+            display: none;
+            /* Oculto por defecto */
+        }
+
+        .error-msg.visible {
+            display: block;
+            animation: shake 0.3s;
+        }
+
+        .success-msg {
+            color: #16a34a;
+            margin-top: 1.5rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+            padding: 10px;
+            background-color: #f0fdf4;
+            border-radius: 8px;
+            border: 1px solid #bbf7d0;
+            display: none;
+        }
+
+        .success-msg.visible {
+            display: block;
+        }
+
+        .toggle-link-container a {
+            transition: var(--transition);
+        }
+
+        .toggle-link-container a:hover {
+            color: var(--primary-hover) !important;
+            text-decoration: underline !important;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            75% {
+                transform: translateX(5px);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 1.5rem;
+                max-width: 90%;
+            }
+
+            .icon-header {
+                font-size: 2.5rem;
+            }
+
+            h2 {
+                font-size: 1.25rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-card">
+        <div class="icon-header">📱</div>
+        <h2 id="card-title">AsistenciaQR</h2>
+        <p class="subtitle" id="card-subtitle" style="display:none;"></p>
+
+        <div id="login-container">
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">Correo o Usuario</label>
+                    <input type="text" id="email" required placeholder="tu@correo.com o tu usuario" autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="password">Contraseña</label>
+                    <input type="password" id="password" required placeholder="••••••••" autocomplete="current-password">
+                </div>
+                <button type="submit" id="btn-submit">Iniciar Sesión</button>
+            </form>
+            <p class="toggle-link-container" style="margin-top: 1.25rem; font-size: 0.9rem; color: var(--text-muted);">
+                ¿Eres nuevo docente? <a href="#" id="to-register" style="color: var(--primary); font-weight: 600; text-decoration: none;">Crear Cuenta de Docente</a>
+            </p>
+        </div>
+
+        <div id="register-container" style="display: none;">
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="reg-nombre-director">Tu Nombre Completo</label>
+                    <input type="text" id="reg-nombre-director" required placeholder="Ej. Prof. Roberto Morales">
+                </div>
+                <div class="form-group">
+                    <label for="reg-nombre-escuela">Escuela o Materia (Opcional)</label>
+                    <input type="text" id="reg-nombre-escuela" placeholder="Ej. Secundaria Técnica 45 / Matemáticas">
+                </div>
+                <div class="form-group">
+                    <label for="reg-email">Correo Electrónico</label>
+                    <input type="email" id="reg-email" required placeholder="profesor@ejemplo.com" autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label for="reg-password">Contraseña</label>
+                    <input type="password" id="reg-password" required placeholder="••••••••" autocomplete="new-password">
+                </div>
+                <div class="form-group">
+                    <label for="reg-confirm-password">Confirmar Contraseña</label>
+                    <input type="password" id="reg-confirm-password" required placeholder="••••••••" autocomplete="new-password">
+                </div>
+
+                <!-- Tarjeta de Beneficio: 7 Días Gratis -->
+                <div style="background:#ecfdf5; border:1px solid #a7f3d0; border-radius:10px; padding:12px 14px; margin:15px 0; text-align:left;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-weight:800; font-size:0.95rem; color:#065f46;">✨ 7 Días de Prueba Gratis</span>
+                        <span style="background:#065f46; color:white; font-size:0.8rem; font-weight:800; padding:3px 8px; border-radius:6px;">Sin Tarjeta</span>
+                    </div>
+                    <div style="font-size:0.78rem; color:#047857; margin-top:6px; line-height:1.4;">
+                        ✓ Acceso completo a todas las funciones por 7 días<br>
+                        ✓ Después solo <strong>$99 MXN</strong> pago único de por vida
+                    </div>
+                </div>
+
+                <button type="submit" id="btn-submit-register" style="background:#065f46;">
+                    🚀 Comenzar Prueba Gratis de 7 Días
+                </button>
+            </form>
+            <p class="toggle-link-container" style="margin-top: 1.25rem; font-size: 0.9rem; color: var(--text-muted);">
+                ¿Ya tienes una cuenta? <a href="#" id="to-login" style="color: var(--primary); font-weight: 600; text-decoration: none;">Iniciar Sesión</a>
+            </p>
+        </div>
+
+        <div id="abuse-payment-container" style="display: none; margin-top: 15px; text-align: left; background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; padding: 14px;">
+            <div style="font-weight: 700; color: #92400e; font-size: 0.95rem; margin-bottom: 6px;">🔒 Periodo de Prueba Ya Utilizado</div>
+            <div style="font-size: 0.82rem; color: #b45309; line-height: 1.4; margin-bottom: 12px;">
+                Este dispositivo ya utilizó sus 7 días de prueba gratuita. Para continuar usando AsistenciaQR, puedes activar tu cuenta vitalicia por $99 MXN vía WhatsApp.
+            </div>
+            <button id="btn-pay-abuse" type="button" style="background: #25d366; color: white; margin: 0; padding: 11px 16px; font-size: 0.95rem; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%;">
+                <i class="fa-brands fa-whatsapp" style="font-size: 1.2rem;"></i> Activar por WhatsApp ($99 MXN)
+            </button>
+        </div>
+
+
+        <div id="error-message" class="error-msg"></div>
+        <div id="success-message" class="success-msg"></div>
+    </div>
+
+
+    <script>
+        const form = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const errorDiv = document.getElementById('error-message');
+        const successDiv = document.getElementById('success-message');
+        const btnSubmit = document.getElementById('btn-submit');
+        const btnSubmitRegister = document.getElementById('btn-submit-register');
+
+        const loginContainer = document.getElementById('login-container');
+        const registerContainer = document.getElementById('register-container');
+        const cardTitle = document.getElementById('card-title');
+        const cardSubtitle = document.getElementById('card-subtitle');
+
+        const linkToRegister = document.getElementById('to-register');
+        const linkToLogin = document.getElementById('to-login');
+
+        // --- 1. Verificación de Sesión Activa ---
+        const token = localStorage.getItem('authToken');
+        const usuarioString = localStorage.getItem('usuario');
+
+        if (token && usuarioString) {
+            try {
+                const usuario = JSON.parse(usuarioString);
+                redirigirPorRol(usuario.rol);
+            } catch (e) { localStorage.clear(); }
+        }
+
+        // --- Toggles de Pantalla ---
+        linkToRegister.addEventListener('click', (e) => {
+            e.preventDefault();
+            mostrarError(null);
+            mostrarSuccess(null);
+            loginContainer.style.display = 'none';
+            registerContainer.style.display = 'block';
+            cardTitle.textContent = 'Registrar Escuela';
+            cardSubtitle.textContent = 'Registra tu kit escolar para comenzar';
+            cardSubtitle.style.display = 'block';
+        });
+
+        linkToLogin.addEventListener('click', (e) => {
+            e.preventDefault();
+            mostrarError(null);
+            mostrarSuccess(null);
+            registerContainer.style.display = 'none';
+            loginContainer.style.display = 'block';
+            cardTitle.textContent = 'AsistenciaQR';
+            cardSubtitle.textContent = '';
+            cardSubtitle.style.display = 'none';
+        });
+
+        // --- 2. Manejo del Login ---
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            mostrarError(null); // Limpiar errores previos
+            mostrarSuccess(null);
+            btnSubmit.disabled = true;
+            btnSubmit.textContent = "Verificando...";
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const respuesta = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await respuesta.json();
+
+                if (!respuesta.ok) {
+                    throw new Error(data.error || 'Credenciales incorrectas');
+                }
+
+                // Guardar datos
+                localStorage.setItem('authToken', data.token);
+                localStorage.setItem('usuario', JSON.stringify(data.usuario));
+                if (data.nombre_escuela) {
+                    localStorage.setItem('nombreEscuela', data.nombre_escuela);
+                    localStorage.setItem('nombreEscuelaKiosco', data.nombre_escuela);
+                }
+
+                // Redirección
+                redirigirPorRol(data.usuario.rol);
+
+            } catch (err) {
+                mostrarError(err.message);
+                btnSubmit.disabled = false;
+                btnSubmit.textContent = "Iniciar Sesión";
+            }
+        });
+
+        // --- Huella Digital del Dispositivo (Anti-Abuso) ---
+        function getDeviceFingerprint() {
+            let fp = localStorage.getItem('asistencia_device_fingerprint');
+            if (!fp) {
+                // Leer cookie si existe
+                const match = document.cookie.match(new RegExp('(^| )asistencia_device_fp=([^;]+)'));
+                if (match) fp = match[2];
+            }
+            if (!fp) {
+                try {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    ctx.textBaseline = "alphabetic";
+                    ctx.fillStyle = "#065f46";
+                    ctx.fillRect(10, 10, 80, 20);
+                    ctx.fillStyle = "#ffffff";
+                    ctx.fillText("AsistenciaQR-7d", 15, 24);
+                    const b64 = canvas.toDataURL();
+                    let hash = 0;
+                    for (let i = 0; i < b64.length; i++) {
+                        hash = ((hash << 5) - hash) + b64.charCodeAt(i);
+                        hash |= 0;
+                    }
+                    fp = 'dev_' + Math.abs(hash).toString(36) + '_' + Math.random().toString(36).substring(2, 8);
+                } catch(e) {
+                    fp = 'dev_' + Math.random().toString(36).substring(2, 10) + '_' + Date.now().toString(36);
+                }
+            }
+            // Persistir tanto en localStorage como en Cookie (1 año)
+            localStorage.setItem('asistencia_device_fingerprint', fp);
+            const d = new Date();
+            d.setTime(d.getTime() + (365 * 24 * 60 * 60 * 1000));
+            document.cookie = `asistencia_device_fp=${fp};expires=${d.toUTCString()};path=/;SameSite=Lax`;
+            return fp;
+        }
+
+        let ultimoAbusoData = null;
+        const abusePaymentContainer = document.getElementById('abuse-payment-container');
+        const btnPayAbuse = document.getElementById('btn-pay-abuse');
+        btnPayAbuse.addEventListener('click', () => {
+
+            const telefono = "522723303963";
+            const email = document.getElementById('reg-email').value.trim();
+            const nombre = document.getElementById('reg-nombre-director').value.trim();
+            const escuela = document.getElementById('reg-nombre-escuela').value.trim() || 'Mi Escuela';
+            const mensaje = `Hola, mi periodo de prueba de AsistenciaQR ha finalizado y quiero activar mi cuenta ($99 MXN pago único).\n\n*Escuela:* ${escuela}\n*Docente:* ${nombre}\n*Correo/Usuario:* ${email}`;
+            window.open(`https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`, '_blank');
+        });
+
+
+        // --- 3. Manejo del Registro con 7 DÍAS DE PRUEBA GRATIS ---
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            mostrarError(null);
+            mostrarSuccess(null);
+            abusePaymentContainer.style.display = 'none';
+
+            const nombreEscuela = document.getElementById('reg-nombre-escuela').value.trim();
+            const nombreDirector = document.getElementById('reg-nombre-director').value.trim();
+            const emailDirector = document.getElementById('reg-email').value.trim();
+            const passwordDirector = document.getElementById('reg-password').value;
+            const confirmPasswordDirector = document.getElementById('reg-confirm-password').value;
+
+            if (passwordDirector !== confirmPasswordDirector) {
+                mostrarError('Las contraseñas no coinciden.');
+                return;
+            }
+
+            btnSubmitRegister.disabled = true;
+            btnSubmitRegister.textContent = "Creando tu cuenta de prueba...";
+
+            try {
+                const deviceFingerprint = getDeviceFingerprint();
+
+                const respuesta = await fetch('/api/auth/registro-docente', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        nombre_completo: nombreDirector,
+                        nombre_escuela: nombreEscuela,
+                        email: emailDirector,
+                        password: passwordDirector,
+                        device_fingerprint: deviceFingerprint
+                    })
+                });
+
+                const data = await respuesta.json();
+
+                if (respuesta.status === 403 && data.bloqueo_abuso) {
+                    ultimoAbusoData = data;
+                    mostrarError(data.error || 'Periodo de prueba gratuito ya utilizado en este dispositivo.');
+                    abusePaymentContainer.style.display = 'block';
+                    btnSubmitRegister.disabled = false;
+                    btnSubmitRegister.textContent = "🚀 Comenzar Prueba Gratis de 7 Días";
+                    return;
+                }
+
+                if (!respuesta.ok) {
+                    throw new Error(data.error || 'No se pudo crear la cuenta.');
+                }
+
+                // Registro exitoso con 7 DÍAS GRATIS
+                localStorage.setItem('authToken', data.token);
+                localStorage.setItem('usuario', JSON.stringify(data.usuario));
+                if (data.nombre_escuela) {
+                    localStorage.setItem('nombreEscuela', data.nombre_escuela);
+                    localStorage.setItem('nombreEscuelaKiosco', data.nombre_escuela);
+                }
+
+                mostrarSuccess('🎉 ¡Bienvenido! Tu periodo de 7 días de prueba gratis está activo. Entrando...');
+                setTimeout(() => {
+                    window.location.href = '/admin.html';
+                }, 900);
+
+            } catch (err) {
+                mostrarError(err.message);
+                btnSubmitRegister.disabled = false;
+                btnSubmitRegister.textContent = "🚀 Comenzar Prueba Gratis de 7 Días";
+            }
+        });
+
+        // --- 4. Verificación de Retorno de Pasarela (Mercado Pago / OXXO) ---
+        const urlParams = new URLSearchParams(window.location.search);
+        const estadoPago = urlParams.get('pago');
+        const emailParam = urlParams.get('email');
+        const instParam = urlParams.get('institucion_id');
+
+        if (estadoPago === 'aprobado') {
+            mostrarSuccess('🎉 ¡Pago de $99 MXN aprobado! Tu cuenta vitalicia ha sido activada. Ya puedes iniciar sesión.');
+            if (emailParam) document.getElementById('email').value = emailParam;
+        } else if (estadoPago === 'pendiente_oxxo') {
+            mostrarSuccess('⏳ Ficha de OXXO generada. En cuanto realices tu pago en tienda OXXO, tu cuenta vitalicia se activará automáticamente.');
+            if (emailParam) document.getElementById('email').value = emailParam;
+        } else if (estadoPago === 'fallido') {
+            mostrarError('❌ El pago no se completó. Puedes intentar nuevamente.');
+        } else if (estadoPago === 'simulacion') {
+            mostrarSuccess('⚙️ Modo Pruebas Activo: Haz clic abajo para simular la confirmación del pago de $99 MXN.');
+            const simBtn = document.createElement('button');
+            simBtn.type = 'button';
+            simBtn.className = 'btn-submit';
+            simBtn.style.cssText = 'background:#10b981; color:white; border:none; padding:12px; border-radius:8px; width:100%; margin:12px 0; font-weight:700; cursor:pointer; font-size:0.95rem;';
+            simBtn.innerHTML = '✅ Simular Pago Aprobado ($99 MXN)';
+            simBtn.onclick = async () => {
+                simBtn.disabled = true;
+                simBtn.textContent = 'Activando cuenta...';
+                try {
+                    const res = await fetch('/api/pagos/confirmar-simulacion', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ institucion_id: instParam, email: emailParam })
+                    });
+                    const d = await res.json();
+                    if (res.ok) {
+                        mostrarSuccess('🎉 ¡Simulación exitosa! Cuenta activada de por vida. Ya puedes iniciar sesión con tu contraseña.');
+                        simBtn.remove();
+                        if (emailParam) document.getElementById('email').value = emailParam;
+                    } else {
+                        throw new Error(d.error || 'Error al activar');
+                    }
+                } catch(e) { mostrarError(e.message); simBtn.disabled = false; }
+            };
+            document.getElementById('login-container').prepend(simBtn);
+        }
+
+
+        // --- Helpers ---
+        function redirigirPorRol(rol) {
+            window.location.href = '/admin.html';
+        }
+
+        function mostrarError(msg) {
+            if (msg) {
+                errorDiv.textContent = msg;
+                errorDiv.classList.add('visible');
+            } else {
+                errorDiv.classList.remove('visible');
+                errorDiv.textContent = '';
+            }
+        }
+
+        function mostrarSuccess(msg) {
+            if (msg) {
+                successDiv.textContent = msg;
+                successDiv.classList.add('visible');
+            } else {
+                successDiv.classList.remove('visible');
+                successDiv.textContent = '';
+            }
+        }
+    </script>
+</body>
+
+</html>

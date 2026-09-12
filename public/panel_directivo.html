@@ -1,0 +1,1682 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Directivo | Gestión Escolar</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-body: #f3f4f6;
+            --bg-card: #ffffff;
+            --bg-sidebar: #1e293b;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --text-light: #f8fafc;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --radius-md: 8px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            font-size: 15px;
+        }
+
+        /* SIDEBAR */
+        nav {
+            width: 260px;
+            background: var(--bg-sidebar);
+            color: var(--text-light);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            flex-shrink: 0;
+        }
+
+        nav h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin: 0 0 30px 0;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            color: #fff;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        nav .nav-btn {
+            width: 100%;
+            padding: 12px 16px;
+            text-align: left;
+            background: transparent;
+            color: #94a3b8;
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: 500;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        nav .nav-btn:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: #fff;
+        }
+
+        nav .nav-btn.activo {
+            background-color: var(--primary);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+
+        .btn-logout {
+            margin-top: auto;
+            background-color: rgba(239, 68, 68, 0.1) !important;
+            color: var(--danger) !important;
+            border: 1px solid rgba(239, 68, 68, 0.2) !important;
+        }
+
+        /* MAIN */
+        main {
+            flex-grow: 1;
+            padding: 40px;
+            overflow-y: auto;
+            background: var(--bg-body);
+        }
+
+        .contenedor-vista {
+            background: var(--bg-card);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            max-width: 1100px;
+            margin: 0 auto 30px auto;
+            border: 1px solid var(--border);
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .vista {
+            display: none;
+        }
+
+        .vista.activa {
+            display: block;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            color: var(--text-main);
+            margin-top: 0;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--bg-body);
+            font-weight: 600;
+        }
+
+        /* FORMULARIOS */
+        .form-grupo {
+            margin-bottom: 20px;
+        }
+
+        .form-grupo label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            background: #f9fafb;
+            font-family: inherit;
+            transition: 0.2s;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .form-btn {
+            background: var(--primary);
+            color: white;
+            padding: 14px;
+            border: none;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: 0.2s;
+        }
+
+        .form-btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-borrar {
+            padding: 6px 12px;
+            background: #fee2e2;
+            color: var(--danger);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .btn-borrar:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* TABLAS */
+        .tabla-wrapper {
+            overflow-x: auto;
+        }
+
+        .tabla-gestion {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 10px;
+        }
+
+        .tabla-gestion th {
+            background: #f8fafc;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            padding: 16px;
+            border-bottom: 2px solid var(--border);
+            text-align: left;
+        }
+
+        .tabla-gestion td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        /* CALENDARIO */
+        .controles {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .controles button {
+            background: #fff;
+            border: 1px solid var(--border);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        #calendario-headers {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            margin-bottom: 10px;
+        }
+
+        .dia-header {
+            font-weight: 700;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        #calendario {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+        }
+
+        .dia {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.1s;
+            user-select: none;
+        }
+
+        .dia:hover:not(.vacio):not(.fin-de-semana) {
+            border-color: var(--primary);
+            color: var(--primary);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .dia.fin-de-semana {
+            background-color: #fef2f2;
+            color: #f87171;
+            cursor: default;
+            border-color: transparent;
+        }
+
+        .dia.inhabil {
+            background-color: #fcd34d;
+            color: #78350f;
+            border-color: #fbbf24;
+            font-weight: 700;
+            transform: scale(0.95);
+        }
+
+        .dia.vacio {
+            background: transparent;
+            border: none;
+            cursor: default;
+        }
+
+        /* LAYOUT GESTIÓN */
+        .gestion-layout-triple {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 25px;
+            align-items: start;
+        }
+        .gestion-layout-triple > div {
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        /* UTILIDADES */
+        .mensaje-feedback {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            display: none;
+        }
+
+        .mensaje-feedback.exito {
+            background: #dcfce7;
+            color: #166534;
+            display: block;
+        }
+
+        .mensaje-feedback.error {
+            background: #fee2e2;
+            color: #991b1b;
+            display: block;
+        }
+
+        /* Switch Toggle (Discreto) */
+        .switch-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .switch-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 15px;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: 0.2s;
+            user-select: none;
+        }
+
+        .switch-container:hover {
+            border-color: var(--primary);
+            background: #f8fafc;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #cbd5e1;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background-color: var(--success);
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(24px);
+        }
+
+        /* BOTONES REPORTES */
+        .btn-reporte {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border: none;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-pdf {
+            background: #4f46e5;
+        }
+
+        .btn-csv {
+            background: #10b981;
+        }
+
+        .group-header td {
+            background-color: #f1f5f9;
+            color: #334155;
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+        }
+
+        /* MONTH PICKER */
+        .month-picker-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .picker-input-group {
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .picker-input-group input {
+            cursor: pointer;
+            padding-right: 40px;
+        }
+
+        .picker-icon {
+            position: absolute;
+            right: 12px;
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .month-picker {
+            position: absolute;
+            top: 110%;
+            left: 0;
+            width: 100%;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            z-index: 50;
+            padding: 15px;
+            display: none;
+            max-width: 300px;
+        }
+
+        .month-picker.show {
+            display: block;
+            animation: fadeIn 0.15s ease-out;
+        }
+
+        .picker-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .picker-nav {
+            background: #f3f4f6;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+        }
+
+        .picker-nav:hover {
+            background: #e5e7eb;
+            color: var(--text-main);
+        }
+
+        .months-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .month-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            padding: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: var(--text-main);
+            transition: 0.2s;
+        }
+
+        .month-btn:hover {
+            background: #f3f4f6;
+        }
+
+        .month-btn.selected {
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+                height: auto;
+                overflow: auto;
+            }
+
+            nav {
+                width: 100%;
+                flex-direction: row;
+                overflow-x: auto;
+                padding: 10px;
+                height: auto;
+            }
+
+            nav h1 {
+                display: none;
+            }
+
+            nav ul {
+                flex-direction: row;
+                gap: 10px;
+            }
+
+            .btn-logout {
+                margin-left: auto;
+                margin-top: 0;
+                padding: 8px 12px;
+            }
+
+            main {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav>
+        <h1 id="tituloEscuela">Panel Director</h1>
+        <ul>
+            <li><button class="nav-btn activo" data-vista="vista-dashboard"><i class="fa-solid fa-chart-pie"></i>
+                    Dashboard</button></li>
+            <li><button class="nav-btn" data-vista="vista-gestionar"><i class="fa-solid fa-users"></i>
+                    Alumnos</button></li>
+            <li><button class="nav-btn" data-vista="vista-reportes"><i class="fa-solid fa-chart-bar"></i>
+                    Reportes</button></li>
+            <li><button class="nav-btn" data-vista="vista-calendario"><i class="fa-solid fa-calendar-days"></i>
+                    Calendario</button></li>
+            <li><button class="nav-btn" data-vista="vista-gestion-academica"><i class="fa-solid fa-school"></i>
+                    Académico</button></li>
+            <li><button class="nav-btn" data-vista="vista-avisos"><i class="fa-solid fa-bullhorn"></i>
+                    Avisos</button></li>
+
+        </ul>
+
+        <div
+            style="font-size:0.75rem; text-transform:uppercase; color:#94a3b8; margin:25px 0 10px 15px; font-weight:700; letter-spacing:0.05em;">
+            Plataformas</div>
+        <ul>
+            <li><a href="/kiosco.html" target="_blank" class="nav-btn" style="text-decoration:none;"><i
+                        class="fa-solid fa-tablet-screen-button"></i> Kiosco Presencial</a></li>
+            <li><a href="/portal.html" id="link-portal" target="_blank" class="nav-btn" style="text-decoration:none;"><i
+                        class="fa-solid fa-cloud"></i> Portal Tutores</a></li>
+        </ul>
+        <button class="nav-btn btn-logout" onclick="cerrarSesion()"><i class="fa-solid fa-right-from-bracket"></i>
+            Salir</button>
+    </nav>
+
+    <div id="sub-suspended-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(239, 68, 68, 0.98); color: white; flex-direction: column; align-items: center; justify-content: center; z-index: 99999; text-align: center; padding: 20px; font-family: 'Inter', sans-serif;">
+        <span style="font-size: 5rem; margin-bottom: 20px;">⚠️</span>
+        <h1 style="font-size: 2.5rem; font-weight: 800; margin: 0 0 15px 0;">Cuenta Suspendida</h1>
+        <p style="font-size: 1.3rem; max-width: 600px; line-height: 1.6; color: #fee2e2; margin-bottom: 30px;">Se encuentra suspendida su cuenta por falta de pago. Por favor contacte al superadministrador.</p>
+    </div>
+
+    <main>
+        <div id="sub-warning-banner" style="display: none; background-color: #f59e0b; color: white; text-align: center; padding: 10px; font-weight: bold; font-size: 1rem; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></div>
+        <section id="vista-dashboard" class="vista activa">
+            <div class="contenedor-vista">
+                <h2>Resumen General</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                    <div style="background: #e0e7ff; padding: 20px; border-radius: 10px; text-align: center;">
+                        <h3 style="margin:0; color: #4338ca; font-size: 2.5rem;" id="dash-alumnos">0</h3>
+                        <p style="margin:5px 0 0 0; color: #6366f1; font-weight: 600;">Total Alumnos</p>
+                    </div>
+                    <div style="background: #dcfce7; padding: 20px; border-radius: 10px; text-align: center;">
+                        <h3 style="margin:0; color: #15803d; font-size: 2.5rem;" id="dash-asistencia">0</h3>
+                        <p style="margin:5px 0 0 0; color: #22c55e; font-weight: 600;">Asistencias Hoy</p>
+                    </div>
+                    <div style="background: #ffedd5; padding: 20px; border-radius: 10px; text-align: center;">
+                        <h3 style="margin:0; color: #c2410c; font-size: 2.5rem;" id="dash-porcentaje">0%</h3>
+                        <p style="margin:5px 0 0 0; color: #f97316; font-weight: 600;">% Asistencia</p>
+                    </div>
+                    <div style="background: #f3f4f6; padding: 20px; border-radius: 10px; text-align: center;">
+                        <h3 style="margin:0; color: #374151; font-size: 2.5rem;" id="dash-maestros">0</h3>
+                        <p style="margin:5px 0 0 0; color: #6b7280; font-weight: 600;">Maestros</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="vista-gestionar" class="vista">
+            <div class="contenedor-vista">
+                <h2>Registrar Nuevo Alumno</h2>
+                <form id="registroForm">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-grupo">
+                            <label>Nombre Completo</label>
+                            <input type="text" id="nombre_completo" required placeholder="Nombre y Apellidos">
+                        </div>
+                        <div class="form-grupo">
+                            <label>Teléfono Tutor</label>
+                            <input type="tel" id="telefono_tutor" required placeholder="+52...">
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-grupo">
+                            <label>Clase Asignada</label>
+                            <select id="select_clase" class="selector-clases-global" required>
+                                <option value="">Cargando...</option>
+                            </select>
+                        </div>
+                        <div class="form-grupo">
+                            <label>UID Tarjeta (NFC)</label>
+                            <input type="text" id="nfc_uid" required placeholder="Escanea tarjeta...">
+                        </div>
+                    </div>
+                    <button type="submit" class="form-btn" id="btn-reg-alumno">Registrar Alumno</button>
+                    <div id="mensaje-registro" class="mensaje-feedback"></div>
+                </form>
+            </div>
+            <div class="contenedor-vista">
+                <h2>Directorio de Alumnos</h2>
+                <div class="tabla-wrapper">
+                    <table class="tabla-gestion">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Clase</th>
+                                <th>UID</th>
+                                <th>Tutor</th>
+                                <th style="text-align: right;">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-alumnos-cuerpo"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="vista-reportes" class="vista">
+            <div class="contenedor-vista">
+                <h2>Centro de Reportes</h2>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-bottom:20px;">
+                    <div class="form-grupo">
+                        <div class="form-grupo">
+                            <label>Periodo</label>
+                            <div class="month-picker-wrapper">
+                                <div class="picker-input-group" onclick="togglePicker()">
+                                    <input type="text" id="mes-display" readonly placeholder="Seleccionar Mes..."
+                                        style="background:white;">
+                                    <i class="fa-regular fa-calendar picker-icon"></i>
+                                </div>
+                                <input type="hidden" id="mes-reporte"> <!-- Hidden Value for Backend -->
+
+                                <div class="month-picker" id="custom-picker">
+                                    <div class="picker-header">
+                                        <button class="picker-nav" onclick="changeYear(-1)" type="button"><i
+                                                class="fa-solid fa-chevron-left"></i></button>
+                                        <span id="picker-year">2024</span>
+                                        <button class="picker-nav" onclick="changeYear(1)" type="button"><i
+                                                class="fa-solid fa-chevron-right"></i></button>
+                                    </div>
+                                    <div class="months-grid" id="months-grid">
+                                        <!-- JS Generated -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-grupo">
+                            <label>Grupo Objetivo</label>
+                            <select id="selectClaseReporte" class="selector-clases-global">
+                                <option value="">-- Seleccionar --</option>
+                            </select>
+                        </div>
+                    </div>
+                    <!-- Solo mostramos el botón de Detallado Diario -->
+                    <div style="max-width: 450px; margin: 0 auto;">
+                        <button onclick="descargarReporte('detallado', this)" class="btn-reporte btn-pdf"><i
+                                class="fa-solid fa-list-check"></i> Detallado Diario (PDF)</button>
+                        <button onclick="descargarReporte('docente', this)" class="btn-reporte btn-csv"
+                            style="background:#6366f1"><i class="fa-solid fa-chalkboard-user"></i> Reporte Docente
+                            (PDF)</button>
+                    </div>
+                    <div id="mensaje-reporte" class="mensaje-feedback"></div>
+                </div>
+        </section>
+
+        <section id="vista-calendario" class="vista">
+            <div class="contenedor-vista" style="max-width: 800px;">
+                <h2 style="text-align: center; border:none;">Calendario Escolar y Horarios</h2>
+
+                <!-- CONFIGURACIÓN DE HORARIOS -->
+                <div style="background: #f8fafc; padding: 20px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 25px;">
+                    <h3 style="margin-top:0; font-size:1.1rem; color:var(--text-main);">Horario y Días de Clase</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 15px;">
+                        <div class="form-grupo" style="margin-bottom:0;">
+                            <label>Hora Entrada</label>
+                            <input type="time" id="hora_entrada">
+                        </div>
+                        <div class="form-grupo" style="margin-bottom:0;">
+                            <label>Hora Salida</label>
+                            <input type="time" id="hora_salida">
+                        </div>
+                    </div>
+
+                    <div class="switch-group">
+                        <label class="switch-container">
+                            <span class="switch-label"><i class="fa-solid fa-calendar-day"></i> Clases Sábados</span>
+                            <span class="switch">
+                                <input type="checkbox" id="clases_sabado">
+                                <span class="slider"></span>
+                            </span>
+                        </label>
+                        <label class="switch-container">
+                            <span class="switch-label"><i class="fa-solid fa-calendar-day"></i> Clases Domingos</span>
+                            <span class="switch">
+                                <input type="checkbox" id="clases_domingo">
+                                <span class="slider"></span>
+                            </span>
+                        </label>
+                    </div>
+
+                    <button onclick="guardarHorario()" class="form-btn" style="width: auto;">Guardar Configuración</button>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 10px;">
+                        <i class="fa-solid fa-circle-info"></i>
+                        La activación de fines de semana habilitará estos días en los reportes y el portal.
+                    </p>
+                </div>
+
+                <p style="text-align: center; color: var(--text-muted); margin-bottom:20px;">Clic en un día para
+                    marcarlo como Inhábil (Amarillo)</p>
+                <div class="controles">
+                    <button id="prev-mes">❮</button>
+                    <h3 id="mes-actual" style="font-size: 1.2rem; margin: 0; color: var(--primary);"></h3>
+                    <button id="next-mes">❯</button>
+                </div>
+                <div id="calendario-headers"></div>
+                <div id="calendario"></div>
+            </div>
+        </section>
+
+        <section id="vista-gestion-academica" class="vista">
+            <div class="gestion-layout-triple">
+                <div>
+                    <div class="contenedor-vista">
+                        <h2>Grados</h2>
+                        <form id="formCrearGrado" style="display:flex; gap:10px; margin-bottom:15px;">
+                            <input type="text" id="nombre_grado" placeholder="Ej: 1ro" required>
+                            <button type="submit" class="form-btn" style="width:auto;">+</button>
+                        </form>
+                        <table class="tabla-gestion">
+                            <tbody id="tabla-grados-cuerpo"></tbody>
+                        </table>
+                    </div>
+                    <div class="contenedor-vista">
+                        <h2>Grupos</h2>
+                        <form id="formCrearGrupo" style="display:flex; gap:10px; margin-bottom:15px;">
+                            <input type="text" id="nombre_grupo" placeholder="Ej: A" required>
+                            <button type="submit" class="form-btn" style="width:auto;">+</button>
+                        </form>
+                        <table class="tabla-gestion">
+                            <tbody id="tabla-grupos-cuerpo"></tbody>
+                        </table>
+                    </div>
+                    <div class="contenedor-vista">
+                        <h2>Alta de Docente</h2>
+                        <form id="formCrearMaestro">
+                            <div class="form-grupo">
+                                <label>Nombre Completo</label>
+                                <input type="text" id="nom_maestro" required placeholder="Nombre">
+                            </div>
+                            <div class="form-grupo">
+                                <label>Email</label>
+                                <input type="email" id="email_maestro" required placeholder="correo@ejemplo.com">
+                            </div>
+                            <div class="form-grupo">
+                                <label>Contraseña Temporal</label>
+                                <input type="password" id="pass_maestro" required placeholder="******">
+                            </div>
+                            <div class="form-grupo">
+                                <label>UID Tarjeta (NFC)</label>
+                                <input type="text" id="uid_maestro" placeholder="Escanea tarjeta (Opcional)">
+                            </div>
+                            <button type="submit" class="form-btn">Registrar Docente</button>
+                        </form>
+                        <hr>
+                        <h3>Plantilla Docente</h3>
+                        <table class="tabla-gestion">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th style="text-align:right">X</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabla-maestros-cuerpo"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="contenedor-vista">
+                    <h2>Crear Clase</h2>
+                    <form id="formCrearClase">
+                        <div class="form-grupo"><label>Grado</label><select id="select_grado_clase" required></select>
+                        </div>
+                        <div class="form-grupo"><label>Grupo</label><select id="select_grupo_clase" required></select>
+                        </div>
+                        <div class="form-grupo"><label>Maestro Titular</label><select
+                                id="select_maestro_clase"></select></div>
+                        <button type="submit" class="form-btn">Crear Clase</button>
+                    </form>
+                    <hr>
+                    <h3>Clases Activas</h3>
+                    <div class="tabla-wrapper" id="tabla-clases-container">
+                        <!-- Rendered by JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="vista-avisos" class="vista">
+            <div class="contenedor-vista">
+                <h2>Avisos Importantes</h2>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                    <!-- Crear Aviso -->
+                    <div>
+                        <h3 style="margin-top:0;">Nuevo Aviso</h3>
+                        <form id="formCrearAviso">
+                            <div class="form-grupo">
+                                <label>Título</label>
+                                <input type="text" id="titulo_aviso" required placeholder="Ej: Suspensión de Clases">
+                            </div>
+                            <div class="form-grupo">
+                                <label>Mensaje</label>
+                                <textarea id="mensaje_aviso" required rows="4"
+                                    style="width:100%; padding:12px; border:1px solid var(--border); border-radius:var(--radius-md); background:#f9fafb; font-family:inherit;"
+                                    placeholder="Detalles del aviso..."></textarea>
+                            </div>
+                            <button type="submit" class="form-btn">Publicar Aviso</button>
+                        </form>
+                    </div>
+
+                    <!-- Lista Avisos -->
+                    <div>
+                        <h3 style="margin-top:0;">Avisos Activos</h3>
+                        <div id="lista-avisos"
+                            style="max-height: 400px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px;">
+                            <!-- Cargado via JS -->
+                            <div style="text-align:center; color:var(--text-muted); padding:20px;">Cargando...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+    </main>
+
+    <script>
+        // ==========================================
+        // LÓGICA DE JAVASCRIPT (Restaurada y Segura)
+        // ==========================================
+
+        const token = localStorage.getItem('authToken');
+        let usuario = null;
+        try { usuario = JSON.parse(localStorage.getItem('usuario')); } catch (e) { }
+
+        if (!token || !usuario) window.location.href = '/login.html';
+        else if (usuario.rol === 'maestro') window.location.href = '/kiosco.html';
+
+        // --- CONTROL DE SUSCRIPCIÓN (PREPAGO) ---
+        async function verificarSuscripcion() {
+            if (!token) return;
+            try {
+                const res = await fetch('/api/sub-status', {
+                    method: 'GET',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (res.status === 402) {
+                    mostrarSuspension();
+                    return;
+                }
+
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.status === 'suspendido') {
+                        mostrarSuspension();
+                    } else {
+                        document.getElementById('sub-suspended-overlay').style.display = 'none';
+                        if (data.warning) {
+                            mostrarAdvertencia(data.daysLeft, data.plan);
+                        } else {
+                            ocultarAdvertencia();
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error("Error al verificar suscripción:", e);
+            }
+        }
+
+        function mostrarSuspension() {
+            document.getElementById('sub-suspended-overlay').style.display = 'flex';
+        }
+
+        function mostrarAdvertencia(daysLeft, plan) {
+            const banner = document.getElementById('sub-warning-banner');
+            if (banner) {
+                const nombrePlan = plan === 'basico' ? 'Básico' : plan === 'medio' ? 'Medio' : plan;
+                banner.textContent = `⚠️ Aviso: Tu cuenta del plan ${nombrePlan} se suspenderá en ${daysLeft} día(s) por falta de pago. Por favor realiza tu pago.`;
+                banner.style.display = 'block';
+            }
+        }
+
+        function ocultarAdvertencia() {
+            const banner = document.getElementById('sub-warning-banner');
+            if (banner) {
+                banner.style.display = 'none';
+            }
+        }
+
+        verificarSuscripcion();
+        setInterval(verificarSuscripcion, 15 * 60 * 1000);
+
+        const nombreEscuela = localStorage.getItem('nombreEscuela');
+        if (nombreEscuela) {
+            document.getElementById('tituloEscuela').textContent = nombreEscuela;
+            document.title = `${nombreEscuela} - Panel`;
+        }
+
+        // SET PORTAL LINK
+        const linkPortal = document.getElementById('link-portal');
+        if (linkPortal && usuario) {
+            const iid = usuario.institucion_id || 1;
+            linkPortal.href = `/portal.html?school=${iid}`;
+        }
+
+        const authHeaders = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
+        let fechaActual = new Date();
+
+        document.querySelectorAll('.nav-btn:not(.btn-logout)').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.vista').forEach(v => v.classList.remove('activa'));
+                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('activo'));
+                document.getElementById(btn.dataset.vista).classList.add('activa');
+                btn.classList.add('activo');
+
+                if (btn.dataset.vista === 'vista-dashboard') cargarDashboard();
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            cargarDashboard();
+            cargarAlumnos();
+            cargarGestionAcademica();
+            cargarHorario();
+            generarCalendario(); // Este ahora es robusto
+
+            document.getElementById('registroForm').addEventListener('submit', registrarAlumno);
+            document.getElementById('formCrearGrado').addEventListener('submit', (e) => crearSimple(e, '/api/gestion/grados', { nombre_grado: 'nombre_grado' }));
+            document.getElementById('formCrearGrupo').addEventListener('submit', (e) => crearSimple(e, '/api/gestion/grupos', { nombre_grupo: 'nombre_grupo' }));
+            document.getElementById('formCrearClase').addEventListener('submit', crearClase);
+            document.getElementById('formCrearMaestro').addEventListener('submit', crearMaestro);
+
+
+            // Init Month Picker
+            initMonthPicker();
+
+            const h = document.getElementById('calendario-headers');
+            ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'].forEach(d => h.innerHTML += `<div class="dia-header">${d}</div>`);
+            document.getElementById('prev-mes').onclick = () => { fechaActual.setMonth(fechaActual.getMonth() - 1); generarCalendario(); };
+            document.getElementById('next-mes').onclick = () => { fechaActual.setMonth(fechaActual.getMonth() + 1); generarCalendario(); };
+            document.getElementById('calendario').onclick = manejarClicCalendario;
+        });
+
+        // --- CORE ---
+        async function api(url, method = 'GET', body = null) {
+            const opts = { method, headers: authHeaders };
+            if (body) opts.body = JSON.stringify(body);
+            const res = await fetch(url, opts);
+
+            // Manejo robusto de errores
+            const contentType = res.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Error desconocido del servidor');
+                return data;
+            } else {
+                // Si no es JSON (ej. 404 HTML), lanzar error genérico
+                if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText}`);
+                return true;
+            }
+        }
+
+        function msg(id, txt, tipo) {
+            const el = document.getElementById(id);
+            el.textContent = txt; el.className = `mensaje-feedback ${tipo}`;
+            setTimeout(() => { el.style.display = 'none'; }, 3000);
+        }
+
+        // --- DASHBOARD ---
+        async function cargarDashboard() {
+            try {
+                const stats = await api('/api/dashboard/stats');
+                document.getElementById('dash-alumnos').textContent = stats.total_alumnos;
+                document.getElementById('dash-asistencia').textContent = stats.asistencia_hoy;
+                document.getElementById('dash-porcentaje').textContent = stats.porcentaje_asistencia + '%';
+                document.getElementById('dash-maestros').textContent = stats.total_maestros;
+            } catch (e) { console.error("Error dashboard", e); }
+        }
+
+        // --- ALUMNOS ---
+        function formatClasesMatriculadas(str) {
+            if (!str) return '';
+            const matches = [...str.matchAll(/\(([^)]+)\)/g)];
+            if (matches.length > 0) {
+                return matches.map(m => m[1]).join(', ');
+            }
+            return str;
+        }
+
+        async function cargarAlumnos() {
+            try {
+                const list = await api('/api/alumnos');
+                const tb = document.getElementById('tabla-alumnos-cuerpo');
+
+                let html = '';
+                let lastGroup = null;
+
+                list.forEach(a => {
+                    const currentGroup = `${a.nombre_grado || 'Sin Grado'} ${a.nombre_grupo || ''}`.trim();
+
+                    if (currentGroup !== lastGroup) {
+                        html += `<tr class="group-header"><td colspan="5">${currentGroup}</td></tr>`;
+                        lastGroup = currentGroup;
+                    }
+
+                    const claseCol = a.clases_matriculadas
+                        ? `${currentGroup} <br><span class="tag-clase" style="background:#e0e7ff; color:#4f46e5; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; display: inline-block; margin-top: 4px;" title="${a.clases_matriculadas}">${formatClasesMatriculadas(a.clases_matriculadas)}</span>`
+                        : currentGroup;
+
+                    html += `<tr>
+                        <td>${a.nombre_completo}</td>
+                        <td>${claseCol}</td>
+                        <td>${a.nfc_uid}</td>
+                        <td>${a.telefono_tutor}</td>
+                        <td style="text-align:right">
+                            <button type="button" class="btn-borrar" onclick="confirmarYBorrar(event, 'alumnos', ${a.id})">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>`;
+                });
+
+                tb.innerHTML = html;
+            } catch (e) { console.error("Error loading students:", e); }
+        }
+
+        async function registrarAlumno(e) {
+            e.preventDefault();
+            try {
+                await api('/api/registrar', 'POST', {
+                    nombre_completo: document.getElementById('nombre_completo').value,
+                    nfc_uid: document.getElementById('nfc_uid').value,
+                    telefono_tutor: document.getElementById('telefono_tutor').value,
+                    clase_id: document.getElementById('select_clase').value
+                });
+                msg('mensaje-registro', 'Registrado', 'exito'); e.target.reset(); cargarAlumnos();
+            } catch (e) { msg('mensaje-registro', e.message, 'error'); }
+        }
+
+        // --- GESTIÓN ACADÉMICA ---
+        async function cargarGestionAcademica() {
+            try {
+                // Consultar modelo departamental
+                const configMod = await api('/api/gestion/configuracion/modelo-departamental');
+                const isModeloDepartamental = configMod.modelo_departamental;
+
+                const [grados, grupos, maestros, clases] = await Promise.all([
+                    api('/api/gestion/grados'), api('/api/gestion/grupos'), api('/api/gestion/maestros'), api('/api/gestion/clases')
+                ]);
+
+                document.getElementById('tabla-grados-cuerpo').innerHTML = grados.map(g => `<tr><td>${g.nombre_grado}</td><td style="text-align:right"><button type="button" class="btn-borrar" onclick="confirmarYBorrar(event, 'grados', ${g.id})"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('');
+                document.getElementById('tabla-grupos-cuerpo').innerHTML = grupos.map(g => `<tr><td>${g.nombre_grupo}</td><td style="text-align:right"><button type="button" class="btn-borrar" onclick="confirmarYBorrar(event, 'grupos', ${g.id})"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('');
+                document.getElementById('tabla-maestros-cuerpo').innerHTML = maestros.map(m => `<tr><td>${m.nombre_completo}</td><td style="text-align:right"><button type="button" class="btn-borrar" onclick="confirmarYBorrar(event, 'maestros', ${m.id})"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('');
+
+                let tableHtml = '';
+                if (isModeloDepartamental) {
+                    tableHtml = `
+                        <table class="tabla-gestion">
+                            <thead>
+                                <tr>
+                                    <th>Clase</th>
+                                    <th>Materia</th>
+                                    <th>Docente</th>
+                                    <th>Horarios</th>
+                                    <th style="text-align:right">X</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${clases.map(c => {
+                                    const descClase = `${c.nombre_grado} ${c.nombre_grupo}`;
+                                    const descMateria = c.nombre_materia || '-';
+                                    const descDocente = c.nombre_maestro || 'Sin docente';
+                                    const descHorarios = c.horarios_str 
+                                        ? c.horarios_str 
+                                        : '<span style="color:#9ca3af; font-size:0.85rem;">Sin horarios</span>';
+
+                                    return `
+                                        <tr>
+                                            <td><strong>${descClase}</strong></td>
+                                            <td>${descMateria}</td>
+                                            <td>${descDocente}</td>
+                                            <td>${descHorarios}</td>
+                                            <td style="text-align:right">
+                                                <button type="button" class="btn-borrar" onclick="confirmarYBorrar(event, 'clases', ${c.id})"><i class="fa-solid fa-trash"></i></button>
+                                            </td>
+                                        </tr>`;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    `;
+                } else {
+                    tableHtml = `
+                        <table class="tabla-gestion">
+                            <thead>
+                                <tr>
+                                    <th>Clase</th>
+                                    <th>Docente</th>
+                                    <th style="text-align:right">X</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${clases.map(c => {
+                                    const descClase = `${c.nombre_grado} ${c.nombre_grupo}`;
+                                    const descDocente = c.nombre_maestro || 'Sin docente';
+
+                                    return `
+                                        <tr>
+                                            <td><strong>${descClase}</strong></td>
+                                            <td>${descDocente}</td>
+                                            <td style="text-align:right">
+                                                <button type="button" class="btn-borrar" onclick="confirmarYBorrar(event, 'clases', ${c.id})"><i class="fa-solid fa-trash"></i></button>
+                                            </td>
+                                        </tr>`;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    `;
+                }
+                document.getElementById('tabla-clases-container').innerHTML = tableHtml;
+
+                const llenar = (id, data, val, txt) => { document.getElementById(id).innerHTML = '<option value="">Seleccionar</option>' + data.map(d => `<option value="${d.id}">${d[txt]}</option>`).join(''); };
+                llenar('select_grado_clase', grados, 'id', 'nombre_grado');
+                llenar('select_grupo_clase', grupos, 'id', 'nombre_grupo');
+                llenar('select_maestro_clase', maestros, 'id', 'nombre_completo');
+
+                const optsClases = '<option value="">Seleccionar Clase</option>' + clases.map(c => `<option value="${c.id}">${c.nombre_grado} ${c.nombre_grupo}</option>`).join('');
+                document.querySelectorAll('.selector-clases-global').forEach(s => s.innerHTML = optsClases);
+            } catch (e) { }
+        }
+
+        async function crearSimple(e, url, map) {
+            e.preventDefault();
+            const body = {}; for (let k in map) body[k] = document.getElementById(map[k]).value;
+            try { await api(url, 'POST', body); e.target.reset(); cargarGestionAcademica(); } catch (e) { alert(e.message); }
+        }
+        async function crearClase(e) {
+            e.preventDefault();
+            try {
+                await api('/api/gestion/clases', 'POST', {
+                    grado_id: document.getElementById('select_grado_clase').value,
+                    grupo_id: document.getElementById('select_grupo_clase').value,
+                    maestro_id: document.getElementById('select_maestro_clase').value || null
+                }); e.target.reset(); cargarGestionAcademica();
+            } catch (e) { alert(e.message); }
+        }
+
+        // --- CREAR MAESTRO (CORREGIDO) ---
+        async function crearMaestro(e) {
+            e.preventDefault();
+            try {
+                await api('/api/gestion/maestros', 'POST', {
+                    nombre_completo: document.getElementById('nom_maestro').value,
+                    email: document.getElementById('email_maestro').value,
+                    password: document.getElementById('pass_maestro').value,
+                    nfc_uid: document.getElementById('uid_maestro').value || null
+                }); e.target.reset(); cargarGestionAcademica();
+            } catch (e) { alert(e.message); }
+        }
+
+        async function confirmarYBorrar(e, tipo, id) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (!confirm("¿Seguro que deseas eliminar este elemento?")) return;
+            try {
+                const endpoint = tipo === 'alumnos' ? '/api/alumnos/borrar' : `/api/gestion/${tipo}/${id}`;
+                const method = tipo === 'alumnos' ? 'POST' : 'DELETE';
+                const body = tipo === 'alumnos' ? { id } : null;
+                await api(endpoint, method, body);
+                tipo === 'alumnos' ? cargarAlumnos() : cargarGestionAcademica();
+            } catch (e) { alert(e.message); }
+        }
+
+        // --- CALENDARIO ROBUSTO (CORREGIDO PARA INTERACCIÓN) ---
+        async function generarCalendario() {
+            const cal = document.getElementById('calendario');
+            document.getElementById('mes-actual').textContent = fechaActual.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' }).toUpperCase();
+
+            let diasOff = new Set();
+            let config = { clases_sabado: false, clases_domingo: false };
+
+            try {
+                const m = `${fechaActual.getFullYear()}-${String(fechaActual.getMonth() + 1).padStart(2, '0')}`;
+                const [list, schedule] = await Promise.all([
+                    api(`/api/dias_inhabiles?mes=${m}`),
+                    api('/api/gestion/horario')
+                ]);
+                diasOff = new Set(list.map(i => i.fecha));
+                config = schedule || config;
+            } catch (e) { console.log("Modo offline calendario"); }
+
+            cal.innerHTML = '';
+            const first = new Date(fechaActual.getFullYear(), fechaActual.getMonth(), 1).getDay();
+            const total = new Date(fechaActual.getFullYear(), fechaActual.getMonth() + 1, 0).getDate();
+
+            for (let i = 0; i < first; i++) cal.innerHTML += `<div class="dia vacio"></div>`;
+
+            for (let d = 1; d <= total; d++) {
+                const date = new Date(fechaActual.getFullYear(), fechaActual.getMonth(), d);
+                const str = date.toLocaleDateString('sv-SE');
+                let cls = 'dia';
+                
+                const day = date.getDay();
+                const esWeekend = (day === 0 || day === 6);
+                const esSabadoHabilitado = (day === 6 && config.clases_sabado);
+                const esDomingoHabilitado = (day === 0 && config.clases_domingo);
+
+                if (esWeekend && !esSabadoHabilitado && !esDomingoHabilitado) {
+                    cls += ' fin-de-semana';
+                } else if (diasOff.has(str)) {
+                    cls += ' inhabil';
+                }
+
+                const div = document.createElement('div');
+                div.className = cls;
+                div.textContent = d;
+                div.dataset.fecha = str;
+                cal.appendChild(div);
+            }
+        }
+
+        async function manejarClicCalendario(e) {
+            const t = e.target;
+            if (!t.classList.contains('dia') || t.classList.contains('vacio')) return;
+            // Permitir clic en fin de semana SOLO si no tiene la clase 'fin-de-semana' (lo que indicaría que es hábil)
+            if (t.classList.contains('fin-de-semana')) return;
+
+            const esInhabil = t.classList.contains('inhabil');
+            // Si NO es inhabil (vamos a marcarlo), pedimos motivo
+            let motivo = null;
+            if (!esInhabil) {
+                motivo = prompt("Motivo de suspensión de clases (opcional):");
+                if (motivo === null) return; // Cancelado por usuario
+            }
+
+            t.classList.toggle('inhabil'); // Feedback instantáneo
+
+            try {
+                // Usamos dataset.fecha que ahora sí está correcto
+                const endpoint = esInhabil ? '/api/dias_inhabiles/quitar' : '/api/dias_inhabiles/agregar';
+                const payload = { fecha: t.dataset.fecha };
+                if (motivo) payload.motivo = motivo;
+
+                await api(endpoint, 'POST', payload);
+            }
+            catch (e) {
+                t.classList.toggle('inhabil'); // Revertir si falla
+                alert("Error de conexión");
+            }
+        }
+
+        // --- HORARIOS ---
+        async function cargarHorario() {
+            try {
+                const data = await api('/api/gestion/horario');
+                if (data.hora_entrada) document.getElementById('hora_entrada').value = data.hora_entrada.substring(0, 5);
+                if (data.hora_salida) document.getElementById('hora_salida').value = data.hora_salida.substring(0, 5);
+                document.getElementById('clases_sabado').checked = !!data.clases_sabado;
+                document.getElementById('clases_domingo').checked = !!data.clases_domingo;
+            } catch (e) { console.error("Error cargando horario", e); }
+        }
+
+        async function guardarHorario() {
+            const entrada = document.getElementById('hora_entrada').value;
+            const salida = document.getElementById('hora_salida').value;
+            const sabado = document.getElementById('clases_sabado').checked;
+            const domingo = document.getElementById('clases_domingo').checked;
+            try {
+                await api('/api/gestion/horario', 'POST', { 
+                    hora_entrada: entrada, 
+                    hora_salida: salida,
+                    clases_sabado: sabado,
+                    clases_domingo: domingo
+                });
+                alert("Configuración actualizada correctamente");
+                generarCalendario(); // Refrescar vista
+            } catch (e) { alert(e.message); }
+        }
+
+        // --- REPORTES & CONFIG ---
+
+        function cerrarSesion() { localStorage.clear(); window.location.href = '/login.html'; }
+
+        async function descargarReporte(tipo, btn) {
+            const mesInput = document.getElementById('mes-reporte');
+            const mes = mesInput.value;
+            const selectClase = document.getElementById('selectClaseReporte');
+            const clase = selectClase.value;
+            const claseText = selectClase.options[selectClase.selectedIndex] ? selectClase.options[selectClase.selectedIndex].text : '';
+
+            if (!mes) return alert("Selecciona el Mes del reporte");
+            if (tipo === 'detallado' && !clase) return alert("Selecciona el Grupo Objetivo");
+
+            // VALIDACIÓN ESTRICTA DE FORMATO DE MES (YYYY-MM)
+            const mesRegex = /^\d{4}-\d{2}$/;
+            if (!mesRegex.test(mes)) {
+                return alert(`Formato de mes inválido: ${mes}. Por favor selecciona o escribe la fecha en formato AAAA-MM.`);
+            }
+
+            btn.disabled = true;
+            try {
+                // Solo permitimos 'detallado' o 'docente'
+                let url = '';
+                let filename = '';
+
+                if (tipo === 'detallado') {
+                    url = `/api/reporte/pdf_detallado?mes=${mes}&clase_id=${clase}`;
+                    const cleanClaseText = claseText
+                        .replace(/Seleccionar Clase/gi, '')
+                        .replace(/-- Seleccionar --/gi, '')
+                        .trim()
+                        .replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ]/g, '_')
+                        .replace(/__+/g, '_')
+                        .replace(/^_|_$/g, '');
+                    filename = `reporte_detallado_${mes}_${cleanClaseText}.pdf`;
+                } else if (tipo === 'docente') {
+                    url = `/api/reporte/pdf_docente?mes=${mes}`;
+                    filename = `reporte_docente_${mes}.pdf`;
+                } else {
+                    throw new Error("Reporte no disponible");
+                }
+
+                const res = await fetch(url, { headers: authHeaders });
+                if (res.ok) {
+                    const b = await res.blob();
+                    const u = window.URL.createObjectURL(b);
+                    const a = document.createElement('a');
+                    a.href = u;
+                    a.download = filename;
+                    a.click();
+                } else {
+                    const errorData = await res.json();
+                    throw new Error(errorData.error || 'Error en el servidor');
+                }
+            } catch (e) {
+                console.error(e);
+                alert("Error al descargar: " + e.message);
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+
+        // --- MONTH PICKER COMPONENT ---
+        let pickerDate = new Date();
+        let selectedDate = new Date();
+        const monthNames = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+        const fullMonthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+
+        function initMonthPicker() {
+            renderPicker();
+            updateInputDisplay();
+
+            // Close on click outside
+            document.addEventListener('click', (e) => {
+                const wrapper = document.querySelector('.month-picker-wrapper');
+                const picker = document.getElementById('custom-picker');
+                if (!wrapper.contains(e.target)) {
+                    picker.classList.remove('show');
+                }
+            });
+        }
+
+        function togglePicker() {
+            const p = document.getElementById('custom-picker');
+            p.classList.toggle('show');
+        }
+
+        function changeYear(delta) {
+            pickerDate.setFullYear(pickerDate.getFullYear() + delta);
+            document.getElementById('picker-year').textContent = pickerDate.getFullYear();
+            renderMonths();
+        }
+
+        function renderPicker() {
+            document.getElementById('picker-year').textContent = pickerDate.getFullYear();
+            renderMonths();
+        }
+
+        function renderMonths() {
+            const grid = document.getElementById('months-grid');
+            grid.innerHTML = '';
+            monthNames.forEach((m, idx) => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'month-btn';
+                btn.textContent = m;
+
+                // Highlight selected
+                if (pickerDate.getFullYear() === selectedDate.getFullYear() && idx === selectedDate.getMonth()) {
+                    btn.classList.add('selected');
+                }
+
+                btn.onclick = () => selectMonth(idx);
+                grid.appendChild(btn);
+            });
+        }
+
+        function selectMonth(monthIndex) {
+            selectedDate = new Date(pickerDate.getFullYear(), monthIndex, 1);
+            pickerDate = new Date(selectedDate); // Sync nav year
+            updateInputDisplay();
+            togglePicker();
+            renderMonths(); // Re-render to update selection highlight
+        }
+
+        function updateInputDisplay() {
+            const m = selectedDate.getMonth();
+            const y = selectedDate.getFullYear();
+
+            // Visible Text
+            document.getElementById('mes-display').value = `${fullMonthNames[m]} ${y}`;
+
+            // Hidden Value for Backend (YYYY-MM)
+            const mm = String(m + 1).padStart(2, '0');
+            document.getElementById('mes-reporte').value = `${y}-${mm}`;
+        }
+
+        // --- AVISOS ---
+        async function cargarAvisos() {
+            const lista = document.getElementById('lista-avisos');
+            lista.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:20px;">Cargando...</div>';
+
+            try {
+                // Determine Institucion ID from user session
+                const iid = usuario.institucion_id || 1;
+                const avisos = await api(`/api/avisos?institucion_id=${iid}`);
+
+                if (avisos.length === 0) {
+                    lista.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:20px;">No hay avisos activos.</div>';
+                    return;
+                }
+
+                lista.innerHTML = avisos.map(a => {
+                    const fecha = new Date(a.fecha_creacion).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' });
+                    return `
+                    <div style="background:white; border:1px solid var(--border); border-left:4px solid var(--primary); padding:15px; border-radius:6px; display:flex; justify-content:space-between; align-items:start;">
+                        <div>
+                            <div style="font-weight:700; color:var(--text-main); margin-bottom:5px;">${a.titulo}</div>
+                            <div style="color:var(--text-muted); font-size:0.9rem; white-space:pre-wrap;">${a.mensaje}</div>
+                            <div style="color:#9ca3af; font-size:0.75rem; margin-top:8px;">Publicado: ${fecha}</div>
+                        </div>
+                        <button onclick="borrarAviso(${a.id})" style="background:none; border:none; color:var(--danger); cursor:pointer; padding:5px;"><i class="fa-solid fa-trash"></i></button>
+                    </div>`;
+                }).join('');
+
+            } catch (e) {
+                console.error("Error cargando avisos:", e);
+                lista.innerHTML = '<div style="text-align:center; color:var(--danger);">Error al cargar avisos.</div>';
+            }
+        }
+
+        async function crearAviso(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = 'Enviando...';
+
+            try {
+                await api('/api/avisos', 'POST', {
+                    institucion_id: usuario.institucion_id || 1,
+                    titulo: document.getElementById('titulo_aviso').value,
+                    mensaje: document.getElementById('mensaje_aviso').value
+                });
+                e.target.reset();
+                cargarAvisos();
+            } catch (e) {
+                alert('Error creando aviso: ' + e.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
+        }
+
+        async function borrarAviso(id) {
+            if (!confirm("¿Eliminar este aviso de forma permanente?")) return;
+            try {
+                await api(`/api/avisos/${id}`, 'DELETE');
+                cargarAvisos();
+            } catch (e) {
+                alert('Error al eliminar: ' + e.message);
+            }
+        }
+
+        // Hook into Navigation for Avisos
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            if (btn.dataset.vista === 'vista-avisos') {
+                btn.addEventListener('click', cargarAvisos);
+            }
+        });
+
+        // Hook Form Submit
+        if (document.getElementById('formCrearAviso')) {
+            document.getElementById('formCrearAviso').addEventListener('submit', crearAviso);
+        }
+
+        // --- INYECCIÓN DE BOTONES ESCANEAR NFC NATIVO ---
+        if ('NDEFReader' in window) {
+            const inputs = ['nfc_uid', 'uid_maestro'];
+            inputs.forEach(id => {
+                const input = document.getElementById(id);
+                if (!input) return;
+
+                // Evitar duplicaciones
+                if (input.parentElement.querySelector('.btn-scan-nfc-field')) return;
+
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'btn-scan-nfc-field';
+                btn.innerHTML = '📡 Escanear';
+                btn.style.cssText = 'margin-left: 10px; padding: 8px 12px; background: #4f46e5; color: white; border: none; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s; white-space: nowrap;';
+                
+                const parent = input.parentElement;
+                const wrapper = document.createElement('div');
+                wrapper.style.cssText = 'display: flex; align-items: center; width: 100%;';
+                
+                parent.insertBefore(wrapper, input);
+                wrapper.appendChild(input);
+                wrapper.appendChild(btn);
+                input.style.flex = '1';
+
+                btn.addEventListener('click', async () => {
+                    btn.disabled = true;
+                    btn.innerHTML = '⏳ Esperando...';
+                    btn.style.background = '#cbd5e1';
+                    btn.style.color = '#475569';
+                    
+                    try {
+                        const ndef = new NDEFReader();
+                        await ndef.scan();
+                        
+                        const onReading = ({ serialNumber }) => {
+                            const normalized = serialNumber.replace(/[:\-\s]/g, '').toUpperCase();
+                            input.value = normalized;
+                            
+                            input.style.borderColor = '#10b981';
+                            setTimeout(() => input.style.borderColor = '', 1500);
+                            
+                            ndef.removeEventListener('reading', onReading);
+                            btn.disabled = false;
+                            btn.innerHTML = '📡 Escanear';
+                            btn.style.background = '#4f46e5';
+                            btn.style.color = 'white';
+                        };
+                        
+                        ndef.addEventListener('reading', onReading);
+                        
+                        setTimeout(() => {
+                            if (btn.disabled) {
+                                ndef.removeEventListener('reading', onReading);
+                                btn.disabled = false;
+                                btn.innerHTML = '📡 Escanear';
+                                btn.style.background = '#4f46e5';
+                                btn.style.color = 'white';
+                            }
+                        }, 20000);
+                        
+                    } catch (err) {
+                        console.error('[NFC Form Scan]', err);
+                        alert('No se pudo iniciar el scanner NFC: ' + err.message);
+                        btn.disabled = false;
+                        btn.innerHTML = '📡 Escanear';
+                        btn.style.background = '#4f46e5';
+                        btn.style.color = 'white';
+                    }
+                });
+            });
+        }
+    </script>
+
+</body>
+
+</html>

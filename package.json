@@ -1,0 +1,33 @@
+{
+  "name": "sistema-asistencia",
+  "version": "1.0.0",
+  "description": "",
+  "main": "servidor.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "start": "node servidor.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Adrian ViRa",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.7.0",
+    "helmet": "^8.3.0",
+    "jsonwebtoken": "^9.0.2",
+    "mercadopago": "^3.6.0",
+    "node-cron": "^4.2.1",
+    "pdfkit": "^0.17.2",
+    "pg": "^8.16.3",
+    "qrcode": "^1.5.4",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.7",
+    "twilio": "^5.10.5"
+  }
+}
