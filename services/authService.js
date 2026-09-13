@@ -239,21 +239,8 @@ class AuthService {
                 // --- PRIMER REGISTRO (ENTRADA) ---
                 shouldInsert = true;
 
-                // Calcular Status (Retardo/Falta) solo en la entrada
-                const config = await db.get("SELECT hora_entrada FROM Configuracion WHERE institucion_id = $1", [usuario.institucion_id]);
-
-                if (config && config.hora_entrada) {
-                    const now = new Date();
-                    const fechaCDMX = new Date(now.toLocaleString("en-US", { timeZone: "America/Mexico_City" }));
-                    const horaActual = fechaCDMX.getHours() * 60 + fechaCDMX.getMinutes();
-
-                    const [h, m] = config.hora_entrada.split(':').map(Number);
-                    const minutosEntrada = h * 60 + m;
-                    const diff = horaActual - minutosEntrada;
-
-                    if (diff > 10) status = 'retardo';
-                    else status = 'presente';
-                }
+                // Entrada directa: siempre presente
+                status = 'presente';
                 console.log(`[Auth] Maestro ${usuario.nombre_completo}: Marcando ENTRADA (${status})`);
 
             } else {

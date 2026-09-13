@@ -191,21 +191,15 @@ class ReporteController {
 
                             if (asisAlumno.has(f)) {
                                 const status = asisAlumno.get(f);
-                                if (status === 'presente') {
-                                    // Green Dot
-                                    doc.circle(x + 9, y + 4, 3).fill('#10b981');
-                                } else if (status === 'retardo') {
-                                    // Yellow Dot
-                                    doc.circle(x + 9, y + 4, 3).fill('#f59e0b');
-                                } else if (status === 'falta') {
-                                    // Red Dot (Recorded Absence)
+                                if (status === 'falta') {
+                                    // Red Dot (Falta registrada)
                                     doc.circle(x + 9, y + 4, 3).fill('#ef4444');
                                 } else {
-                                    // Fallback Green
+                                    // Green Dot (Presente / Asistencia escaneada)
                                     doc.circle(x + 9, y + 4, 3).fill('#10b981');
                                 }
                             } else {
-                                // Red Dot (No Record = Absence)
+                                // Red Dot (No escaneó QR = Falta)
                                 doc.circle(x + 9, y + 4, 2).fill('#ef4444');
                             }
                         });
@@ -344,9 +338,8 @@ class ReporteController {
                                 const horaSalida = record.horaSalida;
 
                                 let color = '#000000';
-                                if (status === 'presente') color = '#10b981'; // Green
-                                else if (status === 'retardo') color = '#f59e0b'; // Amber
-                                else if (status === 'falta') color = '#ef4444'; // Red (Usually absent doesn't have time, but if marked manually maybe)
+                                if (status === 'falta') color = '#ef4444'; // Red
+                                else color = '#10b981'; // Green (Presente) (Usually absent doesn't have time, but if marked manually maybe)
 
                                 // Draw Entry Time (Colored) - Top
                                 doc.fillColor(color).fontSize(7).text(hora, x, y, { width: colWidth, align: 'center' });

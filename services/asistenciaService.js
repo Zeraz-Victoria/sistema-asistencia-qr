@@ -139,28 +139,10 @@ class AsistenciaService {
             const registroHoy = await db.get(queryHoy, [alumno.id, activeClass.clase_id, dateObj.toISOString()]);
             if (registroHoy) return { status: 'warning', message: `Ya registrado hoy en ${activeClass.nombre_materia} (${registroHoy.status || 'presente'})` };
 
-            // Calcular retardo según hora_inicio de la clase:
-            // Tolerancia de 10 min: diff <= 10 es 'presente' (verde / success)
-            // Posterior a 10 min: diff > 10 es 'retardo' (amarillo / warning)
-            // 'falta' solo aplica si el alumno NO asiste
-            let status = 'presente';
-            let responseStatus = 'success';
-            let mensajeExtra = '';
-            if (activeClass.hora_inicio) {
-                const horaActualMinutos = dateCDMX.getHours() * 60 + dateCDMX.getMinutes();
-                const [h, m] = activeClass.hora_inicio.split(':').map(Number);
-                const minutosInicio = h * 60 + m;
-                const diff = horaActualMinutos - minutosInicio;
-                if (diff > 10) {
-                    status = 'retardo';
-                    responseStatus = 'warning';
-                    mensajeExtra = ' (Retardo)';
-                } else {
-                    status = 'presente';
-                    responseStatus = 'success';
-                    mensajeExtra = '';
-                }
-            }
+            // Asistencia directa sin retardos: siempre presente al escanear QR
+            const status = 'presente';
+            const responseStatus = 'success';
+            const mensajeExtra = '';
 
             await db.run('INSERT INTO Asistencias (alumno_id, fecha_hora, institucion_id, status, clase_id) VALUES ($1, $2, $3, $4, $5)',
                 [alumno.id, dateObj.toISOString(), usuario.institucion_id, status, activeClass.clase_id]);
@@ -187,25 +169,10 @@ class AsistenciaService {
             const registroHoy = await db.get(queryHoy, [alumno.id, dateObj.toISOString()]);
             if (registroHoy) return { status: 'warning', message: `Ya registrado hoy (${registroHoy.status || 'presente'})` };
 
-            let status = 'presente';
-            let responseStatus = 'success';
-            let mensajeExtra = '';
-
-            if (configEscuela && configEscuela.hora_entrada) {
-                const horaActualMinutos = dateCDMX.getHours() * 60 + dateCDMX.getMinutes();
-                const [h, m] = configEscuela.hora_entrada.split(':').map(Number);
-                const minutosEntrada = h * 60 + m;
-                const diff = horaActualMinutos - minutosEntrada;
-                if (diff > 10) {
-                    status = 'retardo';
-                    responseStatus = 'warning';
-                    mensajeExtra = ' (Retardo)';
-                } else {
-                    status = 'presente';
-                    responseStatus = 'success';
-                    mensajeExtra = '';
-                }
-            }
+            // Asistencia directa sin retardos: siempre presente al escanear QR
+            const status = 'presente';
+            const responseStatus = 'success';
+            const mensajeExtra = '';
 
             await db.run('INSERT INTO Asistencias (alumno_id, fecha_hora, institucion_id, status) VALUES ($1, $2, $3, $4)',
                 [alumno.id, dateObj.toISOString(), usuario.institucion_id, status]);
@@ -248,15 +215,8 @@ class AsistenciaService {
                         shouldInsert = true;
                         // Calcular entrada tarde si es primer registro
                         const config = await db.get("SELECT hora_entrada FROM Configuracion WHERE institucion_id = $1", [maestro.institucion_id]);
-                        if (config && config.hora_entrada) {
-                            const fechaCDMX = new Date(fechaActual.toLocaleString("en-US", { timeZone: "America/Mexico_City" }));
-                            const horaActual = fechaCDMX.getHours() * 60 + fechaCDMX.getMinutes();
-                            const [h, m] = config.hora_entrada.split(':').map(Number);
-                            const minutosEntrada = h * 60 + m;
-                            const diff = horaActual - minutosEntrada;
-                            if (diff > 10) status = 'retardo';
-                            else status = 'presente';
-                        }
+                        // Asistencia sin retardos
+                        status = 'presente';
                     } else {
                         const lastTime = new Date(ultimoRegistro.fecha_hora);
                         const diffMins = (fechaActual - lastTime) / 1000 / 60;

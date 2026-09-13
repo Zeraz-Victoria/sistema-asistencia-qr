@@ -795,10 +795,7 @@
                             <div style="font-size:1.4rem; font-weight:800; color:#065f46;" id="count-presentes">0</div>
                             <div style="font-size:0.7rem; font-weight:700; color:#047857; text-transform:uppercase;">Presentes</div>
                         </div>
-                        <div style="background:var(--warning-light); border:1px solid #fde68a; border-radius:var(--radius-sm); padding:10px; text-align:center;">
-                            <div style="font-size:1.4rem; font-weight:800; color:#92400e;" id="count-retardos">0</div>
-                            <div style="font-size:0.7rem; font-weight:700; color:#b45309; text-transform:uppercase;">Retardos</div>
-                        </div>
+
                         <div style="background:var(--danger-light); border:1px solid #fecaca; border-radius:var(--radius-sm); padding:10px; text-align:center;">
                             <div style="font-size:1.4rem; font-weight:800; color:#991b1b;" id="count-faltas">0</div>
                             <div style="font-size:0.7rem; font-weight:700; color:#b91c1c; text-transform:uppercase;">Faltas</div>
@@ -1823,11 +1820,11 @@
                 mapaAsistencias.set(Number(asis.alumno_id), asis);
             });
 
-            let countP = 0, countR = 0, countF = 0, countPend = 0;
+            let countP = 0, countF = 0, countPend = 0;
 
             if (alumnosFiltrados.length === 0) {
                 tb.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:20px;">No hay alumnos registrados en esta clase.</td></tr>';
-                actualizarContadoresAsistencia(0, 0, 0, 0);
+                actualizarContadoresAsistencia(0, 0, 0);
                 return;
             }
 
@@ -1835,14 +1832,12 @@
                 const asis = mapaAsistencias.get(Number(a.id));
                 const status = asis ? asis.status : 'pendiente';
                 
-                if (status === 'presente') countP++;
-                else if (status === 'retardo') countR++;
+                if (status === 'presente' || status === 'retardo') countP++;
                 else if (status === 'falta') countF++;
                 else countPend++;
 
                 let badgeHtml = '<span class="badge badge-pendiente">Sin Registrar</span>';
-                if (status === 'presente') badgeHtml = '<span class="badge badge-presente"><i class="fa-solid fa-check"></i> Presente</span>';
-                else if (status === 'retardo') badgeHtml = '<span class="badge badge-retardo"><i class="fa-solid fa-clock"></i> Retardo</span>';
+                if (status === 'presente' || status === 'retardo') badgeHtml = '<span class="badge badge-presente"><i class="fa-solid fa-check"></i> Presente</span>';
                 else if (status === 'falta') badgeHtml = '<span class="badge badge-falta"><i class="fa-solid fa-xmark"></i> Falta</span>';
                 else if (status === 'justificada') badgeHtml = '<span class="badge badge-justificada"><i class="fa-solid fa-file-medical"></i> Justificada</span>';
 
@@ -1850,16 +1845,12 @@
                 const nombresPartes = (a.nombre_completo || 'A').trim().split(' ');
                 const iniciales = (nombresPartes[0][0] + (nombresPartes[1] ? nombresPartes[1][0] : '')).toUpperCase();
 
-                const isP = status === 'presente';
-                const isR = status === 'retardo';
-                const isF = status === 'falta';
+                const isP = (status === 'presente' || status === 'retardo');
+                const isF = (status === 'falta');
 
                 const btnPStyle = isP 
                     ? 'background:#10b981; color:#ffffff; border-color:#059669; font-weight:700; box-shadow:0 2px 5px rgba(16,185,129,0.35);' 
                     : 'background:#ecfdf5; color:#065f46; border-color:#a7f3d0;';
-                const btnRStyle = isR 
-                    ? 'background:#f59e0b; color:#ffffff; border-color:#d97706; font-weight:700; box-shadow:0 2px 5px rgba(245,158,11,0.35);' 
-                    : 'background:#fffbeb; color:#92400e; border-color:#fde68a;';
                 const btnFStyle = isF 
                     ? 'background:#ef4444; color:#ffffff; border-color:#dc2626; font-weight:700; box-shadow:0 2px 5px rgba(239,68,68,0.35);' 
                     : 'background:#fef2f2; color:#991b1b; border-color:#fecaca;';
@@ -1884,9 +1875,6 @@
                                 <button type="button" class="btn-asistencia-mini" style="${btnPStyle}" onclick="marcarAsistenciaDirecta(${a.id}, 'presente')" title="Marcar Presente">
                                     <i class="fa-solid fa-check"></i> Pres
                                 </button>
-                                <button type="button" class="btn-asistencia-mini" style="${btnRStyle}" onclick="marcarAsistenciaDirecta(${a.id}, 'retardo')" title="Marcar Retardo">
-                                    <i class="fa-solid fa-clock"></i> Ret
-                                </button>
                                 <button type="button" class="btn-asistencia-mini" style="${btnFStyle}" onclick="marcarAsistenciaDirecta(${a.id}, 'falta')" title="Marcar Falta">
                                     <i class="fa-solid fa-xmark"></i> Falta
                                 </button>
@@ -1896,14 +1884,18 @@
                 `;
             }).join('');
 
-            actualizarContadoresAsistencia(countP, countR, countF, countPend);
+            actualizarContadoresAsistencia(countP, countF, countPend);
         }
 
-        function actualizarContadoresAsistencia(p, r, f, pend) {
-            document.getElementById('count-presentes').textContent = p;
-            document.getElementById('count-retardos').textContent = r;
-            document.getElementById('count-faltas').textContent = f;
-            document.getElementById('count-pendientes').textContent = pend;
+        function actualizarContadoresAsistencia(p, f, pend) {
+            const pEl = document.getElementById('count-presentes');
+            if (pEl) pEl.textContent = p;
+            const rEl = document.getElementById('count-retardos');
+            if (rEl) rEl.textContent = 0;
+            const fEl = document.getElementById('count-faltas');
+            if (fEl) fEl.textContent = f;
+            const pendEl = document.getElementById('count-pendientes');
+            if (pendEl) pendEl.textContent = pend;
         }
 
         async function marcarAsistenciaDirecta(alumnoId, status) {
