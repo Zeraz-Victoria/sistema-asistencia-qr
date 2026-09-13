@@ -545,7 +545,14 @@ async function setupDatabase() {
 
     try {
       await db.exec(`ALTER TABLE Instituciones ADD COLUMN IF NOT EXISTS fecha_ultimo_pago TIMESTAMPTZ DEFAULT NOW();`);
-      console.log('✅ Columna fecha_ultimo_pago verificada en Instituciones.');
+      await db.exec(`ALTER TABLE Instituciones ADD COLUMN IF NOT EXISTS monto_pagado REAL DEFAULT 0;`);
+      await db.exec(`ALTER TABLE Instituciones ADD COLUMN IF NOT EXISTS referencia_pago TEXT;`);
+      await db.exec(`ALTER TABLE Instituciones ADD COLUMN IF NOT EXISTS metodo_pago TEXT;`);
+      await db.exec(`ALTER TABLE Instituciones ADD COLUMN IF NOT EXISTS fecha_pago TIMESTAMPTZ;`);
+      await db.exec(`ALTER TABLE Instituciones ADD COLUMN IF NOT EXISTS device_fingerprint TEXT;`);
+      await db.exec(`ALTER TABLE Instituciones ADD COLUMN IF NOT EXISTS ip_registro TEXT;`);
+      await db.exec(`ALTER TABLE Instituciones ADD COLUMN IF NOT EXISTS fecha_vencimiento_prueba TIMESTAMPTZ;`);
+      console.log('✅ Columnas verificadas en Instituciones (Postgres).');
     } catch (err) {
       console.error('⚠️ Error alterando Instituciones (Postgres):', err.message);
     }

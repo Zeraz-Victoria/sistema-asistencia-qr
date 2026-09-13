@@ -25,7 +25,10 @@ function createSuperAdminRoutes(db) {
     router.get('/escuelas', async (req, res) => {
         try {
             const sql = `
-                SELECT I.*, U.email as email_director, U.nombre_completo as nombre_director 
+                SELECT 
+                    I.*, 
+                    COALESCE(MAX(CASE WHEN U.rol = 'director' THEN U.email END), MAX(U.email)) as email_director, 
+                    COALESCE(MAX(CASE WHEN U.rol = 'director' THEN U.nombre_completo END), MAX(U.nombre_completo)) as nombre_director 
                 FROM Instituciones I 
                 LEFT JOIN Usuarios U ON I.id = U.institucion_id
                 GROUP BY I.id

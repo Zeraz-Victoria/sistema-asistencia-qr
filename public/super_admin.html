@@ -264,7 +264,10 @@
         async function verificarYEntrar(key) {
             try {
                 const res = await fetch(`${API_URL}/escuelas`, { headers: { 'x-admin-key': key } });
-                if (!res.ok) throw new Error("Llave incorrecta");
+                if (!res.ok) {
+                    const errData = await res.json().catch(() => ({}));
+                    throw new Error(errData.error || (res.status === 403 ? "Llave incorrecta" : "Error del servidor"));
+                }
                 const data = await res.json();
 
                 MASTER_KEY = key;
@@ -275,7 +278,7 @@
                 renderizarTabla(data);
             } catch (e) {
                 localStorage.removeItem('superAdminKey');
-                document.getElementById('msgError').innerText = "Acceso denegado";
+                document.getElementById('msgError').innerText = e.message || "Acceso denegado";
                 document.getElementById('msgError').style.display = 'block';
                 document.getElementById('btnLogin').innerText = 'Entrar';
             }
