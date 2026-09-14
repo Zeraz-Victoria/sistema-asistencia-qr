@@ -45,7 +45,7 @@ class AuthService {
             codigo_qr: usuario.codigo_qr || usuario.nfc_uid
         };
 
-        const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
+        const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '30d' });
 
         return {
             message: 'Login exitoso.',
@@ -75,7 +75,7 @@ class AuthService {
             throw new Error('Ya existe una cuenta registrada con este correo electrónico.');
         }
 
-        // 2. Crear institución/aula del docente con 7 DÍAS DE PRUEBA
+        // 2. Crear institución/aula del docente con 30 DÍAS DE PRUEBA
         const nombreInstitucion = (nombre_escuela && nombre_escuela.trim())
             ? nombre_escuela.trim()
             : `Aula ${nombre_completo.trim()}`;
@@ -84,13 +84,13 @@ class AuthService {
         let institucionId;
         if (isSQLite) {
             const resInst = await db.run(
-                "INSERT INTO Instituciones (nombre, plan, estado, device_fingerprint, ip_registro, fecha_creacion, fecha_ultimo_pago) VALUES ($1, 'prueba_7d', 'activo', $2, $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
+                "INSERT INTO Instituciones (nombre, plan, estado, device_fingerprint, ip_registro, fecha_creacion, fecha_ultimo_pago) VALUES ($1, 'prueba_30d', 'activo', $2, $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
                 [nombreInstitucion, device_fingerprint || null, ip_registro || null]
             );
             institucionId = resInst.lastID;
         } else {
             const resInst = await db.get(
-                "INSERT INTO Instituciones (nombre, plan, estado, device_fingerprint, ip_registro, fecha_creacion, fecha_ultimo_pago) VALUES ($1, 'prueba_7d', 'activo', $2, $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) RETURNING id",
+                "INSERT INTO Instituciones (nombre, plan, estado, device_fingerprint, ip_registro, fecha_creacion, fecha_ultimo_pago) VALUES ($1, 'prueba_30d', 'activo', $2, $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) RETURNING id",
                 [nombreInstitucion, device_fingerprint || null, ip_registro || null]
             );
             institucionId = resInst.id;
@@ -155,7 +155,7 @@ class AuthService {
             codigo_qr: qrDocente
         };
 
-        const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
+        const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '30d' });
 
         return {
             message: '¡Bienvenido! Cuenta creada con éxito.',

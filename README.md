@@ -10,7 +10,7 @@ Sistema SaaS multi-escuela para control de asistencia de alumnos y docentes medi
 - ✅ Reportes PDF de asistencia
 - ✅ Portal de padres de familia
 - ✅ Avisos y actividades
-- ✅ Suscripciones con período de prueba (7 días) + Licencia Vitalicia
+- ✅ Suscripciones con período de prueba (30 días) + Licencia Vitalicia
 - ✅ Pagos con Mercado Pago (tarjeta + OXXO)
 - ✅ SMS de notificación con Twilio
 

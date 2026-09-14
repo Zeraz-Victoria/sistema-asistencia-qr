@@ -34,7 +34,7 @@ const authMiddleware = async (req, res, next) => {
     // Ahora req.usuario siempre tendrá: { id, rol, email, institucion_id }
     req.usuario = payload;
 
-    // 4. VERIFICACIÓN DE SUSCRIPCIÓN (PREPAGO / PRUEBA 7 DÍAS)
+    // 4. VERIFICACIÓN DE SUSCRIPCIÓN (PREPAGO / PRUEBA 30 DÍAS)
     // Se exceptúan endpoints de estado y de pagos para que la cuenta suspendida pueda consultar su estado y pagar su activación.
     const isExempt = req.path === '/sub-status' || 
                      req.originalUrl === '/api/sub-status' || 
@@ -47,7 +47,7 @@ const authMiddleware = async (req, res, next) => {
             return res.status(402).json({ 
                 error: 'cuenta_suspendida', 
                 message: subStatus.expiredTrial 
-                    ? 'Tu periodo de prueba de 7 días ha finalizado. Activa tu Licencia Vitalicia ($99 MXN) para continuar usando el sistema.'
+                    ? 'Tu periodo de prueba de 30 días ha finalizado. Activa tu Licencia Vitalicia ($99 MXN) para continuar usando el sistema.'
                     : 'Cuenta suspendida por falta de pago.',
                 expiredTrial: subStatus.expiredTrial || false,
                 isTrial: subStatus.isTrial || false,

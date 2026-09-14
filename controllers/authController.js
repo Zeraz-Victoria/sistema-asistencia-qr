@@ -62,8 +62,8 @@ class AuthController {
             res.json({
                 status: subStatus ? subStatus.status : 'activo',
                 daysLeft: subStatus ? subStatus.daysLeft : 0,
-                plan: subStatus ? subStatus.plan : 'prueba_7d',
-                isTrial: subStatus ? (subStatus.isTrial || subStatus.plan === 'prueba_7d') : false,
+                plan: subStatus ? subStatus.plan : 'prueba_30d',
+                isTrial: subStatus ? (subStatus.isTrial || subStatus.plan === 'prueba_30d' || subStatus.plan === 'prueba_7d') : false,
                 expiredTrial: subStatus ? (subStatus.expiredTrial || false) : false,
                 nombreEscuela: inst ? inst.nombre : 'Mi Aula',
                 monto: Number(process.env.PRECIO_LICENCIA_MXN || 99)

@@ -21,7 +21,7 @@ class Institucion {
             return { status: 'pendiente_pago', daysLeft: 0, plan: plan || 'vitalicio', warning: false };
         }
 
-        const currentPlan = plan ? plan.toLowerCase() : 'prueba_7d';
+        const currentPlan = plan ? plan.toLowerCase() : 'prueba_30d';
 
         // Plan Vitalicio (Pago Único: Nunca expira)
         if (currentPlan === 'vitalicio' || currentPlan === 'pago_unico' || currentPlan === 'pro_vitalicio') {
@@ -33,15 +33,15 @@ class Institucion {
         const diffMs = now - refDate;
         const diffDays = diffMs / (1000 * 60 * 60 * 24);
 
-        // Plan Prueba Gratuita (7 días)
-        if (currentPlan === 'prueba_7d' || currentPlan === 'prueba' || currentPlan === 'docente' || currentPlan === 'basico_7d') {
-            const limit = 7;
+        // Plan Prueba Gratuita (30 días)
+        if (currentPlan === 'prueba_30d' || currentPlan === 'prueba_7d' || currentPlan === 'prueba' || currentPlan === 'docente' || currentPlan === 'basico_7d') {
+            const limit = 30;
             if (diffDays >= limit) {
                 await db.run("UPDATE Instituciones SET estado = 'suspendido' WHERE id = $1", [id]);
                 return { 
                     status: 'suspendido', 
                     daysLeft: 0, 
-                    plan: 'prueba_7d', 
+                    plan: currentPlan, 
                     warning: false, 
                     expiredTrial: true, 
                     isTrial: true 
@@ -51,8 +51,8 @@ class Institucion {
                 return { 
                     status: estado, 
                     daysLeft: daysLeft, 
-                    plan: 'prueba_7d', 
-                    warning: daysLeft <= 2, 
+                    plan: currentPlan, 
+                    warning: daysLeft <= 3, 
                     isTrial: true, 
                     expiredTrial: false 
                 };
@@ -133,7 +133,7 @@ class Institucion {
                         abuso: true, 
                         institucion_id: inst.id, 
                         razon: 'dispositivo',
-                        mensaje: 'Ya se utilizó un periodo de prueba gratuita de 7 días en este dispositivo. Para continuar, activa tu Licencia Vitalicia por $99 MXN.'
+                        mensaje: 'Ya se utilizó un periodo de prueba gratuita de 30 días en este dispositivo. Para continuar, activa tu Licencia Vitalicia por $99 MXN.'
                     };
                 }
             }

@@ -695,7 +695,7 @@
     <div id="trialBanner" class="trial-banner" style="display: none;">
         <div class="trial-banner-info">
             <span style="font-size: 0.95rem;">⏱️</span>
-            <span>Prueba: <strong id="trialDaysText">7 días restantes</strong></span>
+            <span>Prueba: <strong id="trialDaysText">30 días restantes</strong></span>
         </div>
         <button type="button" class="btn-trial-wa" onclick="contactarWhatsAppActivar(event)" title="Activar por WhatsApp">
             <i class="fa-brands fa-whatsapp" style="font-size: 0.9rem;"></i> Activar ($99)
@@ -1194,7 +1194,7 @@
             </div>
         </div>
     <!-- ======================================================= -->
-    <!-- MODAL BLOQUEO TOTAL / FIN DE PRUEBA 7 DÍAS (INEVITABLE) -->
+    <!-- MODAL BLOQUEO TOTAL / FIN DE PRUEBA 30 DÍAS (INEVITABLE) -->
     <!-- ======================================================= -->
     <div id="modal-bloqueo-licencia" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(15, 23, 42, 0.88); backdrop-filter:blur(10px); z-index:999999; justify-content:center; align-items:center; padding:20px; box-sizing:border-box;">
         <div style="background:#ffffff; max-width:460px; width:100%; border-radius:18px; padding:32px 28px; text-align:center; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5); border:2px solid #10b981; animation:slideUp 0.4s ease-out;">
@@ -1203,7 +1203,7 @@
             </div>
             <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin:0 0 10px 0;">Periodo de Prueba Finalizado</h2>
             <p style="font-size:0.9rem; color:#64748b; line-height:1.5; margin:0 0 20px 0;">
-                Tus <strong>7 días de prueba gratuita</strong> han concluido. Para seguir usando el escáner QR, calificar tareas y descargar reportes, activa tu Licencia Vitalicia.
+                Tus <strong>30 días de prueba gratuita</strong> han concluido. Para seguir usando el escáner QR, calificar tareas y descargar reportes, activa tu Licencia Vitalicia.
             </p>
 
             <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:14px 16px; margin-bottom:22px; text-align:left;">
@@ -1306,7 +1306,7 @@
             return res;
         };
 
-        // --- Control de Licencia y Prueba Gratuita (7 Días) ---
+        // --- Control de Licencia y Prueba Gratuita (30 Días) ---
         let datosLicencia = null;
 
         async function verificarEstadoLicencia() {

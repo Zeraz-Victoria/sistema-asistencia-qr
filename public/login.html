@@ -258,20 +258,20 @@
                     <input type="password" id="reg-confirm-password" required placeholder="••••••••" autocomplete="new-password">
                 </div>
 
-                <!-- Tarjeta de Beneficio: 7 Días Gratis -->
+                <!-- Tarjeta de Beneficio: 30 Días Gratis -->
                 <div style="background:#ecfdf5; border:1px solid #a7f3d0; border-radius:10px; padding:12px 14px; margin:15px 0; text-align:left;">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-weight:800; font-size:0.95rem; color:#065f46;">✨ 7 Días de Prueba Gratis</span>
+                        <span style="font-weight:800; font-size:0.95rem; color:#065f46;">✨ 30 Días de Prueba Gratis</span>
                         <span style="background:#065f46; color:white; font-size:0.8rem; font-weight:800; padding:3px 8px; border-radius:6px;">Sin Tarjeta</span>
                     </div>
                     <div style="font-size:0.78rem; color:#047857; margin-top:6px; line-height:1.4;">
-                        ✓ Acceso completo a todas las funciones por 7 días<br>
+                        ✓ Acceso completo a todas las funciones por 30 días<br>
                         ✓ Después solo <strong>$99 MXN</strong> pago único de por vida
                     </div>
                 </div>
 
                 <button type="submit" id="btn-submit-register" style="background:#065f46;">
-                    🚀 Comenzar Prueba Gratis de 7 Días
+                    🚀 Comenzar Prueba Gratis de 30 Días
                 </button>
             </form>
             <p class="toggle-link-container" style="margin-top: 1.25rem; font-size: 0.9rem; color: var(--text-muted);">
@@ -282,7 +282,7 @@
         <div id="abuse-payment-container" style="display: none; margin-top: 15px; text-align: left; background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; padding: 14px;">
             <div style="font-weight: 700; color: #92400e; font-size: 0.95rem; margin-bottom: 6px;">🔒 Periodo de Prueba Ya Utilizado</div>
             <div style="font-size: 0.82rem; color: #b45309; line-height: 1.4; margin-bottom: 12px;">
-                Este dispositivo ya utilizó sus 7 días de prueba gratuita. Para continuar usando AsistenciaQR, puedes activar tu cuenta vitalicia por $99 MXN vía WhatsApp.
+                Este dispositivo ya utilizó sus 30 días de prueba gratuita. Para continuar usando AsistenciaQR, puedes activar tu cuenta vitalicia por $99 MXN vía WhatsApp.
             </div>
             <button id="btn-pay-abuse" type="button" style="background: #25d366; color: white; margin: 0; padding: 11px 16px; font-size: 0.95rem; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%;">
                 <i class="fa-brands fa-whatsapp" style="font-size: 1.2rem;"></i> Activar por WhatsApp ($99 MXN)
@@ -437,7 +437,7 @@
         });
 
 
-        // --- 3. Manejo del Registro con 7 DÍAS DE PRUEBA GRATIS ---
+        // --- 3. Manejo del Registro con 30 DÍAS DE PRUEBA GRATIS ---
         registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             mostrarError(null);
@@ -480,7 +480,7 @@
                     mostrarError(data.error || 'Periodo de prueba gratuito ya utilizado en este dispositivo.');
                     abusePaymentContainer.style.display = 'block';
                     btnSubmitRegister.disabled = false;
-                    btnSubmitRegister.textContent = "🚀 Comenzar Prueba Gratis de 7 Días";
+                    btnSubmitRegister.textContent = "🚀 Comenzar Prueba Gratis de 30 Días";
                     return;
                 }
 
@@ -488,7 +488,7 @@
                     throw new Error(data.error || 'No se pudo crear la cuenta.');
                 }
 
-                // Registro exitoso con 7 DÍAS GRATIS
+                // Registro exitoso con 30 DÍAS GRATIS
                 localStorage.setItem('authToken', data.token);
                 localStorage.setItem('usuario', JSON.stringify(data.usuario));
                 if (data.nombre_escuela) {
@@ -496,7 +496,7 @@
                     localStorage.setItem('nombreEscuelaKiosco', data.nombre_escuela);
                 }
 
-                mostrarSuccess('🎉 ¡Bienvenido! Tu periodo de 7 días de prueba gratis está activo. Entrando...');
+                mostrarSuccess('🎉 ¡Bienvenido! Tu periodo de 30 días de prueba gratis está activo. Entrando...');
                 setTimeout(() => {
                     window.location.href = '/admin.html';
                 }, 900);
@@ -504,7 +504,7 @@
             } catch (err) {
                 mostrarError(err.message);
                 btnSubmitRegister.disabled = false;
-                btnSubmitRegister.textContent = "🚀 Comenzar Prueba Gratis de 7 Días";
+                btnSubmitRegister.textContent = "🚀 Comenzar Prueba Gratis de 30 Días";
             }
         });
 
