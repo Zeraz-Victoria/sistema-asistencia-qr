@@ -305,23 +305,21 @@
                 let estadoTexto = 'ACTIVO (PAGADO)';
                 let planTexto = '';
 
-                // Calcular días de prueba
+                // Calcular días de prueba (30 días para todos los planes de prueba)
                 const fechaCreacion = new Date(esc.fecha_creacion || esc.fecha_registro || Date.now());
                 const diasTranscurridos = Math.floor((new Date() - fechaCreacion) / (1000 * 60 * 60 * 24));
-                const limitePrueba = (esc.plan === 'prueba_7d') ? 7 : 30;
+                const limitePrueba = 30;
                 const diasRestantes = Math.max(0, limitePrueba - diasTranscurridos);
 
                 if (esc.plan === 'vitalicio' || esc.plan === 'pago_unico') {
                     planTexto = '<span class="badge bg-success" style="font-size:0.8rem;">⭐ VITALICIO ($99 MXN)</span>';
                     estadoTexto = '<span class="badge bg-success">LICENCIA DE POR VIDA</span>';
                 } else if (esc.plan === 'prueba_30d' || esc.plan === 'prueba_7d' || esc.plan === 'prueba' || !esc.plan) {
-                    const badgePlan = (esc.plan === 'prueba_7d') ? 'PRUEBA 7D' : 'PRUEBA 30D';
-                    const badgeTitulo = (esc.plan === 'prueba_7d') ? 'PRUEBA 7 DÍAS' : 'PRUEBA 30 DÍAS';
                     if (esc.estado === 'suspendido' || diasRestantes <= 0) {
-                        planTexto = `<span class="badge bg-secondary">${badgePlan}</span>`;
+                        planTexto = '<span class="badge bg-secondary">PRUEBA 30D</span>';
                         estadoTexto = '<span class="badge bg-danger">🔒 PRUEBA VENCIDA (BLOQUEADO)</span>';
                     } else {
-                        planTexto = `<span class="badge bg-info text-dark">${badgeTitulo}</span>`;
+                        planTexto = '<span class="badge bg-info text-dark">PRUEBA 30 DÍAS</span>';
                         estadoTexto = `<span class="badge bg-warning text-dark">⏱️ EN PRUEBA (${diasRestantes}d restantes)</span>`;
                     }
                 } else if (esc.estado === 'pendiente_pago') {
