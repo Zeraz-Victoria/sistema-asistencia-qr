@@ -198,7 +198,8 @@
                                 <th>Institución</th>
                                 <th>Docente / Correo</th>
                                 <th>Plan</th>
-                                <th>Estado de Pago</th>
+                                <th>Vigencia / Días Restantes</th>
+                                <th>Estado</th>
                                 <th class="text-end">Acciones</th>
                             </tr>
                         </thead>
@@ -298,47 +299,60 @@
 
             tbody.innerHTML = '';
 
-            if (escuelas.length === 0) return tbody.innerHTML = '<tr><td colspan="6" class="text-center p-4 text-muted">Sin datos</td></tr>';
+            if (escuelas.length === 0) return tbody.innerHTML = '<tr><td colspan="7" class="text-center p-4 text-muted">Sin datos</td></tr>';
 
             escuelas.forEach(esc => {
-                let badgeClass = 'status-activo';
-                let estadoTexto = 'ACTIVO (PAGADO)';
+                const planLower = (esc.plan || '').toLowerCase();
+                const isVitalicio = (planLower === 'vitalicio' || planLower === 'pago_unico' || planLower === 'pro_vitalicio');
+                const isTrial = esc.is_trial || planLower.includes('prueba');
+                const estadoReal = esc.sub_status || esc.estado;
+                const diasRestantes = (esc.dias_restantes !== undefined) ? Number(esc.dias_restantes) : 0;
+
+                // 1. Etiqueta del Plan
                 let planTexto = '';
-
-                // Calcular días de prueba (30 días para todos los planes de prueba)
-                const fechaCreacion = new Date(esc.fecha_creacion || esc.fecha_registro || Date.now());
-                const diasTranscurridos = Math.floor((new Date() - fechaCreacion) / (1000 * 60 * 60 * 24));
-                const limitePrueba = 30;
-                const diasRestantes = Math.max(0, limitePrueba - diasTranscurridos);
-
-                if (esc.plan === 'vitalicio' || esc.plan === 'pago_unico') {
+                if (isVitalicio) {
                     planTexto = '<span class="badge bg-success" style="font-size:0.8rem;">⭐ VITALICIO ($99 MXN)</span>';
-                    estadoTexto = '<span class="badge bg-success">LICENCIA DE POR VIDA</span>';
-                } else if (esc.plan === 'prueba_30d' || esc.plan === 'prueba_7d' || esc.plan === 'prueba' || !esc.plan) {
-                    if (esc.estado === 'suspendido' || diasRestantes <= 0) {
-                        planTexto = '<span class="badge bg-secondary">PRUEBA 30D</span>';
-                        estadoTexto = '<span class="badge bg-danger">🔒 PRUEBA VENCIDA (BLOQUEADO)</span>';
-                    } else {
-                        planTexto = '<span class="badge bg-info text-dark">PRUEBA 30 DÍAS</span>';
-                        estadoTexto = `<span class="badge bg-warning text-dark">⏱️ EN PRUEBA (${diasRestantes}d restantes)</span>`;
-                    }
-                } else if (esc.estado === 'pendiente_pago') {
-                    planTexto = '<span class="badge bg-secondary">VITALICIO PENDIENTE</span>';
-                    estadoTexto = '<span class="badge bg-warning text-dark border">PENDIENTE PAGO / OXXO</span>';
+                } else if (isTrial) {
+                    planTexto = '<span class="badge bg-info text-dark">PRUEBA 30D</span>';
                 } else {
-                    planTexto = `<span class="badge bg-light text-dark border">${(esc.plan || 'BASICO').toUpperCase()}</span>`;
-                    estadoTexto = esc.estado === 'suspendido' 
-                        ? '<span class="badge bg-danger">SUSPENDIDO</span>' 
-                        : '<span class="badge bg-success">ACTIVO</span>';
+                    planTexto = `<span class="badge bg-secondary">${(esc.plan || 'BASICO').toUpperCase()}</span>`;
                 }
 
-                let btnAction = '';
-                if (esc.plan !== 'vitalicio' && esc.plan !== 'pago_unico') {
-                    btnAction = `<button class="btn btn-sm btn-success me-1" onclick="activarManual(${esc.id})" title="Activar Licencia Vitalicia ($99)"><i class="fa-solid fa-check me-1"></i> Desbloquear Vitalicio</button>`;
-                } else if (esc.estado === 'activo') {
-                    btnAction = `<button class="btn btn-sm btn-outline-warning me-1" onclick="cambiarEstado(${esc.id}, 'suspendido')" title="Pausar / Suspender"><i class="fa-solid fa-pause"></i></button>`;
+                // 2. Etiqueta de Vigencia / Días Restantes
+                let vigenciaTexto = '';
+                if (isVitalicio) {
+                    vigenciaTexto = '<span class="badge bg-success text-white" style="font-size:0.82rem;"><i class="fa-solid fa-infinity me-1"></i> Permanente (Sin límite)</span>';
+                } else if (estadoReal === 'suspendido' || diasRestantes <= 0) {
+                    vigenciaTexto = '<span class="badge bg-danger" style="font-size:0.82rem;"><i class="fa-solid fa-lock me-1"></i> Vencido (0 días)</span>';
+                } else if (diasRestantes <= 3) {
+                    vigenciaTexto = `<span class="badge bg-warning text-dark border border-warning" style="font-size:0.82rem;"><i class="fa-solid fa-triangle-exclamation me-1"></i> <b>${diasRestantes}</b> ${diasRestantes === 1 ? 'día restante' : 'días restantes'}</span>`;
                 } else {
-                    btnAction = `<button class="btn btn-sm btn-outline-success me-1" onclick="cambiarEstado(${esc.id}, 'activo')" title="Reactivar"><i class="fa-solid fa-play"></i></button>`;
+                    vigenciaTexto = `<span class="badge bg-primary-subtle text-primary border border-primary-subtle" style="font-size:0.82rem;"><i class="fa-regular fa-clock me-1"></i> <b>${diasRestantes}</b> días restantes</span>`;
+                }
+
+                // 3. Etiqueta de Estado
+                let estadoTexto = '';
+                if (isVitalicio) {
+                    estadoTexto = '<span class="badge bg-success">ACTIVO</span>';
+                } else if (estadoReal === 'suspendido' || diasRestantes <= 0) {
+                    estadoTexto = '<span class="badge bg-danger">SUSPENDIDO / BLOQUEADO</span>';
+                } else if (estadoReal === 'pendiente_pago') {
+                    estadoTexto = '<span class="badge bg-warning text-dark border">PENDIENTE PAGO</span>';
+                } else {
+                    estadoTexto = '<span class="badge bg-success">ACTIVO</span>';
+                }
+
+                // 4. Botones de Acción
+                let btnAction = '';
+                if (!isVitalicio) {
+                    btnAction += `<button class="btn btn-sm btn-success me-1" onclick="activarManual(${esc.id})" title="Convertir a Licencia Vitalicia ($99)"><i class="fa-solid fa-star me-1"></i> Vitalicio</button>`;
+                    btnAction += `<button class="btn btn-sm btn-outline-primary me-1" onclick="renovar30Dias(${esc.id})" title="Renovar +30 días"><i class="fa-solid fa-calendar-plus me-1"></i> +30 Días</button>`;
+                }
+                
+                if (estadoReal === 'activo' && isVitalicio) {
+                    btnAction += `<button class="btn btn-sm btn-outline-warning me-1" onclick="cambiarEstado(${esc.id}, 'suspendido')" title="Pausar / Suspender"><i class="fa-solid fa-pause"></i></button>`;
+                } else if (estadoReal === 'suspendido') {
+                    btnAction += `<button class="btn btn-sm btn-outline-success me-1" onclick="cambiarEstado(${esc.id}, 'activo')" title="Reactivar"><i class="fa-solid fa-play"></i></button>`;
                 }
 
                 const row = `
@@ -350,11 +364,12 @@
                             <div class="small text-muted">${esc.email_director || '-'}</div>
                         </td>
                         <td>${planTexto}</td>
+                        <td>${vigenciaTexto}</td>
                         <td>${estadoTexto}</td>
                         <td class="text-end">
                             ${btnAction}
-                            <button class="btn btn-sm btn-outline-primary ms-1" onclick="abrirEditar(${esc.id}, '${esc.nombre}', '${esc.plan}')"><i class="fa-solid fa-pen"></i></button>
-                            <button class="btn btn-sm btn-outline-danger ms-1" onclick="borrar(${esc.id})"><i class="fa-solid fa-trash"></i></button>
+                            <button class="btn btn-sm btn-outline-secondary ms-1" onclick="abrirEditar(${esc.id}, '${esc.nombre}', '${esc.plan}')" title="Editar"><i class="fa-solid fa-pen"></i></button>
+                            <button class="btn btn-sm btn-outline-danger ms-1" onclick="borrar(${esc.id})" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     </tr>`;
                 tbody.innerHTML += row;
@@ -371,6 +386,11 @@
                 body: JSON.stringify({ institucion_id: id })
             });
             cargarEscuelas();
+        }
+
+        async function renovar30Dias(id) {
+            if (!confirm('¿Deseas renovar el ciclo de esta escuela por 30 días adicionales?')) return;
+            await apiCall(`/escuelas/${id}/renovar`, 'PUT', {});
         }
 
         async function apiCall(endpoint, method, body) {
@@ -407,13 +427,13 @@
             if (nuevoNombre && nuevoNombre !== nombreActual) {
                 await apiCall(`/escuelas/${id}/nombre`, 'PUT', { nombre: nuevoNombre });
             }
-            const nuevoPlan = prompt("Cambiar Plan (basico / medio / pro) - Dejar vacío para no cambiar:", planActual);
+            const nuevoPlan = prompt("Cambiar Plan (basico / medio / pro / vitalicio) - Dejar vacío para no cambiar:", planActual);
             if (nuevoPlan && nuevoPlan.trim().toLowerCase() !== planActual.trim().toLowerCase()) {
                 const planLimpio = nuevoPlan.trim().toLowerCase();
-                if (['basico', 'medio', 'pro'].includes(planLimpio)) {
+                if (['basico', 'medio', 'pro', 'vitalicio'].includes(planLimpio)) {
                     await apiCall(`/escuelas/${id}/plan`, 'PUT', { plan: planLimpio });
                 } else {
-                    alert("Plan no válido. Debe ser: basico, medio o pro.");
+                    alert("Plan no válido. Debe ser: basico, medio, pro o vitalicio.");
                 }
             }
         }

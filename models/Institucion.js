@@ -29,7 +29,7 @@ class Institucion {
         }
 
         const now = new Date();
-        const refDate = new Date(fecha_creacion || fecha_ultimo_pago || now);
+        const refDate = new Date(fecha_ultimo_pago || fecha_creacion || now);
         const diffMs = now - refDate;
         const diffDays = diffMs / (1000 * 60 * 60 * 24);
 

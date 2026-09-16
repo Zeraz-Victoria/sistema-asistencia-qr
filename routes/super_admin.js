@@ -8,6 +8,8 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 require('dotenv').config();
 
+const Institucion = require('../models/Institucion');
+
 const requireMasterKey = (req, res, next) => {
     const key = req.headers['x-admin-key'];
     const masterKey = process.env.SUPER_ADMIN_KEY || 'admin123';
@@ -35,7 +37,17 @@ function createSuperAdminRoutes(db) {
                 ORDER BY I.id DESC
             `;
             const escuelas = await db.all(sql);
-            res.json(escuelas);
+            const escuelasConEstado = await Promise.all(escuelas.map(async (esc) => {
+                const subStatus = await Institucion.checkSubscriptionStatus(esc.id);
+                return {
+                    ...esc,
+                    dias_restantes: subStatus ? subStatus.daysLeft : 0,
+                    sub_status: subStatus ? subStatus.status : esc.estado,
+                    sub_warning: subStatus ? !!subStatus.warning : false,
+                    is_trial: subStatus ? !!subStatus.isTrial : false
+                };
+            }));
+            res.json(escuelasConEstado);
         } catch (error) { res.status(500).json({ error: error.message }); }
     });
 
@@ -102,6 +114,18 @@ function createSuperAdminRoutes(db) {
                 : "UPDATE Instituciones SET plan = $1, estado = 'activo', fecha_ultimo_pago = NOW() WHERE id = $2";
             await db.run(query, [plan, req.params.id]);
             res.json({ status: 'ok' });
+        } catch (error) { res.status(500).json({ error: error.message }); }
+    });
+
+    // 3.8 RENOVAR CICLO (+30 días / Reactivación)
+    router.put('/escuelas/:id/renovar', async (req, res) => {
+        try {
+            const isSQLite = !process.env.DATABASE_URL;
+            const query = isSQLite
+                ? "UPDATE Instituciones SET estado = 'activo', fecha_ultimo_pago = datetime('now', 'localtime') WHERE id = $1"
+                : "UPDATE Instituciones SET estado = 'activo', fecha_ultimo_pago = NOW() WHERE id = $1";
+            await db.run(query, [req.params.id]);
+            res.json({ status: 'ok', message: 'Ciclo renovado exitosamente.' });
         } catch (error) { res.status(500).json({ error: error.message }); }
     });
 
