@@ -175,10 +175,37 @@ class GestionService {
     static async crearClaseRapida(data, institucionId) {
         let { nombre, grado, grupo, materia } = data;
         nombre = (nombre || '').trim();
-        if (!nombre && !grado) throw new Error('El nombre de la clase o grado es obligatorio.');
+        if (!nombre && !grado) throw new Error('El grado o nombre de la clase es obligatorio.');
 
         let nombreGrado = (grado || nombre).trim();
-        let nombreGrupo = (grupo || 'A').trim();
+        let nombreGrupo = (grupo || '').trim();
+        let nombreMateria = (materia || '').trim();
+
+        // Si no se proporcionó grupo, extraerlo inteligentemente del texto para evitar forzar "A"
+        if (!nombreGrupo) {
+            // 1. Quitar materia entre paréntesis si existe: ej "3° E (Matemáticas)"
+            const matchMateriaParen = nombreGrado.match(/^(.*?)\s*\((.*?)\)\s*$/);
+            if (matchMateriaParen) {
+                nombreGrado = matchMateriaParen[1].trim();
+                if (!nombreMateria) nombreMateria = matchMateriaParen[2].trim();
+            }
+
+            // 2. Comillas al final: ej "Matemáticas 3\"E\"" o "3° \"B\""
+            const matchQuoted = nombreGrado.match(/^(.*?)\s*["'“”]([A-Za-z0-9]+)["'“”]\s*$/);
+            if (matchQuoted) {
+                nombreGrado = matchQuoted[1].trim();
+                nombreGrupo = matchQuoted[2].toUpperCase();
+            } else {
+                // 3. Letra al final separada por espacio o guion: ej "3° E" o "Matemáticas 3 E"
+                const matchSimple = nombreGrado.match(/^(.*?)[ \-_]+([A-Za-z])$/i);
+                if (matchSimple && !/^(el|la|de|en|un|al)$/i.test(matchSimple[2])) {
+                    nombreGrado = matchSimple[1].trim();
+                    nombreGrupo = matchSimple[2].toUpperCase();
+                } else {
+                    nombreGrupo = 'A';
+                }
+            }
+        }
 
         // Buscar o crear grado
         let g = await db.get("SELECT id FROM Grados WHERE UPPER(TRIM(nombre_grado)) = UPPER(TRIM($1)) AND institucion_id = $2", [nombreGrado, institucionId]);
@@ -197,19 +224,23 @@ class GestionService {
         }
 
         let materiaId = null;
-        if (materia && materia.trim()) {
-            let m = await db.get("SELECT id FROM Materias WHERE UPPER(TRIM(nombre_materia)) = UPPER(TRIM($1)) AND institucion_id = $2", [materia.trim(), institucionId]);
+        if (nombreMateria && nombreMateria.trim()) {
+            let m = await db.get("SELECT id FROM Materias WHERE UPPER(TRIM(nombre_materia)) = UPPER(TRIM($1)) AND institucion_id = $2", [nombreMateria.trim(), institucionId]);
             if (m) materiaId = m.id;
             else {
-                const rM = await db.run("INSERT INTO Materias (nombre_materia, institucion_id) VALUES ($1, $2)", [materia.trim(), institucionId]);
+                const rM = await db.run("INSERT INTO Materias (nombre_materia, institucion_id) VALUES ($1, $2)", [nombreMateria.trim(), institucionId]);
                 materiaId = rM.lastID;
             }
         }
 
-        const claseExistente = await db.get(
-            "SELECT id FROM Clases WHERE grado_id = $1 AND grupo_id = $2 AND institucion_id = $3",
-            [gradoId, grupoId, institucionId]
-        );
+        const queryCheck = materiaId 
+            ? "SELECT id FROM Clases WHERE grado_id = $1 AND grupo_id = $2 AND materia_id = $3 AND institucion_id = $4"
+            : "SELECT id FROM Clases WHERE grado_id = $1 AND grupo_id = $2 AND (materia_id IS NULL OR materia_id = 0) AND institucion_id = $3";
+        const paramsCheck = materiaId 
+            ? [gradoId, grupoId, materiaId, institucionId]
+            : [gradoId, grupoId, institucionId];
+
+        const claseExistente = await db.get(queryCheck, paramsCheck);
         if (claseExistente) return { id: claseExistente.id, message: 'La clase ya existe' };
 
         const rClase = await db.run(

@@ -435,6 +435,9 @@ async function setupDatabase() {
 
     await db.run("INSERT OR IGNORE INTO Configuracion (id, enviar_sms, institucion_id) VALUES (1, 1, 1)");
 
+    // Limpieza automática segura de nombres de grados con comillas (ej: 'Matemáticas 3"E"')
+    await limpiarGradosConGrupoIncrustado(db);
+
     const bcrypt = require('bcrypt');
     const salt = await bcrypt.genSalt(10);
     const hash = await bcrypt.hash('password123', salt);
@@ -796,8 +799,45 @@ async function setupDatabase() {
       }
     }
 
+    // Limpieza automática segura de nombres de grados con comillas (ej: 'Matemáticas 3"E"')
+    await limpiarGradosConGrupoIncrustado(db);
+
     console.log('✅ Base de datos configurada para MULTI-TENANCY (SaaS).');
     return db;
+  }
+}
+
+async function limpiarGradosConGrupoIncrustado(dbInstance) {
+  try {
+    const isSQLite = !process.env.DATABASE_URL;
+    const query = isSQLite
+      ? "SELECT id, nombre_grado, institucion_id FROM Grados WHERE nombre_grado LIKE '%\"%'"
+      : "SELECT id, nombre_grado, institucion_id FROM Grados WHERE nombre_grado LIKE '%\"%'";
+    const gradosConGrupo = await dbInstance.all(query);
+
+    for (const g of (gradosConGrupo || [])) {
+      const m = g.nombre_grado.match(/^(.*?)\s*["'“”]([A-Za-z0-9]+)["'“”]\s*$/);
+      if (m) {
+        const gradoLimpio = m[1].trim();
+        const grupoReal = m[2].trim().toUpperCase();
+
+        let gr = await dbInstance.get("SELECT id FROM Grupos WHERE UPPER(TRIM(nombre_grupo)) = UPPER(TRIM($1)) AND institucion_id = $2", [grupoReal, g.institucion_id]);
+        let grupoRealId = gr ? gr.id : null;
+        if (!grupoRealId) {
+          const rGr = await dbInstance.run("INSERT INTO Grupos (nombre_grupo, institucion_id) VALUES ($1, $2)", [grupoReal, g.institucion_id]);
+          grupoRealId = rGr.lastID;
+        }
+
+        try {
+          await dbInstance.run("UPDATE Clases SET grupo_id = $1 WHERE grado_id = $2 AND institucion_id = $3", [grupoRealId, g.id, g.institucion_id]);
+        } catch (e) {}
+
+        await dbInstance.run("UPDATE Grados SET nombre_grado = $1 WHERE id = $2", [gradoLimpio, g.id]);
+        console.log(`✅ Grado limpiado: "${g.nombre_grado}" -> Grado: "${gradoLimpio}", Grupo: "${grupoReal}"`);
+      }
+    }
+  } catch (err) {
+    // Silencioso si no aplica
   }
 }
 

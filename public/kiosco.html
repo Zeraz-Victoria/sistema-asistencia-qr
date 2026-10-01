@@ -1885,6 +1885,26 @@
 
                 // --- Gestión Modales ---
 
+                function formatearNombreClase(c) {
+                    if (!c) return '-';
+                    let grado = (c.nombre_grado || '').trim();
+                    let grupo = (c.nombre_grupo || '').trim();
+                    let materia = (c.nombre_materia || '').trim();
+
+                    const matchQuoted = grado.match(/^(.*?)\s*["'“”]([A-Za-z0-9]+)["'“”]\s*$/);
+                    if (matchQuoted) {
+                        const gradoBase = matchQuoted[1].trim();
+                        const grupoReal = matchQuoted[2].trim();
+                        if (materia) return `${gradoBase} "${grupoReal}" (${materia})`;
+                        return `${gradoBase} "${grupoReal}"`;
+                    }
+
+                    if (!grado && !grupo) return '-';
+                    if (grado && !grupo) return materia ? `${grado} (${materia})` : grado;
+                    if (!grado && grupo) return materia ? `"${grupo}" (${materia})` : `"${grupo}"`;
+                    return materia ? `${grado} "${grupo}" (${materia})` : `${grado} "${grupo}"`;
+                }
+
                 // 1. Modal Grupo
                 async function abrirModalGrupo() {
                     modalGrupo.style.display = 'flex';
@@ -1904,9 +1924,7 @@
                         } else {
                             let html = '';
                             clases.forEach(c => {
-                                const desc = c.nombre_materia 
-                                    ? `${c.nombre_grado} "${c.nombre_grupo}" (${c.nombre_materia})`
-                                    : `${c.nombre_grado} "${c.nombre_grupo}"`;
+                                const desc = formatearNombreClase(c);
                                 html += `<button class="btn-clase-option" onclick="seleccionarClaseModal(${c.id})">
                                     ${desc} 
                                     <span style="font-size:0.8em; color:#6b7280">(${c.nombre_maestro || 'Sin titular'})</span>
@@ -2168,8 +2186,8 @@
                                 const banner = document.getElementById('materia-activa-banner');
                                 if (data && data.clase_activa) {
                                     const gruposTexto = data.clases && data.clases.length > 1 
-                                        ? data.clases.map(c => `${c.nombre_grado} "${c.nombre_grupo}"`).join(' y ') 
-                                        : `${data.nombre_grado} "${data.nombre_grupo}"`;
+                                        ? data.clases.map(c => formatearNombreClase(c)).join(' y ') 
+                                        : formatearNombreClase(data);
                                     if (banner) {
                                         banner.innerHTML = `<i class="fa-solid fa-graduation-cap"></i> Clase: <span style="background: var(--primary); color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.9rem;">${data.nombre_materia}</span> (${gruposTexto}) <br><span style="font-size:0.8rem; color:#64748b; font-weight:normal; margin-top: 5px; display: inline-block;">Horario: ${data.hora_inicio.substring(0, 5)} - ${data.hora_fin.substring(0, 5)}</span>`;
                                     }

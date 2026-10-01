@@ -1083,9 +1083,20 @@
                 <button type="button" onclick="cerrarModal('modal-nueva-clase')" style="background:none; border:none; font-size:1.4rem; cursor:pointer; color:#64748b;">&times;</button>
             </div>
             <form id="formCrearClaseRapida">
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:14px;">
+                    <div>
+                        <label style="font-weight:600; font-size:0.85rem; margin-bottom:4px; display:block;">Grado *</label>
+                        <input type="text" id="input_grado_clase" placeholder="Ej: 3°, 1ro, 2do" required>
+                    </div>
+                    <div>
+                        <label style="font-weight:600; font-size:0.85rem; margin-bottom:4px; display:block;">Grupo *</label>
+                        <input type="text" id="input_grupo_clase" placeholder="Ej: A, B, E, F..." maxlength="10" required style="text-transform:uppercase;">
+                    </div>
+                </div>
                 <div style="margin-bottom:16px;">
-                    <label style="font-weight:600; font-size:0.85rem; margin-bottom:4px; display:block;">Nombre de la Clase o Grupo *</label>
-                    <input type="text" id="input_nombre_clase_rapida" placeholder="Ej: 1° A, 3° B, Matemáticas 2do" required>
+                    <label style="font-weight:600; font-size:0.85rem; margin-bottom:4px; display:block;">Materia o Asignatura (Opcional)</label>
+                    <input type="text" id="input_materia_clase" placeholder="Ej: Matemáticas, Historia, Ciencias...">
+                    <small style="color:var(--text-muted); font-size:0.75rem;">Opcional: Si dejas la materia vacía se registrará como grupo general.</small>
                 </div>
                 <div style="display:flex; justify-content:flex-end; gap:10px;">
                     <button type="button" class="btn-secundario" onclick="cerrarModal('modal-nueva-clase')">Cancelar</button>
@@ -1555,6 +1566,34 @@
         }
 
         // 6. GESTIÓN DE CLASES
+        function formatearNombreClase(c, grupoArg, materiaArg) {
+            if (!c) return '-';
+            let grado = typeof c === 'object' ? (c.nombre_grado || '') : (c || '');
+            let grupo = typeof c === 'object' ? (c.nombre_grupo || '') : (grupoArg || '');
+            let materia = typeof c === 'object' ? (c.nombre_materia || '') : (materiaArg || '');
+
+            grado = (grado || '').trim();
+            grupo = (grupo || '').trim();
+            materia = (materia || '').trim();
+
+            // Si el grado ya contiene un grupo al final (ej: Matemáticas 3"E" o 3° "E")
+            const matchQuoted = grado.match(/^(.*?)\s*["'“”]([A-Za-z0-9]+)["'“”]\s*$/);
+            if (matchQuoted) {
+                const gradoBase = matchQuoted[1].trim();
+                const grupoReal = matchQuoted[2].trim();
+                if (materia) {
+                    return `${gradoBase} "${grupoReal}" (${materia})`;
+                }
+                return `${gradoBase} "${grupoReal}"`;
+            }
+
+            if (!grado && !grupo) return '-';
+            if (grado && !grupo) return materia ? `${grado} (${materia})` : grado;
+            if (!grado && grupo) return materia ? `"${grupo}" (${materia})` : `"${grupo}"`;
+
+            return materia ? `${grado} "${grupo}" (${materia})` : `${grado} "${grupo}"`;
+        }
+
         async function cargarClases() {
             try {
                 const clases = await api('/api/gestion/clases');
@@ -1566,7 +1605,7 @@
                         contenedorChips.innerHTML = '<span style="color:var(--text-muted); font-size:0.85rem;">No tienes clases creadas aún. Pulsa "+ Clase".</span>';
                     } else {
                         contenedorChips.innerHTML = globalClases.map(c => {
-                            const desc = c.nombre_materia ? `${c.nombre_grado} "${c.nombre_grupo}" (${c.nombre_materia})` : `${c.nombre_grado} "${c.nombre_grupo}"`;
+                            const desc = formatearNombreClase(c);
                             return `
                                 <div class="chip-clase">
                                     <span>${desc}</span>
@@ -1579,7 +1618,7 @@
 
                 // Llenar selectores de clase estándar
                 const optionsHtml = '<option value="">-- Seleccionar Clase --</option>' + globalClases.map(c => {
-                    const desc = c.nombre_materia ? `${c.nombre_grado} "${c.nombre_grupo}" (${c.nombre_materia})` : `${c.nombre_grado} "${c.nombre_grupo}"`;
+                    const desc = formatearNombreClase(c);
                     return `<option value="${c.id}">${desc}</option>`;
                 }).join('');
 
@@ -1592,14 +1631,14 @@
                 const elTareaClase = document.getElementById('nueva_tarea_clase');
                 if (elTareaClase) {
                     elTareaClase.innerHTML = '<option value="">Todas mis clases (Cualquier grupo)</option>' + globalClases.map(c => {
-                        const desc = c.nombre_materia ? `${c.nombre_grado} "${c.nombre_grupo}" (${c.nombre_materia})` : `${c.nombre_grado} "${c.nombre_grupo}"`;
+                        const desc = formatearNombreClase(c);
                         return `<option value="${c.id}">${desc}</option>`;
                     }).join('');
                 }
 
                 // Selectores con opción "Todas las clases"
                 const optionsConTodas = '<option value="todas">Todas las clases</option>' + globalClases.map(c => {
-                    const desc = c.nombre_materia ? `${c.nombre_grado} "${c.nombre_grupo}" (${c.nombre_materia})` : `${c.nombre_grado} "${c.nombre_grupo}"`;
+                    const desc = formatearNombreClase(c);
                     return `<option value="${c.id}">${desc}</option>`;
                 }).join('');
 
@@ -1615,13 +1654,19 @@
 
         document.getElementById('formCrearClaseRapida').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const input = document.getElementById('input_nombre_clase_rapida');
-            const nombre = input.value.trim();
-            if (!nombre) return;
+            const gradoInput = document.getElementById('input_grado_clase');
+            const grupoInput = document.getElementById('input_grupo_clase');
+            const materiaInput = document.getElementById('input_materia_clase');
+
+            const grado = (gradoInput ? gradoInput.value : '').trim();
+            const grupo = (grupoInput ? grupoInput.value : '').trim().toUpperCase();
+            const materia = (materiaInput ? materiaInput.value : '').trim();
+
+            if (!grado || !grupo) return;
 
             try {
-                await api('/api/gestion/clases/rapida', 'POST', { nombre });
-                input.value = '';
+                await api('/api/gestion/clases/rapida', 'POST', { grado, grupo, materia });
+                document.getElementById('formCrearClaseRapida').reset();
                 cerrarModal('modal-nueva-clase');
                 await cargarClases();
             } catch (err) {
@@ -1654,7 +1699,8 @@
         }
 
         function abrirModalNuevaClase() {
-            document.getElementById('input_nombre_clase_rapida').value = '';
+            const form = document.getElementById('formCrearClaseRapida');
+            if (form) form.reset();
             document.getElementById('modal-nueva-clase').style.display = 'flex';
         }
 
@@ -1688,7 +1734,7 @@
 
             tb.innerHTML = filtrados.map(a => {
                 const descClase = (a.nombre_grado || a.nombre_grupo)
-                    ? `${a.nombre_grado || ''} "${a.nombre_grupo || ''}"`
+                    ? formatearNombreClase(a)
                     : '<span style="color:var(--danger); font-size:0.8rem; font-weight:600;"><i class="fa-solid fa-triangle-exclamation"></i> Sin asignar</span>';
                 const qrVal = a.codigo_qr || a.nfc_uid || '-';
                 const dataJson = encodeURIComponent(JSON.stringify(a));
@@ -1841,7 +1887,7 @@
                 else if (status === 'falta') badgeHtml = '<span class="badge badge-falta"><i class="fa-solid fa-xmark"></i> Falta</span>';
                 else if (status === 'justificada') badgeHtml = '<span class="badge badge-justificada"><i class="fa-solid fa-file-medical"></i> Justificada</span>';
 
-                const descClase = (a.nombre_grado || a.nombre_grupo) ? `${a.nombre_grado || ''} "${a.nombre_grupo || ''}"` : '-';
+                const descClase = (a.nombre_grado || a.nombre_grupo) ? formatearNombreClase(a) : '-';
                 const nombresPartes = (a.nombre_completo || 'A').trim().split(' ');
                 const iniciales = (nombresPartes[0][0] + (nombresPartes[1] ? nombresPartes[1][0] : '')).toUpperCase();
 
@@ -2042,7 +2088,7 @@
                             let claseTxt = 'Todas las clases';
                             if (act.clase_id) {
                                 const c = globalClases.find(k => String(k.id) === String(act.clase_id));
-                                if (c) claseTxt = `${c.nombre_grado} "${c.nombre_grupo}"`;
+                                if (c) claseTxt = formatearNombreClase(c);
                             }
                             return `<option value="${act.id}" ${i === 0 ? 'selected' : ''}>${act.titulo} [${claseTxt}]</option>`;
                         }).join('');
@@ -2088,7 +2134,7 @@
                 if (actActual && actActual.clase_id) {
                     alumnosParaTarea = globalAlumnos.filter(a => String(a.clase_id) === String(actActual.clase_id));
                     const c = globalClases.find(k => String(k.id) === String(actActual.clase_id));
-                    const nomClase = c ? `${c.nombre_grado} "${c.nombre_grupo}"` : `Clase #${actActual.clase_id}`;
+                    const nomClase = c ? formatearNombreClase(c) : `Clase #${actActual.clase_id}`;
                     infoClaseTxt = `Tarea asignada exclusivamente al grupo: <strong>${nomClase}</strong> (${alumnosParaTarea.length} alumnos matriculados)`;
                 }
 
@@ -2108,7 +2154,7 @@
                         ? `<button type="button" class="btn-secundario" style="padding:6px 12px; font-size:0.82rem; color:var(--danger); border-color:#fecaca;" onclick="toggleEntregaTareaAlumno(${a.id})">Desmarcar</button>`
                         : `<button type="button" class="btn-primario" style="padding:6px 14px; font-size:0.82rem; background:#10b981; border:none;" onclick="toggleEntregaTareaAlumno(${a.id})">✔️ Entregar</button>`;
 
-                    const descClase = (a.nombre_grado || a.nombre_grupo) ? `${a.nombre_grado || ''} "${a.nombre_grupo || ''}"` : '-';
+                    const descClase = (a.nombre_grado || a.nombre_grupo) ? formatearNombreClase(a) : '-';
                     const nombresPartes = (a.nombre_completo || 'A').trim().split(' ');
                     const iniciales = (nombresPartes[0][0] + (nombresPartes[1] ? nombresPartes[1][0] : '')).toUpperCase();
 
@@ -2422,7 +2468,7 @@
                 const card = document.createElement('div');
                 card.className = 'tarjeta-credencial';
                 const descClase = (alumno.nombre_grado || alumno.nombre_grupo)
-                    ? `${alumno.nombre_grado || ''} "${alumno.nombre_grupo || ''}"`
+                    ? formatearNombreClase(alumno)
                     : 'Sin Grupo';
                 const qrCodeValue = alumno.codigo_qr || alumno.nfc_uid || `ALU-${alumno.id}`;
 
