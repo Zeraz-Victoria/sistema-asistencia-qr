@@ -379,13 +379,7 @@
 
         async function activarManual(id) {
             if (!confirm('¿Deseas confirmar el pago y activar esta cuenta con Licencia Vitalicia?')) return;
-            await apiCall(`/escuelas/${id}/estado`, 'PUT', { estado: 'activo' });
-            await fetch('/api/pagos/confirmar-simulacion', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ institucion_id: id })
-            });
-            cargarEscuelas();
+            await apiCall(`/escuelas/${id}/vitalicio`, 'PUT', {});
         }
 
         async function renovar30Dias(id) {
@@ -395,9 +389,15 @@
 
         async function apiCall(endpoint, method, body) {
             try {
-                await fetch(`${API_URL}${endpoint}`, {
-                    method, headers: { 'Content-Type': 'application/json', 'x-admin-key': MASTER_KEY }, body: JSON.stringify(body)
+                const res = await fetch(`${API_URL}${endpoint}`, {
+                    method, 
+                    headers: { 'Content-Type': 'application/json', 'x-admin-key': MASTER_KEY }, 
+                    body: JSON.stringify(body)
                 });
+                if (!res.ok) {
+                    const errData = await res.json().catch(() => ({}));
+                    throw new Error(errData.error || 'Error al procesar la solicitud');
+                }
                 cargarEscuelas();
             } catch (e) { alert(e.message); }
         }

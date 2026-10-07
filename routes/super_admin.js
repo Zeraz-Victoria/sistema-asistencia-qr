@@ -69,6 +69,14 @@ function createSuperAdminRoutes(db) {
             const nextId = (maxIdRes && maxIdRes.max_id ? maxIdRes.max_id : 0) + 1;
             await db.run("INSERT INTO Configuracion (id, institucion_id, enviar_sms) VALUES ($1, $2, 1)", [nextId, nuevaEscuelaId]);
 
+            if (plan === 'vitalicio') {
+                await Institucion.activarPlanVitalicio(nuevaEscuelaId, {
+                    monto: 99,
+                    referencia: 'CREACION-SUPERADMIN-' + Date.now(),
+                    metodo: 'superadmin'
+                });
+            }
+
             res.status(201).json({ status: 'ok' });
         } catch (error) {
             if (error.message.includes('unique')) return res.status(409).json({ error: 'El email ya existe.' });
@@ -108,11 +116,20 @@ function createSuperAdminRoutes(db) {
         try {
             const { plan } = req.body;
             if (!plan) return res.status(400).json({ error: 'Faltan datos.' });
+            const planLimpio = plan.toLowerCase().trim();
+            if (planLimpio === 'vitalicio' || planLimpio === 'pago_unico' || planLimpio === 'pro_vitalicio') {
+                await Institucion.activarPlanVitalicio(req.params.id, {
+                    monto: 99,
+                    referencia: 'MANUAL-SUPERADMIN-' + Date.now(),
+                    metodo: 'superadmin'
+                });
+                return res.json({ status: 'ok', message: 'Licencia Vitalicia activada exitosamente.' });
+            }
             const isSQLite = !process.env.DATABASE_URL;
             const query = isSQLite
                 ? "UPDATE Instituciones SET plan = $1, estado = 'activo', fecha_ultimo_pago = datetime('now', 'localtime') WHERE id = $2"
                 : "UPDATE Instituciones SET plan = $1, estado = 'activo', fecha_ultimo_pago = NOW() WHERE id = $2";
-            await db.run(query, [plan, req.params.id]);
+            await db.run(query, [planLimpio, req.params.id]);
             res.json({ status: 'ok' });
         } catch (error) { res.status(500).json({ error: error.message }); }
     });
@@ -126,6 +143,18 @@ function createSuperAdminRoutes(db) {
                 : "UPDATE Instituciones SET estado = 'activo', fecha_ultimo_pago = NOW() WHERE id = $1";
             await db.run(query, [req.params.id]);
             res.json({ status: 'ok', message: 'Ciclo renovado exitosamente.' });
+        } catch (error) { res.status(500).json({ error: error.message }); }
+    });
+
+    // 3.9 ACTIVAR LICENCIA VITALICIA ($99 MXN / Manual)
+    router.put('/escuelas/:id/vitalicio', async (req, res) => {
+        try {
+            await Institucion.activarPlanVitalicio(req.params.id, {
+                monto: 99,
+                referencia: 'MANUAL-SUPERADMIN-' + Date.now(),
+                metodo: 'superadmin'
+            });
+            res.json({ status: 'ok', message: 'Licencia Vitalicia activada exitosamente.' });
         } catch (error) { res.status(500).json({ error: error.message }); }
     });
 

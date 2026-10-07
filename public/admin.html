@@ -134,6 +134,33 @@
             border-color: var(--danger);
         }
 
+        .badge-vitalicio {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid #10b981;
+            color: #ecfdf5;
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 999px;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.25);
+            flex-shrink: 0;
+            vertical-align: middle;
+            animation: pulse-vitalicio 3s infinite ease-in-out;
+        }
+        .badge-vitalicio i {
+            color: #facc15;
+            font-size: 0.7rem;
+        }
+        @keyframes pulse-vitalicio {
+            0%, 100% { box-shadow: 0 0 6px rgba(16, 185, 129, 0.25); }
+            50% { box-shadow: 0 0 12px rgba(16, 185, 129, 0.5); }
+        }
+
         /* ------------------------------------------------------------- */
         /* BANNER COMPACTO Y ELEGANTE DE PRUEBA / WHATSAPP */
         /* ------------------------------------------------------------- */
@@ -680,7 +707,12 @@
         <div class="topbar-brand" style="min-width: 0; flex: 1; margin-right: 8px;">
             <div class="school-badge"><i class="fa-solid fa-graduation-cap"></i></div>
             <div style="min-width: 0; overflow: hidden;">
-                <h1 id="tituloEscuela" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px;">Mi Aula</h1>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <h1 id="tituloEscuela" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;">Mi Aula</h1>
+                    <span id="badgeVitalicio" class="badge-vitalicio" style="display: none;" title="Licencia Vitalicia Activa de por vida">
+                        <i class="fa-solid fa-star"></i> Vitalicio
+                    </span>
+                </div>
                 <div class="subtitle" id="subtituloDocente">Panel Docente</div>
             </div>
         </div>
@@ -732,6 +764,16 @@
                     </button>
                 </li>
             </ul>
+            <div id="sidebarPlanInfo" style="display: none; margin-top: auto; padding: 14px 12px 10px 12px;">
+                <div style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 10px; padding: 10px; text-align: center;">
+                    <div style="font-size: 0.8rem; font-weight: 700; color: #10b981; display:flex; align-items:center; justify-content:center; gap:6px;">
+                        <i class="fa-solid fa-star" style="color: #facc15;"></i> Licencia Vitalicia
+                    </div>
+                    <div style="font-size: 0.72rem; color: #64748b; margin-top: 3px;">
+                        <i class="fa-solid fa-infinity" style="color: #10b981;"></i> Permanente
+                    </div>
+                </div>
+            </div>
         </aside>
 
         <!-- CONTENIDO PRINCIPAL -->
@@ -1336,10 +1378,21 @@
                         return;
                     }
 
-                    // Si está en periodo de prueba activo
+                    // Estado de suscripción y licencia
                     const banner = document.getElementById('trialBanner');
                     const text = document.getElementById('trialDaysText');
-                    if (datosLicencia.isTrial && datosLicencia.daysLeft !== undefined) {
+                    const badgeVitalicio = document.getElementById('badgeVitalicio');
+                    const sidebarPlan = document.getElementById('sidebarPlanInfo');
+
+                    const esVitalicio = (datosLicencia.plan === 'vitalicio' || (!datosLicencia.isTrial && datosLicencia.status === 'activo'));
+
+                    if (esVitalicio) {
+                        if (banner) banner.style.display = 'none';
+                        if (badgeVitalicio) badgeVitalicio.style.display = 'inline-flex';
+                        if (sidebarPlan) sidebarPlan.style.display = 'block';
+                    } else if (datosLicencia.isTrial && datosLicencia.daysLeft !== undefined) {
+                        if (badgeVitalicio) badgeVitalicio.style.display = 'none';
+                        if (sidebarPlan) sidebarPlan.style.display = 'none';
                         if (banner && text) {
                             banner.style.display = 'flex';
                             const d = datosLicencia.daysLeft;
@@ -1350,6 +1403,8 @@
                         }
                     } else {
                         if (banner) banner.style.display = 'none';
+                        if (badgeVitalicio) badgeVitalicio.style.display = 'none';
+                        if (sidebarPlan) sidebarPlan.style.display = 'none';
                     }
                 }
             } catch(e) {
