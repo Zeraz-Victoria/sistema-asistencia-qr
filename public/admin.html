@@ -2010,8 +2010,20 @@
             }
         }
 
+        let ultimoEscaneoAsistencia = 0;
+        let procesandoEscaneoAsistencia = false;
+
         async function procesarEscaneoQRAsistencia(codigoQR) {
             if (!codigoQR || !codigoQR.trim()) return;
+
+            // Freno de 1 segundo entre escaneos para la web
+            const ahora = Date.now();
+            if (procesandoEscaneoAsistencia || (ahora - ultimoEscaneoAsistencia < 1000)) {
+                return;
+            }
+            ultimoEscaneoAsistencia = ahora;
+            procesandoEscaneoAsistencia = true;
+
             const code = codigoQR.trim();
             const banner = document.getElementById('asistencia-feedback');
 
@@ -2025,6 +2037,10 @@
                 playBeep('error');
                 banner.textContent = `❌ ${err.message}`;
                 banner.className = 'feedback-banner error';
+            } finally {
+                setTimeout(() => {
+                    procesandoEscaneoAsistencia = false;
+                }, 1000);
             }
         }
 
@@ -2255,12 +2271,24 @@
             }
         }
 
+        let ultimoEscaneoTareas = 0;
+        let procesandoEscaneoTareas = false;
+
         async function procesarEscaneoQRTareas(codigoQR) {
             if (!actividadSeleccionadaId) {
                 alert('Por favor selecciona primero una tarea activa.');
                 return;
             }
             if (!codigoQR || !codigoQR.trim()) return;
+
+            // Freno de 1 segundo entre escaneos para la web
+            const ahora = Date.now();
+            if (procesandoEscaneoTareas || (ahora - ultimoEscaneoTareas < 1000)) {
+                return;
+            }
+            ultimoEscaneoTareas = ahora;
+            procesandoEscaneoTareas = true;
+
             const code = codigoQR.trim();
             const banner = document.getElementById('tareas-feedback');
 
@@ -2277,6 +2305,10 @@
                 playBeep('error');
                 banner.textContent = `❌ ${err.message}`;
                 banner.className = 'feedback-banner error';
+            } finally {
+                setTimeout(() => {
+                    procesandoEscaneoTareas = false;
+                }, 1000);
             }
         }
 

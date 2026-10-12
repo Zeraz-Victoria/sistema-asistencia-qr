@@ -1090,7 +1090,7 @@
                 function onQrCodeScanned(decodedText) {
                     if (!decodedText) return;
                     const now = Date.now();
-                    if (decodedText === lastScannedText && (now - lastScannedTime) < 2200) {
+                    if ((now - lastScannedTime) < 1000) {
                         return;
                     }
                     lastScannedText = decodedText;
@@ -1215,10 +1215,10 @@
                     }
                     if (!uid || uid.length < 4) return;
 
-                    // Anti-bounce: ignorar si ya se está procesando una lectura
+                    // Anti-bounce: ignorar si ya se está procesando una lectura (freno de 1 segundo)
                     if (scanEnProceso) return;
                     scanEnProceso = true;
-                    setTimeout(() => scanEnProceso = false, 1200);
+                    setTimeout(() => scanEnProceso = false, 1000);
 
                     // Flash visual al recibir la tarjeta
                     card.classList.add('nfc-scan-flash');
