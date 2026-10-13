@@ -460,7 +460,7 @@ class AsistenciaService {
 
     static async obtenerAsistenciasHoy(institucionId, fecha = null) {
         const isSQLite = !process.env.DATABASE_URL;
-        const fechaFiltro = fecha || new Date().toLocaleDateString('sv-SE', { timeZone: 'America/Mexico_City' });
+        const fechaFiltro = (!fecha || fecha === 'hoy') ? new Date().toLocaleDateString('sv-SE', { timeZone: 'America/Mexico_City' }) : fecha;
         const query = isSQLite
             ? `SELECT a.id, a.alumno_id, a.fecha_hora, a.status, a.justificacion, a.clase_id, al.nombre_completo, al.codigo_qr 
                FROM Asistencias a
@@ -477,7 +477,7 @@ class AsistenciaService {
 
     static async registrarAsistenciaManual(alumnoId, status, institucionId, fecha = null, justificacion = null) {
         const isSQLite = !process.env.DATABASE_URL;
-        const fechaFiltro = fecha || new Date().toLocaleDateString('sv-SE', { timeZone: 'America/Mexico_City' });
+        const fechaFiltro = (!fecha || fecha === 'hoy') ? new Date().toLocaleDateString('sv-SE', { timeZone: 'America/Mexico_City' }) : fecha;
         const alumno = await db.get("SELECT * FROM Alumnos WHERE id = $1 AND institucion_id = $2", [alumnoId, institucionId]);
         if (!alumno) throw new Error('Alumno no encontrado.');
 
@@ -490,7 +490,7 @@ class AsistenciaService {
             await db.run("UPDATE Asistencias SET status = $1, justificacion = $2 WHERE id = $3", [status, justificacion, existente.id]);
             return { status: 'ok', message: `Asistencia actualizada a ${status}`, id: existente.id };
         } else {
-            const fechaHora = fecha ? `${fecha}T12:00:00.000Z` : new Date().toISOString();
+            const fechaHora = (fecha && fecha !== 'hoy') ? `${fecha}T12:00:00.000Z` : new Date().toISOString();
             const res = await db.run(
                 "INSERT INTO Asistencias (alumno_id, fecha_hora, institucion_id, status, justificacion, clase_id) VALUES ($1, $2, $3, $4, $5, $6)",
                 [alumnoId, fechaHora, institucionId, status, justificacion, alumno.clase_id]
