@@ -274,6 +274,31 @@
             color: var(--primary);
         }
 
+        /* ALERTA DESCARGA APP ANDROID */
+        .app-download-card {
+            display: block;
+            margin-top: 16px;
+            padding: 14px 12px;
+            background: linear-gradient(145deg, #f0fdf4 0%, #ecfdf5 100%);
+            border: 1.5px solid #a7f3d0;
+            border-radius: 14px;
+            text-decoration: none;
+            transition: all 0.22s ease-in-out;
+            box-shadow: 0 2px 6px -1px rgba(16, 185, 129, 0.08);
+            position: relative;
+        }
+
+        .app-download-card:hover {
+            transform: translateY(-2px);
+            border-color: #34d399;
+            box-shadow: 0 8px 16px -3px rgba(16, 185, 129, 0.18);
+            background: linear-gradient(145deg, #ecfdf5 0%, #d1fae5 100%);
+        }
+
+        .app-download-card:active {
+            transform: translateY(0);
+        }
+
         /* MAIN CONTENT AREA */
         .app-main {
             flex: 1;
@@ -764,6 +789,28 @@
                     </button>
                 </li>
             </ul>
+
+            <!-- ALERTA / BOTÓN DESCARGA APP ANDROID -->
+            <a href="https://drive.google.com/file/d/1cBFd3eHRQz7VcKW821I2M7k95DF0LfR8/view?usp=sharing" target="_blank" rel="noopener noreferrer" class="app-download-card" title="Descargar APK para Android">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; background: #10b981; color: white; border-radius: 9px; font-size: 1.05rem; box-shadow: 0 2px 5px rgba(16, 185, 129, 0.35);">
+                        <i class="fa-brands fa-android"></i>
+                    </span>
+                    <span style="background: #10b981; color: white; font-size: 0.65rem; font-weight: 800; padding: 2px 7px; border-radius: 12px; text-transform: uppercase; letter-spacing: 0.3px;">
+                        Descargar APK
+                    </span>
+                </div>
+                <div style="font-size: 0.85rem; font-weight: 800; color: #065f46; line-height: 1.25;">
+                    Descarga nuestra app para Android
+                </div>
+                <div style="font-size: 0.73rem; color: #047857; margin-top: 4px; line-height: 1.35;">
+                    Lleva el escáner QR y pase de lista en tu teléfono.
+                </div>
+                <div style="margin-top: 10px; padding-top: 8px; border-top: 1px dashed #a7f3d0; display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem; font-weight: 700; color: #059669;">
+                    <span>Obtener archivo</span>
+                    <i class="fa-solid fa-arrow-down" style="font-size: 0.75rem;"></i>
+                </div>
+            </a>
             <div id="sidebarPlanInfo" style="display: none; margin-top: auto; padding: 14px 12px 10px 12px;">
                 <div style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 10px; padding: 10px; text-align: center;">
                     <div style="font-size: 0.8rem; font-weight: 700; color: #10b981; display:flex; align-items:center; justify-content:center; gap:6px;">
@@ -1048,6 +1095,22 @@
 
                     <div id="reporte-feedback" class="feedback-banner"></div>
                 </div>
+
+                <!-- TARJETA DESCARGA APP ANDROID EN REPORTES -->
+                <div style="margin-top: 20px; background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%); border: 1.5px solid #a7f3d0; border-radius: 16px; padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; box-shadow: 0 4px 12px -2px rgba(16, 185, 129, 0.08);">
+                    <div style="display: flex; align-items: center; gap: 14px;">
+                        <div style="width: 44px; height: 44px; background: #10b981; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; flex-shrink: 0; box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);">
+                            <i class="fa-brands fa-android"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 1rem; font-weight: 800; color: #065f46;">¿Prefieres usar tu teléfono Android?</div>
+                            <div style="font-size: 0.82rem; color: #047857; margin-top: 2px;">Descarga nuestra app oficial para escanear códigos QR y calificar tareas con mayor comodidad.</div>
+                        </div>
+                    </div>
+                    <a href="https://drive.google.com/file/d/1cBFd3eHRQz7VcKW821I2M7k95DF0LfR8/view?usp=sharing" target="_blank" rel="noopener noreferrer" style="background: #10b981; color: white; padding: 10px 18px; border-radius: 10px; font-weight: 700; font-size: 0.88rem; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3); transition: all 0.2s;">
+                        <i class="fa-solid fa-download"></i> Descargar App Android
+                    </a>
+                </div>
             </section>
 
         </main>
@@ -1254,17 +1317,17 @@
             <div style="width:70px; height:70px; background:#ecfdf5; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 16px auto; font-size:2rem; color:#065f46; border:2px solid #a7f3d0;">
                 🔒
             </div>
-            <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin:0 0 10px 0;">Periodo de Prueba Finalizado</h2>
-            <p style="font-size:0.9rem; color:#64748b; line-height:1.5; margin:0 0 20px 0;">
+            <h2 id="bloqueoTituloHeader" style="font-size:1.4rem; font-weight:800; color:#0f172a; margin:0 0 10px 0;">Periodo de Prueba Finalizado</h2>
+            <p id="bloqueoDesc" style="font-size:0.9rem; color:#64748b; line-height:1.5; margin:0 0 20px 0;">
                 Tus <strong>30 días de prueba gratuita</strong> han concluido. Para seguir usando el escáner QR, calificar tareas y descargar reportes, activa tu Licencia Vitalicia.
             </p>
 
             <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:14px 16px; margin-bottom:22px; text-align:left;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <span style="font-weight:800; font-size:1rem; color:#065f46;">Licencia Vitalicia</span>
-                    <span style="background:#065f46; color:white; font-size:1.05rem; font-weight:900; padding:4px 10px; border-radius:8px;">$99 MXN</span>
+                    <span id="bloqueoTituloPlan" style="font-weight:800; font-size:1rem; color:#065f46;">Licencia Vitalicia</span>
+                    <span id="bloqueoPrecioPlan" style="background:#065f46; color:white; font-size:1.05rem; font-weight:900; padding:4px 10px; border-radius:8px;">$99 MXN</span>
                 </div>
-                <div style="font-size:0.82rem; color:#334155; line-height:1.5;">
+                <div id="bloqueoDetallesPlan" style="font-size:0.82rem; color:#334155; line-height:1.5;">
                     <div>✓ <strong>Pago Único:</strong> Sin mensualidades ni cobros sorpresa.</div>
                     <div>✓ <strong>Alumnos y Datos Intactos:</strong> Todo tu registro se conserva.</div>
                     <div>✓ Paga con Tarjeta, SPEI o Efectivo en <strong>OXXO</strong>.</div>
@@ -1272,7 +1335,7 @@
             </div>
 
             <button type="button" id="btnPagarBloqueo" onclick="contactarWhatsAppActivar(event)" style="width:100%; background:#25d366; color:white; border:none; padding:14px; font-size:1.05rem; font-weight:800; border-radius:10px; cursor:pointer; transition:all 0.2s; box-shadow:0 4px 6px -1px rgba(37, 211, 102, 0.3); margin-bottom:12px; display:flex; align-items:center; justify-content:center; gap:8px;">
-                <i class="fa-brands fa-whatsapp" style="font-size:1.3rem;"></i> Activar por WhatsApp ($99 MXN)
+                <i class="fa-brands fa-whatsapp" style="font-size:1.3rem;"></i> <span id="btnPagarBloqueoText">Activar por WhatsApp ($99 MXN)</span>
             </button>
 
             <div id="simulacionBloqueoContainer" style="display:none; margin-top:8px;">
@@ -1298,17 +1361,17 @@
             <div style="width:60px; height:60px; background:#ecfdf5; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 12px auto; font-size:1.8rem; color:#065f46;">
                 ⭐
             </div>
-            <h3 style="margin:0 0 8px 0; font-size:1.3rem; font-weight:800;">Activar Licencia Vitalicia</h3>
-            <p style="font-size:0.88rem; color:#64748b; margin:0 0 16px 0;">
+            <h3 id="modalPagoTitulo" style="margin:0 0 8px 0; font-size:1.3rem; font-weight:800;">Activar Licencia Vitalicia</h3>
+            <p id="modalPagoDesc" style="font-size:0.88rem; color:#64748b; margin:0 0 16px 0;">
                 Asegura tu sistema de por vida. Un solo pago, sin suscripciones mensuales.
             </p>
 
             <div style="background:#ecfdf5; border:1px solid #a7f3d0; border-radius:12px; padding:14px; margin-bottom:20px; text-align:left;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                    <span style="font-weight:800; font-size:0.95rem; color:#065f46;">AsistenciaQR Pro</span>
-                    <span style="background:#065f46; color:white; font-size:1rem; font-weight:900; padding:3px 8px; border-radius:6px;">$99 MXN</span>
+                    <span id="modalPagoPlanNombre" style="font-weight:800; font-size:0.95rem; color:#065f46;">AsistenciaQR Pro</span>
+                    <span id="modalPagoBadge" style="background:#065f46; color:white; font-size:1rem; font-weight:900; padding:3px 8px; border-radius:6px;">$99 MXN</span>
                 </div>
-                <div style="font-size:0.8rem; color:#047857; line-height:1.4;">
+                <div id="modalPagoBeneficios" style="font-size:0.8rem; color:#047857; line-height:1.4;">
                     ✓ Código QR ilimitado para asistencias y tareas<br>
                     ✓ Reportes PDF mensuales para padres y dirección<br>
                     ✓ Soporte y actualizaciones continuas
@@ -1316,7 +1379,7 @@
             </div>
 
             <button type="button" id="btnPagarModal" onclick="contactarWhatsAppActivar(event)" style="width:100%; background:#25d366; color:white; border:none; padding:13px; font-size:1rem; font-weight:800; border-radius:10px; cursor:pointer; margin-bottom:10px; display:flex; align-items:center; justify-content:center; gap:8px;">
-                <i class="fa-brands fa-whatsapp" style="font-size:1.2rem;"></i> Activar por WhatsApp ($99 MXN)
+                <i class="fa-brands fa-whatsapp" style="font-size:1.2rem;"></i> <span id="btnPagarModalText">Activar por WhatsApp ($99 MXN)</span>
             </button>
 
             <div id="simulacionVoluntariaContainer" style="display:none; margin-top:6px;">
@@ -1362,6 +1425,44 @@
         // --- Control de Licencia y Prueba Gratuita (30 Días) ---
         let datosLicencia = null;
 
+        function actualizarTextosLicencia(lic) {
+            if (!lic) return;
+            const esAnual = (lic.tipoLicencia === 'anual' || lic.plan === 'anual');
+
+            const tituloPlan = document.getElementById('bloqueoTituloPlan');
+            const precioPlan = document.getElementById('bloqueoPrecioPlan');
+            const detallesPlan = document.getElementById('bloqueoDetallesPlan');
+            const btnPagarBloqueoText = document.getElementById('btnPagarBloqueoText');
+            const bloqueoDesc = document.getElementById('bloqueoDesc');
+
+            if (tituloPlan) tituloPlan.textContent = esAnual ? 'Suscripción Anual' : 'Licencia Vitalicia';
+            if (precioPlan) precioPlan.textContent = esAnual ? '$99 MXN / año' : '$99 MXN';
+            if (btnPagarBloqueoText) btnPagarBloqueoText.textContent = esAnual ? 'Activar por WhatsApp ($99 MXN / año)' : 'Activar por WhatsApp ($99 MXN)';
+            if (bloqueoDesc) {
+                bloqueoDesc.innerHTML = esAnual
+                    ? 'Tus <strong>30 días de prueba gratuita</strong> han concluido. Para seguir usando el escáner QR, calificar tareas y descargar reportes, activa tu Suscripción Anual.'
+                    : 'Tus <strong>30 días de prueba gratuita</strong> han concluido. Para seguir usando el escáner QR, calificar tareas y descargar reportes, activa tu Licencia Vitalicia.';
+            }
+            if (detallesPlan) {
+                detallesPlan.innerHTML = esAnual
+                    ? '<div>✓ <strong>Acceso por 1 Año (365 días):</strong> Renovación anual económica.</div>' +
+                      '<div>✓ <strong>Alumnos y Datos Intactos:</strong> Todo tu registro se conserva.</div>' +
+                      '<div>✓ Paga con Tarjeta, SPEI o Efectivo en <strong>OXXO</strong>.</div>'
+                    : '<div>✓ <strong>Pago Único:</strong> Sin mensualidades ni cobros sorpresa.</div>' +
+                      '<div>✓ <strong>Alumnos y Datos Intactos:</strong> Todo tu registro se conserva.</div>' +
+                      '<div>✓ Paga con Tarjeta, SPEI o Efectivo en <strong>OXXO</strong>.</div>';
+            }
+
+            const modalTitulo = document.getElementById('modalPagoTitulo');
+            const modalDesc = document.getElementById('modalPagoDesc');
+            const modalBadge = document.getElementById('modalPagoBadge');
+            const btnPagarModalText = document.getElementById('btnPagarModalText');
+            if (modalTitulo) modalTitulo.textContent = esAnual ? 'Activar Suscripción Anual' : 'Activar Licencia Vitalicia';
+            if (modalDesc) modalDesc.textContent = esAnual ? 'Acceso completo a AsistenciaQR durante 1 año (365 días) por solo $99 MXN.' : 'Asegura tu sistema de por vida. Un solo pago, sin suscripciones mensuales.';
+            if (modalBadge) modalBadge.textContent = esAnual ? '$99 MXN / año' : '$99 MXN';
+            if (btnPagarModalText) btnPagarModalText.textContent = esAnual ? 'Activar por WhatsApp ($99 MXN / año)' : 'Activar por WhatsApp ($99 MXN)';
+        }
+
         async function verificarEstadoLicencia() {
             try {
                 const res = await fetch('/api/auth/estado-licencia', { headers: authHeaders });
@@ -1372,8 +1473,10 @@
                 if (res.ok) {
                     datosLicencia = await res.json();
                     
+                    actualizarTextosLicencia(datosLicencia);
+
                     // Si está suspendida o prueba vencida
-                    if (datosLicencia.status === 'suspendido' || datosLicencia.expiredTrial) {
+                    if (datosLicencia.status === 'suspendido' || datosLicencia.expiredTrial || datosLicencia.expiredAnnual) {
                         mostrarBloqueoLicencia();
                         return;
                     }
@@ -1384,12 +1487,25 @@
                     const badgeVitalicio = document.getElementById('badgeVitalicio');
                     const sidebarPlan = document.getElementById('sidebarPlanInfo');
 
-                    const esVitalicio = (datosLicencia.plan === 'vitalicio' || (!datosLicencia.isTrial && datosLicencia.status === 'activo'));
+                    const esActivo = (datosLicencia.plan === 'vitalicio' || datosLicencia.plan === 'anual' || (!datosLicencia.isTrial && datosLicencia.status === 'activo'));
 
-                    if (esVitalicio) {
+                    if (esActivo) {
                         if (banner) banner.style.display = 'none';
-                        if (badgeVitalicio) badgeVitalicio.style.display = 'inline-flex';
-                        if (sidebarPlan) sidebarPlan.style.display = 'block';
+                        if (badgeVitalicio) {
+                            badgeVitalicio.style.display = 'inline-flex';
+                            badgeVitalicio.innerHTML = datosLicencia.plan === 'anual'
+                                ? '<i class="fa-solid fa-calendar-check"></i> Anual'
+                                : '<i class="fa-solid fa-star"></i> Vitalicio';
+                            badgeVitalicio.title = datosLicencia.plan === 'anual'
+                                ? `Suscripción Anual Activa (${datosLicencia.daysLeft || 365} días restantes)`
+                                : 'Licencia Vitalicia Activa de por vida';
+                        }
+                        if (sidebarPlan) {
+                            sidebarPlan.style.display = 'block';
+                            sidebarPlan.textContent = datosLicencia.plan === 'anual'
+                                ? `Suscripción Anual (${datosLicencia.daysLeft || 365} días)`
+                                : 'Licencia Vitalicia Activa';
+                        }
                     } else if (datosLicencia.isTrial && datosLicencia.daysLeft !== undefined) {
                         if (badgeVitalicio) badgeVitalicio.style.display = 'none';
                         if (sidebarPlan) sidebarPlan.style.display = 'none';
@@ -1420,7 +1536,10 @@
             const escuela = (nombreEscuela && nombreEscuela !== 'Mi Aula') ? nombreEscuela : (usuario?.nombre_escuela || 'Mi Escuela');
             const email = (usuario && usuario.email) ? usuario.email : '';
 
-            const mensaje = `Hola, quiero activar mi cuenta de AsistenciaQR ($99 MXN pago único).\n\n🏫 Escuela: ${escuela}\n👤 Docente: ${nombreDocente}\n📧 Correo/Usuario: ${email}`;
+            const esAnual = (datosLicencia?.tipoLicencia === 'anual' || datosLicencia?.plan === 'anual');
+            const tipoTexto = esAnual ? "Suscripción Anual ($99 MXN / año)" : "Licencia Vitalicia ($99 MXN pago único)";
+
+            const mensaje = `Hola, quiero activar mi cuenta de AsistenciaQR (${tipoTexto}).\n\n🏫 Escuela: ${escuela}\n👤 Docente: ${nombreDocente}\n📧 Correo/Usuario: ${email}`;
             
             const url = `https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`;
             window.open(url, '_blank');

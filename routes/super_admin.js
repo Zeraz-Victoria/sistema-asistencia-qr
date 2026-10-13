@@ -118,12 +118,22 @@ function createSuperAdminRoutes(db) {
             if (!plan) return res.status(400).json({ error: 'Faltan datos.' });
             const planLimpio = plan.toLowerCase().trim();
             if (planLimpio === 'vitalicio' || planLimpio === 'pago_unico' || planLimpio === 'pro_vitalicio') {
-                await Institucion.activarPlanVitalicio(req.params.id, {
+                await Institucion.activarPlan(req.params.id, {
                     monto: 99,
                     referencia: 'MANUAL-SUPERADMIN-' + Date.now(),
-                    metodo: 'superadmin'
+                    metodo: 'superadmin',
+                    forzarPlan: 'vitalicio'
                 });
                 return res.json({ status: 'ok', message: 'Licencia Vitalicia activada exitosamente.' });
+            }
+            if (planLimpio === 'anual') {
+                await Institucion.activarPlan(req.params.id, {
+                    monto: 99,
+                    referencia: 'MANUAL-SUPERADMIN-' + Date.now(),
+                    metodo: 'superadmin',
+                    forzarPlan: 'anual'
+                });
+                return res.json({ status: 'ok', message: 'Suscripción Anual activada exitosamente.' });
             }
             const isSQLite = !process.env.DATABASE_URL;
             const query = isSQLite
@@ -149,12 +159,26 @@ function createSuperAdminRoutes(db) {
     // 3.9 ACTIVAR LICENCIA VITALICIA ($99 MXN / Manual)
     router.put('/escuelas/:id/vitalicio', async (req, res) => {
         try {
-            await Institucion.activarPlanVitalicio(req.params.id, {
+            await Institucion.activarPlan(req.params.id, {
                 monto: 99,
                 referencia: 'MANUAL-SUPERADMIN-' + Date.now(),
-                metodo: 'superadmin'
+                metodo: 'superadmin',
+                forzarPlan: 'vitalicio'
             });
             res.json({ status: 'ok', message: 'Licencia Vitalicia activada exitosamente.' });
+        } catch (error) { res.status(500).json({ error: error.message }); }
+    });
+
+    // 3.10 ACTIVAR SUSCRIPCIÓN ANUAL ($99 MXN / Manual)
+    router.put('/escuelas/:id/anual', async (req, res) => {
+        try {
+            await Institucion.activarPlan(req.params.id, {
+                monto: 99,
+                referencia: 'MANUAL-SUPERADMIN-' + Date.now(),
+                metodo: 'superadmin',
+                forzarPlan: 'anual'
+            });
+            res.json({ status: 'ok', message: 'Suscripción Anual activada exitosamente.' });
         } catch (error) { res.status(500).json({ error: error.message }); }
     });
 

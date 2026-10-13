@@ -1,8 +1,43 @@
 const { db } = require('../config/database');
 
+// Cuentas históricas existentes creadas antes de la fecha de corte conservan la Licencia Vitalicia
+const FECHA_CORTE_VITALICIO = new Date('2026-10-14T00:00:00.000Z');
+const ID_MAX_HISTORICO_VITALICIO = 22;
+
 class Institucion {
     static async findById(id) {
         return await db.get("SELECT * FROM Instituciones WHERE id = $1", [id]);
+    }
+
+    /**
+     * Determina si una cuenta es elegible para la Licencia Vitalicia (Grandfathering):
+     * - Si su plan ya es vitalicio.
+     * - Si su campo tipo_licencia es 'vitalicio'.
+     * - Si su ID es <= 22 (todas las cuentas previas registradas en producción y desarrollo).
+     * - O si su fecha de creación es anterior a la fecha de corte (13/14 Octubre 2026).
+     */
+    static esCuentaPreviaVitalicia(inst) {
+        if (!inst) return false;
+        const currentPlan = (inst.plan || '').toLowerCase();
+        if (currentPlan === 'vitalicio' || currentPlan === 'pago_unico' || currentPlan === 'pro_vitalicio') {
+            return true;
+        }
+        if (inst.tipo_licencia === 'vitalicio') {
+            return true;
+        }
+        if (inst.tipo_licencia === 'anual') {
+            return false;
+        }
+        if (inst.id && Number(inst.id) <= ID_MAX_HISTORICO_VITALICIO) {
+            return true;
+        }
+        if (inst.fecha_creacion) {
+            const fc = new Date(inst.fecha_creacion);
+            if (!isNaN(fc.getTime()) && fc < FECHA_CORTE_VITALICIO) {
+                return true;
+            }
+        }
+        return false;
     }
 
     static async checkSubscriptionStatus(id) {
@@ -10,28 +45,69 @@ class Institucion {
         if (!inst) return null;
 
         const { plan, estado, fecha_ultimo_pago, fecha_creacion } = inst;
+        const currentPlan = plan ? plan.toLowerCase() : 'prueba_30d';
+        const esVitalicia = this.esCuentaPreviaVitalicia(inst);
+        const tipoLic = (currentPlan === 'anual') ? 'anual' : (esVitalicia ? 'vitalicio' : 'anual');
 
         // Si ya está suspendido explícitamente, respetamos ese estado
         if (estado === 'suspendido') {
-            return { status: 'suspendido', daysLeft: 0, plan: plan || 'basico', warning: false };
+            const isTrial = (currentPlan.includes('prueba') || currentPlan === 'docente' || currentPlan === 'basico_7d');
+            const isAnual = (currentPlan === 'anual');
+            return { 
+                status: 'suspendido', 
+                daysLeft: 0, 
+                plan: currentPlan, 
+                warning: false,
+                isTrial: isTrial,
+                expiredTrial: isTrial,
+                expiredAnnual: isAnual,
+                tipoLicencia: tipoLic
+            };
         }
 
         // Si está pendiente de pago
         if (estado === 'pendiente_pago') {
-            return { status: 'pendiente_pago', daysLeft: 0, plan: plan || 'vitalicio', warning: false };
+            return { status: 'pendiente_pago', daysLeft: 0, plan: currentPlan, warning: false, tipoLicencia: tipoLic };
         }
-
-        const currentPlan = plan ? plan.toLowerCase() : 'prueba_30d';
 
         // Plan Vitalicio (Pago Único: Nunca expira)
         if (currentPlan === 'vitalicio' || currentPlan === 'pago_unico' || currentPlan === 'pro_vitalicio') {
-            return { status: estado, daysLeft: 999999, plan: 'vitalicio', warning: false, isTrial: false };
+            return { status: estado, daysLeft: 999999, plan: 'vitalicio', warning: false, isTrial: false, tipoLicencia: 'vitalicio' };
         }
 
         const now = new Date();
         const refDate = new Date(fecha_ultimo_pago || fecha_creacion || now);
         const diffMs = now - refDate;
         const diffDays = diffMs / (1000 * 60 * 60 * 24);
+
+        // Plan Anual (365 días - Nuevas cuentas creadas a partir del 13 de Octubre 2026)
+        if (currentPlan === 'anual') {
+            const limit = 365;
+            const warnDays = 350; // Advertencia 15 días antes
+            if (diffDays >= limit) {
+                await db.run("UPDATE Instituciones SET estado = 'suspendido' WHERE id = $1", [id]);
+                return { 
+                    status: 'suspendido', 
+                    daysLeft: 0, 
+                    plan: 'anual', 
+                    warning: false, 
+                    expiredAnnual: true, 
+                    isTrial: false,
+                    tipoLicencia: 'anual' 
+                };
+            } else {
+                const daysLeft = Math.max(1, Math.ceil(limit - diffDays));
+                return { 
+                    status: estado, 
+                    daysLeft: daysLeft, 
+                    plan: 'anual', 
+                    warning: diffDays >= warnDays, 
+                    isTrial: false, 
+                    expiredAnnual: false,
+                    tipoLicencia: 'anual' 
+                };
+            }
+        }
 
         // Plan Prueba Gratuita (30 días)
         if (currentPlan === 'prueba_30d' || currentPlan === 'prueba_7d' || currentPlan === 'prueba' || currentPlan === 'docente' || currentPlan === 'basico_7d') {
@@ -44,7 +120,8 @@ class Institucion {
                     plan: currentPlan, 
                     warning: false, 
                     expiredTrial: true, 
-                    isTrial: true 
+                    isTrial: true,
+                    tipoLicencia: tipoLic
                 };
             } else {
                 const daysLeft = Math.max(1, Math.ceil(limit - diffDays));
@@ -54,7 +131,8 @@ class Institucion {
                     plan: currentPlan, 
                     warning: daysLeft <= 3, 
                     isTrial: true, 
-                    expiredTrial: false 
+                    expiredTrial: false,
+                    tipoLicencia: tipoLic
                 };
             }
         }
@@ -64,52 +142,74 @@ class Institucion {
             const warnDays = 27;
             if (diffDays >= limit) {
                 await db.run("UPDATE Instituciones SET estado = 'suspendido' WHERE id = $1", [id]);
-                return { status: 'suspendido', daysLeft: 0, plan: currentPlan, warning: false };
+                return { status: 'suspendido', daysLeft: 0, plan: currentPlan, warning: false, tipoLicencia: tipoLic };
             } else if (diffDays >= warnDays) {
-                return { status: estado, daysLeft: Math.max(0, Math.ceil(limit - diffDays)), plan: currentPlan, warning: true };
+                return { status: estado, daysLeft: Math.max(0, Math.ceil(limit - diffDays)), plan: currentPlan, warning: true, tipoLicencia: tipoLic };
             } else {
-                return { status: estado, daysLeft: Math.max(0, Math.ceil(limit - diffDays)), plan: currentPlan, warning: false };
+                return { status: estado, daysLeft: Math.max(0, Math.ceil(limit - diffDays)), plan: currentPlan, warning: false, tipoLicencia: tipoLic };
             }
         } else if (currentPlan === 'medio') {
             const limit = 180;
             const warnDays = 177;
             if (diffDays >= limit) {
                 await db.run("UPDATE Instituciones SET estado = 'suspendido' WHERE id = $1", [id]);
-                return { status: 'suspendido', daysLeft: 0, plan: currentPlan, warning: false };
+                return { status: 'suspendido', daysLeft: 0, plan: currentPlan, warning: false, tipoLicencia: tipoLic };
             } else if (diffDays >= warnDays) {
-                return { status: estado, daysLeft: Math.max(0, Math.ceil(limit - diffDays)), plan: currentPlan, warning: true };
+                return { status: estado, daysLeft: Math.max(0, Math.ceil(limit - diffDays)), plan: currentPlan, warning: true, tipoLicencia: tipoLic };
             } else {
-                return { status: estado, daysLeft: Math.max(0, Math.ceil(limit - diffDays)), plan: currentPlan, warning: false };
+                return { status: estado, daysLeft: Math.max(0, Math.ceil(limit - diffDays)), plan: currentPlan, warning: false, tipoLicencia: tipoLic };
             }
         } else if (currentPlan === 'pro') {
             const limit = 365;
             const warnDays = 362;
             if (diffDays >= limit) {
                 await db.run("UPDATE Instituciones SET estado = 'suspendido' WHERE id = $1", [id]);
-                return { status: 'suspendido', daysLeft: 0, plan: currentPlan, warning: false };
+                return { status: 'suspendido', daysLeft: 0, plan: currentPlan, warning: false, tipoLicencia: tipoLic };
             } else if (diffDays >= warnDays) {
-                return { status: estado, daysLeft: Math.max(0, Math.ceil(limit - diffDays)), plan: currentPlan, warning: true };
+                return { status: estado, daysLeft: Math.max(0, Math.ceil(limit - diffDays)), plan: currentPlan, warning: true, tipoLicencia: tipoLic };
             } else {
-                return { status: estado, daysLeft: Math.max(0, Math.ceil(limit - diffDays)), plan: currentPlan, warning: false };
+                return { status: estado, daysLeft: Math.max(0, Math.ceil(limit - diffDays)), plan: currentPlan, warning: false, tipoLicencia: tipoLic };
             }
         } else {
-            // Plan por defecto o ilimitados (por si acaso)
-            return { status: estado, daysLeft: 999999, plan: currentPlan, warning: false };
+            return { status: estado, daysLeft: 999999, plan: currentPlan, warning: false, tipoLicencia: tipoLic };
         }
     }
 
-    static async activarPlanVitalicio(institucionId, { monto = 99, referencia = '', metodo = 'mercadopago' } = {}) {
+    /**
+     * Activa el plan para una institución.
+     * Si la cuenta es histórica (creada antes del 13 de Octubre 2026 o ID <= 22), se activa 'vitalicio'.
+     * Si es una cuenta nueva, se activa 'anual' (365 días de servicio).
+     * O bien, si forzarPlan está definido ('vitalicio' o 'anual'), se respeta la decisión del SuperAdmin.
+     */
+    static async activarPlan(institucionId, { monto = 99, referencia = '', metodo = 'mercadopago', forzarPlan = null } = {}) {
+        const inst = await this.findById(institucionId);
+        if (!inst) throw new Error('Institución no encontrada.');
+
+        let planDestino = forzarPlan;
+        if (!planDestino) {
+            planDestino = this.esCuentaPreviaVitalicia(inst) ? 'vitalicio' : 'anual';
+        }
+
+        const isSQLite = !process.env.DATABASE_URL;
+        const nowQuery = isSQLite ? "datetime('now', 'localtime')" : "CURRENT_TIMESTAMP";
+
         await db.run(`
             UPDATE Instituciones 
             SET estado = 'activo', 
-                plan = 'vitalicio', 
-                monto_pagado = $1, 
-                referencia_pago = $2, 
-                metodo_pago = $3, 
-                fecha_ultimo_pago = CURRENT_TIMESTAMP, 
-                fecha_pago = CURRENT_TIMESTAMP
-            WHERE id = $4
-        `, [monto, referencia, metodo, institucionId]);
+                plan = $1, 
+                monto_pagado = $2, 
+                referencia_pago = $3, 
+                metodo_pago = $4, 
+                fecha_ultimo_pago = ${nowQuery}, 
+                fecha_pago = ${nowQuery}
+            WHERE id = $5
+        `, [planDestino, monto, referencia, metodo, institucionId]);
+
+        return { plan: planDestino };
+    }
+
+    static async activarPlanVitalicio(institucionId, options = {}) {
+        return await this.activarPlan(institucionId, options);
     }
 
     static async verificarAbusoPrueba(deviceFingerprint, ip) {
@@ -118,10 +218,10 @@ class Institucion {
         // 1. Verificar por Huella de Dispositivo (LocalStorage/Cookie persistente)
         if (deviceFingerprint) {
             const inst = await db.get(`
-                SELECT id, nombre, estado, plan, monto_pagado 
+                SELECT id, nombre, estado, plan, monto_pagado, fecha_creacion, tipo_licencia 
                 FROM Instituciones 
                 WHERE device_fingerprint = $1 
-                  AND plan != 'vitalicio' 
+                  AND plan NOT IN ('vitalicio', 'pago_unico', 'pro_vitalicio', 'anual') 
                   AND (monto_pagado IS NULL OR monto_pagado = 0)
                 ORDER BY id DESC LIMIT 1
             `, [deviceFingerprint]);
@@ -129,11 +229,12 @@ class Institucion {
             if (inst) {
                 const st = await this.checkSubscriptionStatus(inst.id);
                 if (st && (st.status === 'suspendido' || st.daysLeft <= 0)) {
+                    const tipo = this.esCuentaPreviaVitalicia(inst) ? 'Licencia Vitalicia' : 'Suscripción Anual';
                     return { 
                         abuso: true, 
                         institucion_id: inst.id, 
                         razon: 'dispositivo',
-                        mensaje: 'Ya se utilizó un periodo de prueba gratuita de 30 días en este dispositivo. Para continuar, activa tu Licencia Vitalicia por $99 MXN.'
+                        mensaje: `Ya se utilizó un periodo de prueba gratuita de 30 días en este dispositivo. Para continuar, activa tu ${tipo} por $99 MXN.`
                     };
                 }
             }
@@ -145,7 +246,7 @@ class Institucion {
                 SELECT COUNT(*) as total 
                 FROM Instituciones 
                 WHERE ip_registro = $1 
-                  AND plan != 'vitalicio' 
+                  AND plan NOT IN ('vitalicio', 'pago_unico', 'pro_vitalicio', 'anual') 
                   AND estado = 'suspendido'
                   AND (monto_pagado IS NULL OR monto_pagado = 0)
             `, [ip]);
@@ -154,7 +255,7 @@ class Institucion {
                 return { 
                     abuso: true, 
                     razon: 'ip',
-                    mensaje: 'Límite de pruebas gratuitas alcanzado en esta red. Adquiere tu Licencia Vitalicia por $99 MXN.'
+                    mensaje: 'Límite de pruebas gratuitas alcanzado en esta red. Adquiere tu cuenta por $99 MXN.'
                 };
             }
         }

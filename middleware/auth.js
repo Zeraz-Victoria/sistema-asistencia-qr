@@ -44,14 +44,23 @@ const authMiddleware = async (req, res, next) => {
     if (!isExempt) {
         const subStatus = await Institucion.checkSubscriptionStatus(payload.institucion_id);
         if (subStatus && subStatus.status === 'suspendido') {
+            let msg = 'Cuenta suspendida por falta de pago.';
+            if (subStatus.expiredTrial) {
+                msg = subStatus.tipoLicencia === 'anual'
+                    ? 'Tu periodo de prueba de 30 días ha finalizado. Activa tu Suscripción Anual ($99 MXN / año) para continuar usando el sistema.'
+                    : 'Tu periodo de prueba de 30 días ha finalizado. Activa tu Licencia Vitalicia ($99 MXN) para continuar usando el sistema.';
+            } else if (subStatus.expiredAnnual) {
+                msg = 'Tu suscripción anual ha concluido. Renueva tu cuenta ($99 MXN / año) para continuar usando el sistema.';
+            }
+
             return res.status(402).json({ 
                 error: 'cuenta_suspendida', 
-                message: subStatus.expiredTrial 
-                    ? 'Tu periodo de prueba de 30 días ha finalizado. Activa tu Licencia Vitalicia ($99 MXN) para continuar usando el sistema.'
-                    : 'Cuenta suspendida por falta de pago.',
+                message: msg,
                 expiredTrial: subStatus.expiredTrial || false,
+                expiredAnnual: subStatus.expiredAnnual || false,
                 isTrial: subStatus.isTrial || false,
                 plan: subStatus.plan,
+                tipoLicencia: subStatus.tipoLicencia,
                 institucion_id: payload.institucion_id
             });
         }

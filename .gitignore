@@ -19,6 +19,7 @@ logs/
 # Archivos del sistema
 .DS_Store
 Thumbs.db
+.vscode/
 
 # PDFs y reportes generados
 *.pdf

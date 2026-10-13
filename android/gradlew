@@ -1,0 +1,19 @@
+#!/bin/sh
+
+# Gradle start up script for POSIX systems
+# Compatible wrapper runner
+
+DIRNAME="$(cd "$(dirname "$0")" && pwd)"
+WRAPPER_JAR="$DIRNAME/gradle/wrapper/gradle-wrapper.jar"
+
+if [ ! -f "$WRAPPER_JAR" ]; then
+    echo "Descargando gradle-wrapper.jar..."
+    mkdir -p "$DIRNAME/gradle/wrapper"
+    curl -sLo "$WRAPPER_JAR" https://raw.githubusercontent.com/gradle/gradle/master/gradle/wrapper/gradle-wrapper.jar || true
+fi
+
+if [ -f "$WRAPPER_JAR" ]; then
+    exec java -jar "$WRAPPER_JAR" "$@"
+else
+    echo "Por favor abre el proyecto en Android Studio para compilar el APK automáticamente."
+fi

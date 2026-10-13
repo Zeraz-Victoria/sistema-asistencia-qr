@@ -84,13 +84,13 @@ class AuthService {
         let institucionId;
         if (isSQLite) {
             const resInst = await db.run(
-                "INSERT INTO Instituciones (nombre, plan, estado, device_fingerprint, ip_registro, fecha_creacion, fecha_ultimo_pago) VALUES ($1, 'prueba_30d', 'activo', $2, $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
+                "INSERT INTO Instituciones (nombre, plan, estado, device_fingerprint, ip_registro, fecha_creacion, fecha_ultimo_pago, tipo_licencia) VALUES ($1, 'prueba_30d', 'activo', $2, $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'anual')",
                 [nombreInstitucion, device_fingerprint || null, ip_registro || null]
             );
             institucionId = resInst.lastID;
         } else {
             const resInst = await db.get(
-                "INSERT INTO Instituciones (nombre, plan, estado, device_fingerprint, ip_registro, fecha_creacion, fecha_ultimo_pago) VALUES ($1, 'prueba_30d', 'activo', $2, $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) RETURNING id",
+                "INSERT INTO Instituciones (nombre, plan, estado, device_fingerprint, ip_registro, fecha_creacion, fecha_ultimo_pago, tipo_licencia) VALUES ($1, 'prueba_30d', 'activo', $2, $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'anual') RETURNING id",
                 [nombreInstitucion, device_fingerprint || null, ip_registro || null]
             );
             institucionId = resInst.id;

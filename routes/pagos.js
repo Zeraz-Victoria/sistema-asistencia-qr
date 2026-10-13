@@ -158,12 +158,12 @@ router.post('/webhook', async (req, res) => {
             if (pagoData && pagoData.status === 'approved') {
                 const institucionId = pagoData.external_reference;
                 if (institucionId) {
-                    await Institucion.activarPlanVitalicio(institucionId, {
+                    const activacion = await Institucion.activarPlan(institucionId, {
                         monto: pagoData.transaction_amount || PRECIO_LICENCIA,
                         referencia: String(pagoData.id),
                         metodo: pagoData.payment_method_id || pagoData.payment_type_id || 'mercadopago'
                     });
-                    console.log(`✅ [Webhook MercadoPago] Institución #${institucionId} activada exitosamente con Licencia Vitalicia.`);
+                    console.log(`✅ [Webhook MercadoPago] Institución #${institucionId} activada exitosamente con plan: ${activacion.plan}.`);
                 }
             }
         }
@@ -223,13 +223,19 @@ router.post('/confirmar-simulacion', permitirSimulacionOAdmin, async (req, res) 
 
         if (!id) return res.status(404).json({ error: 'Institución no encontrada' });
 
-        await Institucion.activarPlanVitalicio(id, {
+        const activacion = await Institucion.activarPlan(id, {
             monto: PRECIO_LICENCIA,
             referencia: 'SIM-' + Date.now(),
             metodo: 'simulacion_prueba'
         });
 
-        res.json({ status: 'ok', message: 'Licencia Vitalicia activada exitosamente.' });
+        res.json({ 
+            status: 'ok', 
+            message: activacion.plan === 'vitalicio' 
+                ? 'Licencia Vitalicia activada exitosamente.' 
+                : 'Suscripción Anual (365 días) activada exitosamente.',
+            plan: activacion.plan
+        });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

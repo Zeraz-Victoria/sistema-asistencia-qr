@@ -403,17 +403,34 @@ class ReporteService {
         const inst = await this.obtenerInstitucion(institucionId);
         const nombreInstitucion = inst ? inst.nombre : 'Sistema de Asistencia';
 
-        // 1. Obtener Actividades registradas
+        // 1. Obtener Actividades registradas (filtrando por clase si se especificó)
         let queryActividades = `
-            SELECT id, titulo, descripcion, fecha_creacion 
-            FROM Actividades 
-            WHERE institucion_id = $1
+            SELECT 
+                A.id, A.titulo, A.descripcion, A.fecha_creacion, A.clase_id,
+                G.nombre_grado, GR.nombre_grupo, C.nombre as nombre_clase
+            FROM Actividades A
+            LEFT JOIN Clases C ON A.clase_id = C.id
+            LEFT JOIN Grados G ON C.grado_id = G.id
+            LEFT JOIN Grupos GR ON C.grupo_id = GR.id
+            WHERE A.institucion_id = $1
         `;
         const paramsAct = [institucionId];
 
         if (actividadId && actividadId !== 'all') {
             paramsAct.push(actividadId);
-            queryActividades += ` AND id = $${paramsAct.length}`;
+            queryActividades += ` AND A.id = $${paramsAct.length}`;
+        }
+
+        const cIdNum = (claseId && claseId !== 'null' && claseId !== 'undefined') ? parseInt(claseId, 10) : null;
+        if (cIdNum && cIdNum > 0) {
+            paramsAct.push(cIdNum);
+            queryActividades += ` AND (A.clase_id = $${paramsAct.length} OR A.clase_id IS NULL)`;
+        } else if (usuarioId) {
+            const maestroClase = await db.get(`SELECT id FROM Clases WHERE maestro_id = $1 AND institucion_id = $2`, [usuarioId, institucionId]);
+            if (maestroClase) {
+                paramsAct.push(maestroClase.id);
+                queryActividades += ` AND (A.clase_id = $${paramsAct.length} OR A.clase_id IS NULL)`;
+            }
         }
 
         if (mes && /^\d{4}-\d{2}$/.test(mes)) {
@@ -422,36 +439,41 @@ class ReporteService {
             const nextM = new Date(parseInt(yStr, 10), parseInt(mStr, 10), 1);
             const endStr = `${nextM.getFullYear()}-${String(nextM.getMonth() + 1).padStart(2, '0')}-01 00:00:00`;
             paramsAct.push(startStr, endStr);
-            queryActividades += ` AND fecha_creacion >= $${paramsAct.length - 1}::timestamp AND fecha_creacion < $${paramsAct.length}::timestamp`;
+            const isSQLite = !process.env.DATABASE_URL;
+            if (isSQLite) {
+                queryActividades += ` AND A.fecha_creacion >= $${paramsAct.length - 1} AND A.fecha_creacion < $${paramsAct.length}`;
+            } else {
+                queryActividades += ` AND A.fecha_creacion >= $${paramsAct.length - 1}::timestamp AND A.fecha_creacion < $${paramsAct.length}::timestamp`;
+            }
         }
 
-        queryActividades += ` ORDER BY fecha_creacion DESC`;
+        queryActividades += ` ORDER BY A.fecha_creacion DESC`;
         const actividades = await db.all(queryActividades, paramsAct);
 
-        // 2. Obtener Lista Completa de Alumnos (filtrada por claseId o por maestro si aplica)
+        // 2. Obtener Lista de Alumnos (filtrada por claseId o por maestro si aplica)
         let queryAlumnos = `
-            SELECT A.id, A.nombre_completo, G.nombre_grado, GR.nombre_grupo, C.id as clase_id
+            SELECT A.id, A.nombre_completo, G.nombre_grado, GR.nombre_grupo, A.clase_id
             FROM Alumnos A
-            JOIN Clases C ON A.clase_id = C.id
-            JOIN Grados G ON C.grado_id = G.id
-            JOIN Grupos GR ON C.grupo_id = GR.id
+            LEFT JOIN Clases C ON A.clase_id = C.id
+            LEFT JOIN Grados G ON C.grado_id = G.id
+            LEFT JOIN Grupos GR ON C.grupo_id = GR.id
             WHERE A.institucion_id = $1
         `;
         const paramsAlu = [institucionId];
 
-        if (claseId && claseId !== 'null' && claseId !== 'undefined') {
-            paramsAlu.push(claseId);
-            queryAlumnos += ` AND C.id = $${paramsAlu.length}`;
+        if (cIdNum && cIdNum > 0) {
+            paramsAlu.push(cIdNum);
+            queryAlumnos += ` AND A.clase_id = $${paramsAlu.length}`;
         } else if (usuarioId) {
             const maestroClase = await db.get(`SELECT id FROM Clases WHERE maestro_id = $1 AND institucion_id = $2`, [usuarioId, institucionId]);
             if (maestroClase) {
                 paramsAlu.push(maestroClase.id);
-                queryAlumnos += ` AND C.id = $${paramsAlu.length}`;
+                queryAlumnos += ` AND A.clase_id = $${paramsAlu.length}`;
             }
         }
 
         queryAlumnos += ` ORDER BY G.nombre_grado, GR.nombre_grupo, A.nombre_completo`;
-        const alumnos = await db.all(queryAlumnos, paramsAlu);
+        const todosLosAlumnos = await db.all(queryAlumnos, paramsAlu);
 
         // 3. Obtener todas las entregas registradas
         const queryEntregas = `
@@ -472,30 +494,38 @@ class ReporteService {
         const doc = new PDFDocument({ size: 'LETTER', margin: 40 });
 
         // Encabezado Visual Elegante
-        doc.rect(0, 0, doc.page.width, 85).fill('#4f46e5');
+        doc.rect(0, 0, doc.page.width, 85).fill('#046a38');
         doc.fill('#ffffff').fontSize(16).font('Helvetica-Bold').text(nombreInstitucion.toUpperCase(), 40, 22);
-        doc.fontSize(12).font('Helvetica').text('REPORTE DE CUMPLIMIENTO DE TAREAS Y ACTIVIDADES (NFC)', 40, 48);
+        doc.fontSize(12).font('Helvetica').text('REPORTE DE CUMPLIMIENTO DE TAREAS Y ACTIVIDADES', 40, 48);
 
         const fechaEmision = new Date().toLocaleDateString('es-MX', {
             year: 'numeric', month: 'long', day: 'numeric', timeZone: 'America/Mexico_City'
         });
 
-        doc.fill('#1e293b').fontSize(9).font('Helvetica').text(`Fecha de emisión: ${fechaEmision}`, 40, 100);
-        doc.text(`Total Alumnos en Lista: ${alumnos.length}`, 380, 100, { align: 'right' });
+        doc.fill('#1e293b').fontSize(9).font('Helvetica').text(`Fecha de emisión: ${fechaEmision}`, 40, 98);
+        if (cIdNum && cIdNum > 0) {
+            const claseInfo = await db.get(`SELECT G.nombre_grado, GR.nombre_grupo, C.nombre FROM Clases C LEFT JOIN Grados G ON C.grado_id = G.id LEFT JOIN Grupos GR ON C.grupo_id = GR.id WHERE C.id = $1`, [cIdNum]);
+            const nomGrupoFiltro = claseInfo ? (claseInfo.nombre || `${claseInfo.nombre_grado || ''} "${claseInfo.nombre_grupo || ''}"`.trim()) : `Grupo #${cIdNum}`;
+            doc.text(`Grupo filtrado: ${nomGrupoFiltro}`, 40, 110);
+        }
 
-        let y = 120;
+        let y = (cIdNum && cIdNum > 0) ? 130 : 120;
 
         if (actividades.length === 0) {
             y += 20;
-            doc.fill('#64748b').fontSize(10).font('Helvetica-Oblique').text('No se encontraron actividades registradas en este periodo.', 40, y, { align: 'center' });
+            doc.fill('#64748b').fontSize(10).font('Helvetica-Oblique').text('No se encontraron tareas registradas para este grupo o periodo.', 40, y, { align: 'center' });
         } else {
             actividades.forEach((act) => {
-                // Calcular estadísticas para esta actividad
+                // Alumnos asignados a esta tarea: Si la tarea tiene clase_id, solo incluimos a los alumnos de esa clase
+                const alumnosDeEstaTarea = act.clase_id 
+                    ? todosLosAlumnos.filter(al => al.clase_id === act.clase_id)
+                    : (cIdNum ? todosLosAlumnos.filter(al => al.clase_id === cIdNum) : todosLosAlumnos);
+
                 let entregadosCount = 0;
-                alumnos.forEach(al => {
+                alumnosDeEstaTarea.forEach(al => {
                     if (entregasMap.has(`${act.id}_${al.id}`)) entregadosCount++;
                 });
-                const noEntregadosCount = alumnos.length - entregadosCount;
+                const noEntregadosCount = alumnosDeEstaTarea.length - entregadosCount;
 
                 // Verificar espacio necesario en página para bloque de actividad + cabecera
                 if (y > doc.page.height - 140) {
@@ -503,22 +533,28 @@ class ReporteService {
                     y = 40;
                 }
 
-                // Tarjeta / Encabezado de Actividad
-                doc.rect(40, y, doc.page.width - 80, 36).fill('#f1f5f9');
-                doc.fill('#1e293b').fontSize(11).font('Helvetica-Bold').text(`TAREA: ${act.titulo.toUpperCase()}`, 50, y + 8);
-                if (act.descripcion) {
-                    doc.fill('#64748b').fontSize(8.5).font('Helvetica').text(act.descripcion, 50, y + 22, { width: 320, ellipsis: true });
+                // Nombre descriptivo del grupo asignado a la tarea
+                let grupoTareaTexto = 'Toda la Escuela';
+                if (act.nombre_clase) {
+                    grupoTareaTexto = act.nombre_clase;
+                } else if (act.nombre_grado || act.nombre_grupo) {
+                    grupoTareaTexto = `${act.nombre_grado || ''} "${act.nombre_grupo || ''}"`.trim();
                 }
+
+                // Tarjeta / Encabezado de Actividad
+                doc.rect(40, y, doc.page.width - 80, 42).fill('#f1f5f9');
+                doc.fill('#1e293b').fontSize(11).font('Helvetica-Bold').text(`TAREA: ${act.titulo.toUpperCase()}`, 50, y + 8, { width: 310, ellipsis: true });
+                doc.fill('#046a38').fontSize(8.5).font('Helvetica-Bold').text(`GRUPO ASIGNADO: ${grupoTareaTexto.toUpperCase()}`, 50, y + 24);
 
                 // Badges de resumen
                 const badgeX = doc.page.width - 240;
-                doc.rect(badgeX, y + 8, 90, 20).fill('#dcfce7'); // Verde pastel
-                doc.fill('#15803d').fontSize(8).font('Helvetica-Bold').text(`Entregados: ${entregadosCount}`, badgeX, y + 14, { width: 90, align: 'center' });
+                doc.rect(badgeX, y + 10, 90, 20).fill('#dcfce7'); // Verde pastel
+                doc.fill('#15803d').fontSize(8).font('Helvetica-Bold').text(`Entregados: ${entregadosCount}`, badgeX, y + 16, { width: 90, align: 'center' });
 
-                doc.rect(badgeX + 96, y + 8, 90, 20).fill('#fee2e2'); // Rojo pastel
-                doc.fill('#b91c1c').fontSize(8).font('Helvetica-Bold').text(`Pendientes: ${noEntregadosCount}`, badgeX + 96, y + 14, { width: 90, align: 'center' });
+                doc.rect(badgeX + 96, y + 10, 90, 20).fill('#fee2e2'); // Rojo pastel
+                doc.fill('#b91c1c').fontSize(8).font('Helvetica-Bold').text(`Pendientes: ${noEntregadosCount}`, badgeX + 96, y + 16, { width: 90, align: 'center' });
 
-                y += 42;
+                y += 48;
 
                 // Cabecera de Tabla
                 doc.rect(40, y, doc.page.width - 80, 20).fill('#334155');
@@ -531,11 +567,11 @@ class ReporteService {
 
                 y += 20;
 
-                if (alumnos.length === 0) {
-                    doc.fill('#64748b').fontSize(9).font('Helvetica-Oblique').text('No hay alumnos registrados en el grupo.', 50, y + 6);
-                    y += 20;
+                if (alumnosDeEstaTarea.length === 0) {
+                    doc.fill('#64748b').fontSize(9).font('Helvetica-Oblique').text('No hay alumnos registrados en el grupo asignado a esta tarea.', 50, y + 6);
+                    y += 22;
                 } else {
-                    alumnos.forEach((al, index) => {
+                    alumnosDeEstaTarea.forEach((al, index) => {
                         if (y > doc.page.height - 50) {
                             doc.addPage();
                             y = 40;
@@ -565,7 +601,7 @@ class ReporteService {
                             })
                             : '--';
 
-                        const grupoTxt = `${al.nombre_grado || ''} "${al.nombre_grupo || ''}"`;
+                        const grupoTxt = `${al.nombre_grado || ''} "${al.nombre_grupo || ''}"`.trim() || 'Sin grupo';
 
                         doc.fill('#334155').fontSize(8).font('Helvetica');
                         doc.text(String(index + 1), 48, y + 5, { width: 25 });

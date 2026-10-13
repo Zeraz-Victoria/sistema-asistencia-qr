@@ -342,13 +342,13 @@ class AsistenciaService {
                    OR UPPER(REPLACE(REPLACE(REPLACE(COALESCE(codigo_qr, nfc_uid), ':', ''), '-', ''), ' ', '')) = UPPER(REPLACE(REPLACE(REPLACE($1, ':', ''), '-', ''), ' ', ''))
             `, [uid]);
         }
-        if (!alumno) throw new Error('Alumno no encontrado.');
+        if (!alumno) throw new Error('Alumno no encontrado o código no registrado.');
 
-        if (alumno.institucion_id !== usuario.institucion_id) throw new Error('Otra escuela.');
+        if (alumno.institucion_id !== usuario.institucion_id) throw new Error('Este alumno pertenece a otra escuela.');
 
         if (usuario.rol === 'maestro') {
             const claseDelMaestro = await db.get("SELECT id FROM Clases WHERE maestro_id = $1 AND id = $2", [usuario.id, alumno.clase_id]);
-            if (!claseDelMaestro) throw new Error('No es alumno tuyo.');
+            if (!claseDelMaestro) throw new Error('Este alumno no pertenece a este grupo.');
         }
 
         const actividad = await db.get("SELECT * FROM Actividades WHERE id = $1 AND institucion_id = $2", [actividadId, usuario.institucion_id]);
@@ -361,15 +361,15 @@ class AsistenciaService {
 
             if (isModeloDepartamental) {
                 const matriculado = await db.get("SELECT 1 FROM Alumnos_Clases WHERE alumno_id = $1 AND clase_id = $2", [alumno.id, actividad.clase_id]);
-                if (!matriculado) throw new Error('El alumno no está matriculado en la clase/materia de esta tarea.');
+                if (!matriculado) throw new Error('Este alumno no pertenece a este grupo.');
             } else {
-                if (alumno.clase_id !== actividad.clase_id) throw new Error('El alumno no pertenece al grupo de esta tarea.');
+                if (alumno.clase_id !== actividad.clase_id) throw new Error('Este alumno no pertenece a este grupo.');
             }
         }
 
         const entregaPrevia = await db.get("SELECT * FROM Entregas_Actividades WHERE actividad_id = $1 AND alumno_id = $2", [actividadId, alumno.id]);
         if (entregaPrevia) {
-            return { status: 'warning', message: `⚠️ ${alumno.nombre_completo} ya entregó "${actividad.titulo}" anteriormente.` };
+            return { status: 'warning', message: `⚠️ ${alumno.nombre_completo} ya registró esta tarea anteriormente.` };
         }
 
         const fechaAhora = new Date().toISOString();

@@ -243,6 +243,7 @@ async function setupDatabase() {
     try { await db.exec(`ALTER TABLE Instituciones ADD COLUMN device_fingerprint TEXT;`); } catch (e) {}
     try { await db.exec(`ALTER TABLE Instituciones ADD COLUMN ip_registro TEXT;`); } catch (e) {}
     try { await db.exec(`ALTER TABLE Instituciones ADD COLUMN fecha_vencimiento_prueba DATETIME;`); } catch (e) {}
+    try { await db.exec(`ALTER TABLE Instituciones ADD COLUMN tipo_licencia TEXT DEFAULT 'vitalicio';`); } catch (e) {}
 
     await db.exec(`
         CREATE TABLE IF NOT EXISTS Asistencias (
@@ -555,6 +556,7 @@ async function setupDatabase() {
       await db.exec(`ALTER TABLE Instituciones ADD COLUMN IF NOT EXISTS device_fingerprint TEXT;`);
       await db.exec(`ALTER TABLE Instituciones ADD COLUMN IF NOT EXISTS ip_registro TEXT;`);
       await db.exec(`ALTER TABLE Instituciones ADD COLUMN IF NOT EXISTS fecha_vencimiento_prueba TIMESTAMPTZ;`);
+      await db.exec(`ALTER TABLE Instituciones ADD COLUMN IF NOT EXISTS tipo_licencia VARCHAR(50) DEFAULT 'vitalicio';`);
       console.log('✅ Columnas verificadas en Instituciones (Postgres).');
     } catch (err) {
       console.error('⚠️ Error alterando Instituciones (Postgres):', err.message);
