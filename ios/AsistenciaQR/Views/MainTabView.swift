@@ -2,40 +2,136 @@ import SwiftUI
 
 struct MainTabView: View {
     @State private var tabSeleccionado: Int = 0
+    @State private var licencia: LicenciaStatus? = nil
+    @State private var bannerDescartado: Bool = false
+    
+    var diasRestantes: Int {
+        licencia?.diasRestantes ?? licencia?.daysLeft ?? 30
+    }
+    
+    var mostrarBanner: Bool {
+        guard !bannerDescartado, let lic = licencia else { return false }
+        if lic.status == "suspendido" || lic.expiredTrial == true { return false }
+        if lic.isTrial == true && diasRestantes <= 3 && diasRestantes >= 1 { return true }
+        if lic.plan == "anual" && diasRestantes <= 15 && diasRestantes >= 1 { return true }
+        return false
+    }
     
     var body: some View {
-        TabView(selection: $tabSeleccionado) {
-            KioscoView()
-                .tabItem {
-                    Label("Pase Lista", systemImage: "list.clipboard.fill")
-                }
-                .tag(0)
+        ZStack(alignment: .top) {
+            TabView(selection: $tabSeleccionado) {
+                KioscoView()
+                    .tabItem {
+                        Label("Pase Lista", systemImage: "list.clipboard.fill")
+                    }
+                    .tag(0)
+                
+                TareasView()
+                    .tabItem {
+                        Label("Tareas", systemImage: "book.closed.fill")
+                    }
+                    .tag(1)
+                
+                AlumnosView()
+                    .tabItem {
+                        Label("Alumnos", systemImage: "person.2.fill")
+                    }
+                    .tag(2)
+                
+                ReportesView()
+                    .tabItem {
+                        Label("Reportes", systemImage: "doc.text.fill")
+                    }
+                    .tag(3)
+                
+                AjustesView()
+                    .tabItem {
+                        Label("Ajustes", systemImage: "gearshape.fill")
+                    }
+                    .tag(4)
+            }
+            .tint(Color(red: 0.02, green: 0.35, blue: 0.25))
             
-            TareasView()
-                .tabItem {
-                    Label("Tareas", systemImage: "book.closed.fill")
-                }
-                .tag(1)
-            
-            AlumnosView()
-                .tabItem {
-                    Label("Alumnos", systemImage: "person.2.fill")
-                }
-                .tag(2)
-            
-            ReportesView()
-                .tabItem {
-                    Label("Reportes", systemImage: "doc.text.fill")
-                }
-                .tag(3)
-            
-            AjustesView()
-                .tabItem {
-                    Label("Ajustes", systemImage: "gearshape.fill")
-                }
-                .tag(4)
+            // Banner Flotante de Aviso Previo
+            if mostrarBanner {
+                bannerAvisoLicencia
+                    .padding(.horizontal, 16)
+                    .padding(.top, 8)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+            }
         }
-        .tint(Color(red: 0.02, green: 0.35, blue: 0.25))
+        .task {
+            do {
+                licencia = try await APIService.shared.obtenerEstadoLicencia()
+            } catch {}
+        }
+    }
+    
+    private var bannerAvisoLicencia: some View {
+        let esUrgente = diasRestantes <= 2
+        let esAnual = (licencia?.tipoLicencia == "anual" || licencia?.plan == "anual")
+        let tipoTexto = esAnual ? "Suscripción Anual ($99 MXN / año)" : "Licencia Vitalicia ($99 MXN)"
+        let diasTexto = diasRestantes == 1 ? "1 día restante" : "\(diasRestantes) días restantes"
+        
+        return HStack(spacing: 12) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .foregroundColor(esUrgente ? .red : .orange)
+                .font(.title3)
+            
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 6) {
+                    Text(licencia?.plan == "anual" ? "Suscripción por Vencer" : "Prueba por Finalizar")
+                        .font(.caption)
+                        .fontWeight(.bold)
+                        .foregroundColor(esUrgente ? .red : .primary)
+                    
+                    Text(diasTexto)
+                        .font(.system(size: 10, weight: .bold))
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(esUrgente ? Color.red : Color.orange)
+                        .foregroundColor(.white)
+                        .cornerRadius(6)
+                }
+                
+                Text("Toca para activar por WhatsApp (\(tipoTexto)).")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+            }
+            
+            Spacer()
+            
+            Button {
+                withAnimation { bannerDescartado = true }
+            } label: {
+                Image(systemName: "xmark")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                    .padding(6)
+            }
+        }
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(Color(uiColor: .systemBackground))
+                .shadow(color: Color.black.opacity(0.12), radius: 8, x: 0, y: 3)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14)
+                        .stroke(esUrgente ? Color.red.opacity(0.4) : Color.orange.opacity(0.4), lineWidth: 1.5)
+                )
+        )
+        .onTapGesture {
+            let escuela = licencia?.nombreEscuela ?? "Mi Escuela"
+            let user = AuthManager.shared.usuarioActual
+            let nombre = user?.nombre ?? user?.email ?? "Docente"
+            let email = user?.email ?? ""
+            let planMsg = esAnual ? "Suscripción Anual $99 MXN / año" else "$99 MXN pago único"
+            let msg = "Hola, mi periodo de prueba de AsistenciaQR está por vencer (\(diasTexto)) y quiero activar mi cuenta (\(planMsg)).\n\n🏫 Escuela: \(escuela)\n👤 Docente: \(nombre)\n📧 Correo/Usuario: \(email)"
+            if let enc = msg.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+               let url = URL(string: "https://wa.me/522723303963?text=\(enc)") {
+                UIApplication.shared.open(url)
+            }
+        }
     }
 }
 

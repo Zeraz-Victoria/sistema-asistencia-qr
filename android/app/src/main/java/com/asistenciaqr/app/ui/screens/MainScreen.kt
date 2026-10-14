@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -51,6 +52,7 @@ fun MainScreen(
     var selectedTab by remember { mutableStateOf(BottomTab.PASE_LISTA) }
     var licencia by remember { mutableStateOf<LicenciaStatus?>(null) }
     var licenciaExpirada by remember { mutableStateOf(false) }
+    var bannerDescartado by remember { mutableStateOf(false) }
 
     // Verificación proactiva de licencia (anti-bypass de prueba)
     LaunchedEffect(Unit) {
@@ -86,6 +88,120 @@ fun MainScreen(
                 BottomTab.ALUMNOS -> AlumnosScreen()
                 BottomTab.REPORTES -> ReportesScreen()
                 BottomTab.AJUSTES -> AjustesScreen(onCerrarSesion = onCerrarSesion)
+            }
+        }
+
+        // Banner Flotante de Aviso Previo (3 días antes de prueba / 15 días antes de anual)
+        val diasRestantes = licencia?.diasRestantes ?: licencia?.daysLeft ?: 30
+        val esPruebaPorVencer = (licencia?.isTrial == true && diasRestantes in 1..3)
+        val esAnualPorVencer = (licencia?.plan == "anual" && diasRestantes in 1..15)
+        val mostrarBannerAlerta = !licenciaExpirada && !bannerDescartado && (esPruebaPorVencer || esAnualPorVencer)
+
+        if (mostrarBannerAlerta) {
+            val esUrgente = diasRestantes <= 2
+            val bgGradient = if (esUrgente) {
+                Brush.horizontalGradient(listOf(Color(0xFFFEF2F2), Color(0xFFFEE2E2)))
+            } else {
+                Brush.horizontalGradient(listOf(Color(0xFFFFFBEB), Color(0xFFFEF3C7)))
+            }
+            val borderColor = if (esUrgente) Color(0xFFFCA5A5) else Color(0xFFFDE68A)
+            val textColor = if (esUrgente) Color(0xFF991B1B) else Color(0xFF92400E)
+            val iconColor = if (esUrgente) Color(0xFFDC2626) else Color(0xFFD97706)
+
+            val esPlanAnual = (licencia?.tipoLicencia == "anual" || licencia?.plan == "anual")
+            val tipoTexto = if (esPlanAnual) "Suscripción Anual ($99 MXN / año)" else "Licencia Vitalicia ($99 MXN)"
+            val tituloAlerta = if (esAnualPorVencer) "Suscripción por Vencer" else "Prueba por Finalizar"
+            val diasTexto = if (diasRestantes == 1) "1 día restante" else "$diasRestantes días restantes"
+
+            Surface(
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .statusBarsPadding()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .fillMaxWidth()
+                    .shadow(8.dp, RoundedCornerShape(16.dp), spotColor = Color.Black.copy(alpha = 0.15f))
+                    .border(1.5.dp, borderColor, RoundedCornerShape(16.dp))
+                    .clickable {
+                        val escuela = licencia?.nombreEscuela ?: usuario?.nombreEscuela ?: "Mi Escuela"
+                        val nombre = usuario?.nombreParaMostrar ?: "Docente"
+                        val email = usuario?.email ?: ""
+                        val planMsg = if (esPlanAnual) "Suscripción Anual $99 MXN / año" else "$99 MXN pago único"
+                        val mensaje = "Hola, mi periodo de prueba de AsistenciaQR está por vencer ($diasTexto) y quiero activar mi cuenta ($planMsg).\n\n🏫 Escuela: $escuela\n👤 Docente: $nombre\n📧 Correo/Usuario: $email"
+                        abrirWhatsApp(context, "522723303963", mensaje)
+                    },
+                shape = RoundedCornerShape(16.dp),
+                color = Color.Transparent
+            ) {
+                Box(
+                    modifier = Modifier
+                        .background(bgGradient)
+                        .padding(horizontal = 14.dp, vertical = 10.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Surface(
+                            shape = CircleShape,
+                            color = iconColor.copy(alpha = 0.15f),
+                            modifier = Modifier.size(36.dp)
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(
+                                    imageVector = Icons.Default.Warning,
+                                    contentDescription = null,
+                                    tint = iconColor,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.width(12.dp))
+
+                        Column(modifier = Modifier.weight(1f)) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = tituloAlerta,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 13.sp,
+                                    color = textColor
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Surface(
+                                    shape = RoundedCornerShape(6.dp),
+                                    color = iconColor
+                                ) {
+                                    Text(
+                                        text = diasTexto,
+                                        color = Color.White,
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.ExtraBold,
+                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = "Toca aquí para asegurar tu cuenta por WhatsApp ($tipoTexto).",
+                                fontSize = 11.sp,
+                                color = textColor.copy(alpha = 0.9f),
+                                lineHeight = 14.sp
+                            )
+                        }
+
+                        IconButton(
+                            onClick = { bannerDescartado = true },
+                            modifier = Modifier.size(24.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Cerrar",
+                                tint = textColor.copy(alpha = 0.6f),
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                    }
+                }
             }
         }
 
