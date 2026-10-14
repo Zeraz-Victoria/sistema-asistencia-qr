@@ -407,7 +407,7 @@ class ReporteService {
         let queryActividades = `
             SELECT 
                 A.id, A.titulo, A.descripcion, A.fecha_creacion, A.clase_id,
-                G.nombre_grado, GR.nombre_grupo, C.nombre as nombre_clase
+                G.nombre_grado, GR.nombre_grupo
             FROM Actividades A
             LEFT JOIN Clases C ON A.clase_id = C.id
             LEFT JOIN Grados G ON C.grado_id = G.id
@@ -504,8 +504,8 @@ class ReporteService {
 
         doc.fill('#1e293b').fontSize(9).font('Helvetica').text(`Fecha de emisión: ${fechaEmision}`, 40, 98);
         if (cIdNum && cIdNum > 0) {
-            const claseInfo = await db.get(`SELECT G.nombre_grado, GR.nombre_grupo, C.nombre FROM Clases C LEFT JOIN Grados G ON C.grado_id = G.id LEFT JOIN Grupos GR ON C.grupo_id = GR.id WHERE C.id = $1`, [cIdNum]);
-            const nomGrupoFiltro = claseInfo ? (claseInfo.nombre || `${claseInfo.nombre_grado || ''} "${claseInfo.nombre_grupo || ''}"`.trim()) : `Grupo #${cIdNum}`;
+            const claseInfo = await db.get(`SELECT G.nombre_grado, GR.nombre_grupo FROM Clases C LEFT JOIN Grados G ON C.grado_id = G.id LEFT JOIN Grupos GR ON C.grupo_id = GR.id WHERE C.id = $1`, [cIdNum]);
+            const nomGrupoFiltro = claseInfo ? `${claseInfo.nombre_grado || ''} "${claseInfo.nombre_grupo || ''}"`.trim() : `Grupo #${cIdNum}`;
             doc.text(`Grupo filtrado: ${nomGrupoFiltro}`, 40, 110);
         }
 
@@ -535,9 +535,7 @@ class ReporteService {
 
                 // Nombre descriptivo del grupo asignado a la tarea
                 let grupoTareaTexto = 'Toda la Escuela';
-                if (act.nombre_clase) {
-                    grupoTareaTexto = act.nombre_clase;
-                } else if (act.nombre_grado || act.nombre_grupo) {
+                if (act.nombre_grado || act.nombre_grupo) {
                     grupoTareaTexto = `${act.nombre_grado || ''} "${act.nombre_grupo || ''}"`.trim();
                 }
 
