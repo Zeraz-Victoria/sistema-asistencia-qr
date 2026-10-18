@@ -1,43 +1,17 @@
 const { db } = require('../config/database');
 
-// Cuentas históricas existentes creadas antes de la fecha de corte conservan la Licencia Vitalicia
-const FECHA_CORTE_VITALICIO = new Date('2026-10-14T00:00:00.000Z');
-const ID_MAX_HISTORICO_VITALICIO = 22;
-
 class Institucion {
     static async findById(id) {
         return await db.get("SELECT * FROM Instituciones WHERE id = $1", [id]);
     }
 
     /**
-     * Determina si una cuenta es elegible para la Licencia Vitalicia (Grandfathering):
-     * - Si su plan ya es vitalicio.
-     * - Si su campo tipo_licencia es 'vitalicio'.
-     * - Si su ID es <= 22 (todas las cuentas previas registradas en producción y desarrollo).
-     * - O si su fecha de creación es anterior a la fecha de corte (13/14 Octubre 2026).
+     * Determina si una cuenta tiene plan vitalicio explícito.
      */
     static esCuentaPreviaVitalicia(inst) {
         if (!inst) return false;
         const currentPlan = (inst.plan || '').toLowerCase();
-        if (currentPlan === 'vitalicio' || currentPlan === 'pago_unico' || currentPlan === 'pro_vitalicio') {
-            return true;
-        }
-        if (inst.tipo_licencia === 'vitalicio') {
-            return true;
-        }
-        if (inst.tipo_licencia === 'anual') {
-            return false;
-        }
-        if (inst.id && Number(inst.id) <= ID_MAX_HISTORICO_VITALICIO) {
-            return true;
-        }
-        if (inst.fecha_creacion) {
-            const fc = new Date(inst.fecha_creacion);
-            if (!isNaN(fc.getTime()) && fc < FECHA_CORTE_VITALICIO) {
-                return true;
-            }
-        }
-        return false;
+        return (currentPlan === 'vitalicio' || currentPlan === 'pago_unico' || currentPlan === 'pro_vitalicio' || inst.tipo_licencia === 'vitalicio');
     }
 
     static async checkSubscriptionStatus(id) {
@@ -47,7 +21,7 @@ class Institucion {
         const { plan, estado, fecha_ultimo_pago, fecha_creacion } = inst;
         const currentPlan = plan ? plan.toLowerCase() : 'prueba_30d';
         const esVitalicia = this.esCuentaPreviaVitalicia(inst);
-        const tipoLic = (currentPlan === 'anual') ? 'anual' : (esVitalicia ? 'vitalicio' : 'anual');
+        const tipoLic = esVitalicia ? 'vitalicio' : 'anual';
 
         // Si ya está suspendido explícitamente, respetamos ese estado
         if (estado === 'suspendido') {
@@ -177,18 +151,14 @@ class Institucion {
 
     /**
      * Activa el plan para una institución.
-     * Si la cuenta es histórica (creada antes del 13 de Octubre 2026 o ID <= 22), se activa 'vitalicio'.
-     * Si es una cuenta nueva, se activa 'anual' (365 días de servicio).
-     * O bien, si forzarPlan está definido ('vitalicio' o 'anual'), se respeta la decisión del SuperAdmin.
+     * Por defecto activa 'anual' ($99 MXN por 365 días).
+     * Si forzarPlan está definido ('vitalicio', 'anual', etc.), se respeta la decisión del SuperAdmin.
      */
     static async activarPlan(institucionId, { monto = 99, referencia = '', metodo = 'mercadopago', forzarPlan = null } = {}) {
         const inst = await this.findById(institucionId);
         if (!inst) throw new Error('Institución no encontrada.');
 
-        let planDestino = forzarPlan;
-        if (!planDestino) {
-            planDestino = this.esCuentaPreviaVitalicia(inst) ? 'vitalicio' : 'anual';
-        }
+        let planDestino = forzarPlan || 'anual';
 
         const isSQLite = !process.env.DATABASE_URL;
         const nowQuery = isSQLite ? "datetime('now', 'localtime')" : "CURRENT_TIMESTAMP";
@@ -229,12 +199,11 @@ class Institucion {
             if (inst) {
                 const st = await this.checkSubscriptionStatus(inst.id);
                 if (st && (st.status === 'suspendido' || st.daysLeft <= 0)) {
-                    const tipo = this.esCuentaPreviaVitalicia(inst) ? 'Licencia Vitalicia' : 'Suscripción Anual';
                     return { 
                         abuso: true, 
                         institucion_id: inst.id, 
                         razon: 'dispositivo',
-                        mensaje: `Ya se utilizó un periodo de prueba gratuita de 30 días en este dispositivo. Para continuar, activa tu ${tipo} por $99 MXN.`
+                        mensaje: 'Ya se utilizó un periodo de prueba gratuita de 30 días en este dispositivo. Para continuar, activa tu Suscripción Anual por $99 MXN al año.'
                     };
                 }
             }
@@ -255,7 +224,7 @@ class Institucion {
                 return { 
                     abuso: true, 
                     razon: 'ip',
-                    mensaje: 'Límite de pruebas gratuitas alcanzado en esta red. Adquiere tu cuenta por $99 MXN.'
+                    mensaje: 'Límite de pruebas gratuitas alcanzado en esta red. Adquiere tu suscripción por $99 MXN al año.'
                 };
             }
         }

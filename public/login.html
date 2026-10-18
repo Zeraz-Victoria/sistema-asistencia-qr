@@ -266,7 +266,7 @@
                     </div>
                     <div style="font-size:0.78rem; color:#047857; margin-top:6px; line-height:1.4;">
                         ✓ Acceso completo a todas las funciones por 30 días<br>
-                        ✓ Después solo <strong>$99 MXN</strong> pago único de por vida
+                        ✓ Después solo <strong>$99 MXN</strong> al año
                     </div>
                 </div>
 
@@ -282,10 +282,10 @@
         <div id="abuse-payment-container" style="display: none; margin-top: 15px; text-align: left; background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; padding: 14px;">
             <div style="font-weight: 700; color: #92400e; font-size: 0.95rem; margin-bottom: 6px;">🔒 Periodo de Prueba Ya Utilizado</div>
             <div style="font-size: 0.82rem; color: #b45309; line-height: 1.4; margin-bottom: 12px;">
-                Este dispositivo ya utilizó sus 30 días de prueba gratuita. Para continuar usando AsistenciaQR, puedes activar tu cuenta vitalicia por $99 MXN vía WhatsApp.
+                Este dispositivo ya utilizó sus 30 días de prueba gratuita. Para continuar usando AsistenciaQR, puedes activar tu Suscripción Anual por $99 MXN al año vía WhatsApp.
             </div>
             <button id="btn-pay-abuse" type="button" style="background: #25d366; color: white; margin: 0; padding: 11px 16px; font-size: 0.95rem; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%;">
-                <i class="fa-brands fa-whatsapp" style="font-size: 1.2rem;"></i> Activar por WhatsApp ($99 MXN)
+                <i class="fa-brands fa-whatsapp" style="font-size: 1.2rem;"></i> Activar por WhatsApp ($99 MXN / año)
             </button>
         </div>
 
@@ -432,7 +432,7 @@
             const email = document.getElementById('reg-email').value.trim();
             const nombre = document.getElementById('reg-nombre-director').value.trim();
             const escuela = document.getElementById('reg-nombre-escuela').value.trim() || 'Mi Escuela';
-            const mensaje = `Hola, mi periodo de prueba de AsistenciaQR ha finalizado y quiero activar mi cuenta ($99 MXN pago único).\n\n*Escuela:* ${escuela}\n*Docente:* ${nombre}\n*Correo/Usuario:* ${email}`;
+            const mensaje = `Hola, mi periodo de prueba de AsistenciaQR ha finalizado y quiero activar mi cuenta ($99 MXN al año).\n\n*Escuela:* ${escuela}\n*Docente:* ${nombre}\n*Correo/Usuario:* ${email}`;
             window.open(`https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`, '_blank');
         });
 
@@ -515,10 +515,10 @@
         const instParam = urlParams.get('institucion_id');
 
         if (estadoPago === 'aprobado') {
-            mostrarSuccess('🎉 ¡Pago de $99 MXN aprobado! Tu cuenta vitalicia ha sido activada. Ya puedes iniciar sesión.');
+            mostrarSuccess('🎉 ¡Pago de $99 MXN aprobado! Tu suscripción anual ha sido activada. Ya puedes iniciar sesión.');
             if (emailParam) document.getElementById('email').value = emailParam;
         } else if (estadoPago === 'pendiente_oxxo') {
-            mostrarSuccess('⏳ Ficha de OXXO generada. En cuanto realices tu pago en tienda OXXO, tu cuenta vitalicia se activará automáticamente.');
+            mostrarSuccess('⏳ Ficha de OXXO generada. En cuanto realices tu pago en tienda OXXO, tu suscripción anual se activará automáticamente.');
             if (emailParam) document.getElementById('email').value = emailParam;
         } else if (estadoPago === 'fallido') {
             mostrarError('❌ El pago no se completó. Puedes intentar nuevamente.');

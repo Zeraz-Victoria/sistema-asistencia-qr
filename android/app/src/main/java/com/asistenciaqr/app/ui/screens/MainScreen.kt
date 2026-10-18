@@ -108,8 +108,8 @@ fun MainScreen(
             val textColor = if (esUrgente) Color(0xFF991B1B) else Color(0xFF92400E)
             val iconColor = if (esUrgente) Color(0xFFDC2626) else Color(0xFFD97706)
 
-            val esPlanAnual = (licencia?.tipoLicencia == "anual" || licencia?.plan == "anual")
-            val tipoTexto = if (esPlanAnual) "Suscripción Anual ($99 MXN / año)" else "Licencia Vitalicia ($99 MXN)"
+            val esVitalicio = (licencia?.plan == "vitalicio")
+            val tipoTexto = if (esVitalicio) "Licencia Vitalicia ($99 MXN)" else "Suscripción Anual ($99 MXN / año)"
             val tituloAlerta = if (esAnualPorVencer) "Suscripción por Vencer" else "Prueba por Finalizar"
             val diasTexto = if (diasRestantes == 1) "1 día restante" else "$diasRestantes días restantes"
 
@@ -125,7 +125,7 @@ fun MainScreen(
                         val escuela = licencia?.nombreEscuela ?: usuario?.nombreEscuela ?: "Mi Escuela"
                         val nombre = usuario?.nombreParaMostrar ?: "Docente"
                         val email = usuario?.email ?: ""
-                        val planMsg = if (esPlanAnual) "Suscripción Anual $99 MXN / año" else "$99 MXN pago único"
+                        val planMsg = if (esVitalicio) "$99 MXN pago único" else "Suscripción Anual $99 MXN / año"
                         val mensaje = "Hola, mi periodo de prueba de AsistenciaQR está por vencer ($diasTexto) y quiero activar mi cuenta ($planMsg).\n\n🏫 Escuela: $escuela\n👤 Docente: $nombre\n📧 Correo/Usuario: $email"
                         abrirWhatsApp(context, "522723303963", mensaje)
                     },
@@ -308,13 +308,13 @@ fun MainScreen(
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    val esAnual = (licencia?.tipoLicencia == "anual" || licencia?.plan == "anual")
-                    val descTexto = if (esAnual) {
-                        "Tu periodo de prueba de 30 días ha concluido. Para continuar utilizando AsistenciaQR durante 1 año con tus alumnos, tareas y asistencias intactos, activa tu Suscripción Anual ($99 MXN / año) vía WhatsApp."
-                    } else {
+                    val esVitalicio = (licencia?.plan == "vitalicio")
+                    val descTexto = if (esVitalicio) {
                         "Tu periodo de prueba de 30 días ha concluido. Para continuar utilizando AsistenciaQR de por vida con tus alumnos, tareas y asistencias intactos, activa tu cuenta por un único pago de $99 MXN vía WhatsApp."
+                    } else {
+                        "Tu periodo de prueba de 30 días ha concluido. Para continuar utilizando AsistenciaQR durante 1 año con tus alumnos, tareas y asistencias intactos, activa tu Suscripción Anual ($99 MXN / año) vía WhatsApp."
                     }
-                    val planMsg = if (esAnual) "Suscripción Anual $99 MXN / año" else "$99 MXN pago único"
+                    val planMsg = if (esVitalicio) "$99 MXN pago único" else "Suscripción Anual $99 MXN / año"
 
                     Text(
                         text = descTexto,
@@ -348,7 +348,7 @@ fun MainScreen(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = if (esAnual) "Activar por WhatsApp ($99 MXN / año)" else "Activar por WhatsApp ($99 MXN)",
+                            text = if (esVitalicio) "Activar por WhatsApp ($99 MXN)" else "Activar por WhatsApp ($99 MXN / año)",
                             color = Color.White,
                             fontWeight = FontWeight.Bold,
                             fontSize = 15.sp

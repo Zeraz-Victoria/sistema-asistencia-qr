@@ -57,7 +57,7 @@ function createSuperAdminRoutes(db) {
             const { nombre_escuela, plan, email_director, nombre_director, password_director } = req.body;
             if (!nombre_escuela || !email_director || !password_director) return res.status(400).json({ error: 'Faltan datos.' });
 
-            const escuelaRes = await db.run("INSERT INTO Instituciones (nombre, plan, estado) VALUES ($1, $2, 'activo')", [nombre_escuela, plan || 'basico']);
+            const escuelaRes = await db.run("INSERT INTO Instituciones (nombre, plan, estado) VALUES ($1, $2, 'activo')", [nombre_escuela, plan || 'anual']);
             const nuevaEscuelaId = escuelaRes.lastID;
 
             const salt = await bcrypt.genSalt(10);
@@ -69,11 +69,12 @@ function createSuperAdminRoutes(db) {
             const nextId = (maxIdRes && maxIdRes.max_id ? maxIdRes.max_id : 0) + 1;
             await db.run("INSERT INTO Configuracion (id, institucion_id, enviar_sms) VALUES ($1, $2, 1)", [nextId, nuevaEscuelaId]);
 
-            if (plan === 'vitalicio') {
-                await Institucion.activarPlanVitalicio(nuevaEscuelaId, {
+            if (plan === 'vitalicio' || plan === 'anual' || !plan) {
+                await Institucion.activarPlan(nuevaEscuelaId, {
                     monto: 99,
                     referencia: 'CREACION-SUPERADMIN-' + Date.now(),
-                    metodo: 'superadmin'
+                    metodo: 'superadmin',
+                    forzarPlan: plan || 'anual'
                 });
             }
 

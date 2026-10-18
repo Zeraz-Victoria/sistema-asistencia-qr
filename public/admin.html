@@ -734,8 +734,8 @@
             <div style="min-width: 0; overflow: hidden;">
                 <div style="display: flex; align-items: center; gap: 6px;">
                     <h1 id="tituloEscuela" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;">Mi Aula</h1>
-                    <span id="badgeVitalicio" class="badge-vitalicio" style="display: none;" title="Licencia Vitalicia Activa de por vida">
-                        <i class="fa-solid fa-star"></i> Vitalicio
+                    <span id="badgeVitalicio" class="badge-vitalicio" style="display: none;" title="Suscripción Anual Activa">
+                        <i class="fa-solid fa-calendar-check"></i> Anual
                     </span>
                 </div>
                 <div class="subtitle" id="subtituloDocente">Panel Docente</div>
@@ -755,7 +755,7 @@
             <span>Prueba: <strong id="trialDaysText">30 días restantes</strong></span>
         </div>
         <button type="button" class="btn-trial-wa" onclick="contactarWhatsAppActivar(event)" title="Activar por WhatsApp">
-            <i class="fa-brands fa-whatsapp" style="font-size: 0.9rem;"></i> Activar ($99)
+            <i class="fa-brands fa-whatsapp" style="font-size: 0.9rem;"></i> Activar ($99 / año)
         </button>
     </div>
 
@@ -813,11 +813,11 @@
             </a>
             <div id="sidebarPlanInfo" style="display: none; margin-top: auto; padding: 14px 12px 10px 12px;">
                 <div style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 10px; padding: 10px; text-align: center;">
-                    <div style="font-size: 0.8rem; font-weight: 700; color: #10b981; display:flex; align-items:center; justify-content:center; gap:6px;">
-                        <i class="fa-solid fa-star" style="color: #facc15;"></i> Licencia Vitalicia
+                    <div id="sidebarPlanNombre" style="font-size: 0.8rem; font-weight: 700; color: #10b981; display:flex; align-items:center; justify-content:center; gap:6px;">
+                        <i class="fa-solid fa-calendar-check" style="color: #10b981;"></i> Suscripción Anual
                     </div>
-                    <div style="font-size: 0.72rem; color: #64748b; margin-top: 3px;">
-                        <i class="fa-solid fa-infinity" style="color: #10b981;"></i> Permanente
+                    <div id="sidebarPlanDias" style="font-size: 0.72rem; color: #64748b; margin-top: 3px;">
+                        <i class="fa-solid fa-clock" style="color: #10b981;"></i> 365 días
                     </div>
                 </div>
             </div>
@@ -1319,23 +1319,23 @@
             </div>
             <h2 id="bloqueoTituloHeader" style="font-size:1.4rem; font-weight:800; color:#0f172a; margin:0 0 10px 0;">Periodo de Prueba Finalizado</h2>
             <p id="bloqueoDesc" style="font-size:0.9rem; color:#64748b; line-height:1.5; margin:0 0 20px 0;">
-                Tus <strong>30 días de prueba gratuita</strong> han concluido. Para seguir usando el escáner QR, calificar tareas y descargar reportes, activa tu Licencia Vitalicia.
+                Tus <strong>30 días de prueba gratuita</strong> han concluido. Para seguir usando el escáner QR, calificar tareas y descargar reportes, activa tu Suscripción Anual.
             </p>
 
             <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:14px 16px; margin-bottom:22px; text-align:left;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <span id="bloqueoTituloPlan" style="font-weight:800; font-size:1rem; color:#065f46;">Licencia Vitalicia</span>
-                    <span id="bloqueoPrecioPlan" style="background:#065f46; color:white; font-size:1.05rem; font-weight:900; padding:4px 10px; border-radius:8px;">$99 MXN</span>
+                    <span id="bloqueoTituloPlan" style="font-weight:800; font-size:1rem; color:#065f46;">Suscripción Anual</span>
+                    <span id="bloqueoPrecioPlan" style="background:#065f46; color:white; font-size:1.05rem; font-weight:900; padding:4px 10px; border-radius:8px;">$99 MXN / año</span>
                 </div>
                 <div id="bloqueoDetallesPlan" style="font-size:0.82rem; color:#334155; line-height:1.5;">
-                    <div>✓ <strong>Pago Único:</strong> Sin mensualidades ni cobros sorpresa.</div>
+                    <div>✓ <strong>Acceso por 1 Año (365 días):</strong> Solo $99 pesos al año.</div>
                     <div>✓ <strong>Alumnos y Datos Intactos:</strong> Todo tu registro se conserva.</div>
                     <div>✓ Paga con Tarjeta, SPEI o Efectivo en <strong>OXXO</strong>.</div>
                 </div>
             </div>
 
             <button type="button" id="btnPagarBloqueo" onclick="contactarWhatsAppActivar(event)" style="width:100%; background:#25d366; color:white; border:none; padding:14px; font-size:1.05rem; font-weight:800; border-radius:10px; cursor:pointer; transition:all 0.2s; box-shadow:0 4px 6px -1px rgba(37, 211, 102, 0.3); margin-bottom:12px; display:flex; align-items:center; justify-content:center; gap:8px;">
-                <i class="fa-brands fa-whatsapp" style="font-size:1.3rem;"></i> <span id="btnPagarBloqueoText">Activar por WhatsApp ($99 MXN)</span>
+                <i class="fa-brands fa-whatsapp" style="font-size:1.3rem;"></i> <span id="btnPagarBloqueoText">Activar por WhatsApp ($99 MXN / año)</span>
             </button>
 
             <div id="simulacionBloqueoContainer" style="display:none; margin-top:8px;">
@@ -1361,25 +1361,25 @@
             <div style="width:60px; height:60px; background:#ecfdf5; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 12px auto; font-size:1.8rem; color:#065f46;">
                 ⭐
             </div>
-            <h3 id="modalPagoTitulo" style="margin:0 0 8px 0; font-size:1.3rem; font-weight:800;">Activar Licencia Vitalicia</h3>
+            <h3 id="modalPagoTitulo" style="margin:0 0 8px 0; font-size:1.3rem; font-weight:800;">Activar Suscripción Anual</h3>
             <p id="modalPagoDesc" style="font-size:0.88rem; color:#64748b; margin:0 0 16px 0;">
-                Asegura tu sistema de por vida. Un solo pago, sin suscripciones mensuales.
+                Acceso completo a AsistenciaQR durante 1 año (365 días) por solo $99 MXN al año.
             </p>
 
             <div style="background:#ecfdf5; border:1px solid #a7f3d0; border-radius:12px; padding:14px; margin-bottom:20px; text-align:left;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                     <span id="modalPagoPlanNombre" style="font-weight:800; font-size:0.95rem; color:#065f46;">AsistenciaQR Pro</span>
-                    <span id="modalPagoBadge" style="background:#065f46; color:white; font-size:1rem; font-weight:900; padding:3px 8px; border-radius:6px;">$99 MXN</span>
+                    <span id="modalPagoBadge" style="background:#065f46; color:white; font-size:1rem; font-weight:900; padding:3px 8px; border-radius:6px;">$99 MXN / año</span>
                 </div>
                 <div id="modalPagoBeneficios" style="font-size:0.8rem; color:#047857; line-height:1.4;">
-                    ✓ Código QR ilimitado para asistencias y tareas<br>
+                    ✓ Código QR ilimitado para asistencias y tareas por 1 año<br>
                     ✓ Reportes PDF mensuales para padres y dirección<br>
                     ✓ Soporte y actualizaciones continuas
                 </div>
             </div>
 
             <button type="button" id="btnPagarModal" onclick="contactarWhatsAppActivar(event)" style="width:100%; background:#25d366; color:white; border:none; padding:13px; font-size:1rem; font-weight:800; border-radius:10px; cursor:pointer; margin-bottom:10px; display:flex; align-items:center; justify-content:center; gap:8px;">
-                <i class="fa-brands fa-whatsapp" style="font-size:1.2rem;"></i> <span id="btnPagarModalText">Activar por WhatsApp ($99 MXN)</span>
+                <i class="fa-brands fa-whatsapp" style="font-size:1.2rem;"></i> <span id="btnPagarModalText">Activar por WhatsApp ($99 MXN / año)</span>
             </button>
 
             <div id="simulacionVoluntariaContainer" style="display:none; margin-top:6px;">
@@ -1536,8 +1536,8 @@
             const escuela = (nombreEscuela && nombreEscuela !== 'Mi Aula') ? nombreEscuela : (usuario?.nombre_escuela || 'Mi Escuela');
             const email = (usuario && usuario.email) ? usuario.email : '';
 
-            const esAnual = (datosLicencia?.tipoLicencia === 'anual' || datosLicencia?.plan === 'anual');
-            const tipoTexto = esAnual ? "Suscripción Anual ($99 MXN / año)" : "Licencia Vitalicia ($99 MXN pago único)";
+            const esVitalicio = (datosLicencia?.plan === 'vitalicio');
+            const tipoTexto = esVitalicio ? "Licencia Vitalicia ($99 MXN)" : "Suscripción Anual ($99 MXN / año)";
 
             const mensaje = `Hola, quiero activar mi cuenta de AsistenciaQR (${tipoTexto}).\n\n🏫 Escuela: ${escuela}\n👤 Docente: ${nombreDocente}\n📧 Correo/Usuario: ${email}`;
             
@@ -1609,7 +1609,7 @@
                 });
                 const d = await res.json();
                 if (res.ok) {
-                    alert('🎉 ¡Pago de $99 MXN confirmado con éxito! Tu Licencia Vitalicia ha sido activada de por vida.');
+                    alert('🎉 ¡Pago de $99 MXN confirmado con éxito! Tu Suscripción Anual ha sido activada.');
                     window.location.href = '/admin.html?pago=aprobado';
                 } else {
                     throw new Error(d.error || 'Error al confirmar simulación');
@@ -1624,7 +1624,7 @@
             const urlParams = new URLSearchParams(window.location.search);
             const estadoPago = urlParams.get('pago');
             if (estadoPago === 'aprobado') {
-                alert('🎉 ¡Pago completado exitosamente! Tu Licencia Vitalicia está 100% activa.');
+                alert('🎉 ¡Pago completado exitosamente! Tu Suscripción Anual está 100% activa.');
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
         })();

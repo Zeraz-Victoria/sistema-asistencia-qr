@@ -59,10 +59,8 @@ class AuthController {
             const institucionId = req.usuario.institucion_id;
             const subStatus = await Institucion.checkSubscriptionStatus(institucionId);
             const inst = await Institucion.findById(institucionId);
-            const esVitalicia = Institucion.esCuentaPreviaVitalicia(inst);
-            const tipoPlan = (subStatus && subStatus.tipoLicencia)
-                ? subStatus.tipoLicencia
-                : ((inst && inst.plan === 'anual') ? 'anual' : (esVitalicia ? 'vitalicio' : 'anual'));
+            const isVitalicio = subStatus?.plan === 'vitalicio' || inst?.plan === 'vitalicio';
+            const tipoPlan = isVitalicio ? 'vitalicio' : 'anual';
 
             res.json({
                 status: subStatus ? subStatus.status : 'activo',
@@ -74,7 +72,7 @@ class AuthController {
                 nombreEscuela: inst ? inst.nombre : 'Mi Aula',
                 monto: Number(process.env.PRECIO_LICENCIA_MXN || 99),
                 tipoLicencia: tipoPlan,
-                modalidad: tipoPlan === 'vitalicio' ? 'Licencia Vitalicia ($99 MXN)' : 'Suscripción Anual ($99 MXN / año)'
+                modalidad: isVitalicio ? 'Licencia Vitalicia ($99 MXN)' : 'Suscripción Anual ($99 MXN / año)'
             });
         } catch (error) {
             res.status(500).json({ error: error.message });

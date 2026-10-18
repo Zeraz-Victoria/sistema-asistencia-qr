@@ -69,8 +69,8 @@ struct MainTabView: View {
     
     private var bannerAvisoLicencia: some View {
         let esUrgente = diasRestantes <= 2
-        let esAnual = (licencia?.tipoLicencia == "anual" || licencia?.plan == "anual")
-        let tipoTexto = esAnual ? "Suscripción Anual ($99 MXN / año)" : "Licencia Vitalicia ($99 MXN)"
+        let esVitalicio = (licencia?.plan == "vitalicio")
+        let tipoTexto = esVitalicio ? "Licencia Vitalicia ($99 MXN)" : "Suscripción Anual ($99 MXN / año)"
         let diasTexto = diasRestantes == 1 ? "1 día restante" : "\(diasRestantes) días restantes"
         
         return HStack(spacing: 12) {
@@ -125,7 +125,7 @@ struct MainTabView: View {
             let user = AuthManager.shared.usuarioActual
             let nombre = user?.nombre ?? user?.email ?? "Docente"
             let email = user?.email ?? ""
-            let planMsg = esAnual ? "Suscripción Anual $99 MXN / año" else "$99 MXN pago único"
+            let planMsg = esVitalicio ? "$99 MXN pago único" : "Suscripción Anual $99 MXN / año"
             let msg = "Hola, mi periodo de prueba de AsistenciaQR está por vencer (\(diasTexto)) y quiero activar mi cuenta (\(planMsg)).\n\n🏫 Escuela: \(escuela)\n👤 Docente: \(nombre)\n📧 Correo/Usuario: \(email)"
             if let enc = msg.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
                let url = URL(string: "https://wa.me/522723303963?text=\(enc)") {

@@ -46,9 +46,9 @@ const authMiddleware = async (req, res, next) => {
         if (subStatus && subStatus.status === 'suspendido') {
             let msg = 'Cuenta suspendida por falta de pago.';
             if (subStatus.expiredTrial) {
-                msg = subStatus.tipoLicencia === 'anual'
-                    ? 'Tu periodo de prueba de 30 días ha finalizado. Activa tu Suscripción Anual ($99 MXN / año) para continuar usando el sistema.'
-                    : 'Tu periodo de prueba de 30 días ha finalizado. Activa tu Licencia Vitalicia ($99 MXN) para continuar usando el sistema.';
+                msg = subStatus.tipoLicencia === 'vitalicio'
+                    ? 'Tu periodo de prueba de 30 días ha finalizado. Activa tu Licencia Vitalicia ($99 MXN) para continuar usando el sistema.'
+                    : 'Tu periodo de prueba de 30 días ha finalizado. Activa tu Suscripción Anual ($99 MXN / año) para continuar usando el sistema.';
             } else if (subStatus.expiredAnnual) {
                 msg = 'Tu suscripción anual ha concluido. Renueva tu cuenta ($99 MXN / año) para continuar usando el sistema.';
             }

@@ -169,24 +169,24 @@ fun AjustesScreen(
 
                 if (licencia?.plan != "vitalicio" && (licencia?.isTrial == true || licencia?.status == "suspendido" || licencia?.plan == null)) {
                     HorizontalDivider(color = IosDivider, thickness = 1.dp)
-                    val esDestinoAnual = (licencia?.tipoLicencia == "anual")
+                    val esVitalicio = (licencia?.plan == "vitalicio")
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 14.dp)
                     ) {
                         Text(
-                            text = if (esDestinoAnual) "✨ Suscripción Anual ($99 MXN / año)" else "✨ Acceso Vitalicio Permanente",
+                            text = if (esVitalicio) "✨ Acceso Vitalicio Permanente" else "✨ Suscripción Anual ($99 MXN / año)",
                             fontSize = 15.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF065F46)
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = if (esDestinoAnual) {
-                                "Conserva todos tus datos y reportes activos durante 1 año por solo $99 MXN."
-                            } else {
+                            text = if (esVitalicio) {
                                 "Conserva todos tus datos y reportes sin límite por un único pago de $99 MXN."
+                            } else {
+                                "Conserva todos tus datos y reportes activos durante 1 año por solo $99 MXN."
                             },
                             fontSize = 13.sp,
                             color = Color(0xFF64748B),
@@ -198,7 +198,7 @@ fun AjustesScreen(
                                 val escuela = licencia?.nombreEscuela ?: usuario?.nombreEscuela ?: "Mi Escuela"
                                 val nombre = usuario?.nombreParaMostrar ?: "Docente"
                                 val email = usuario?.email ?: ""
-                                val planTexto = if (esDestinoAnual) "Suscripción Anual $99 MXN / año" else "$99 MXN pago único"
+                                val planTexto = if (esVitalicio) "$99 MXN pago único" else "Suscripción Anual $99 MXN / año"
                                 val mensaje = "Hola, quiero activar mi cuenta de AsistenciaQR ($planTexto).\n\n🏫 Escuela: $escuela\n👤 Docente: $nombre\n📧 Correo/Usuario: $email"
                                 abrirWhatsApp(context, "522723303963", mensaje)
                             },
@@ -207,7 +207,7 @@ fun AjustesScreen(
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Text(
-                                text = if (esDestinoAnual) "Activar por WhatsApp ($99 MXN / año)" else "Activar por WhatsApp ($99 MXN)",
+                                text = if (esVitalicio) "Activar por WhatsApp ($99 MXN)" else "Activar por WhatsApp ($99 MXN / año)",
                                 color = Color.White,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 14.sp

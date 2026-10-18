@@ -2,7 +2,7 @@
  * ==========================================================
  * ARCHIVO: routes/pagos.js
  * MÓDULO: Pasarela de Pago Automatizada (Mercado Pago / OXXO / Tarjetas)
- * PRECIO: $99 MXN Licencia Vitalicia (configurable por .env)
+ * PRECIO: $99 MXN Suscripción Anual (configurable por .env)
  * ==========================================================
  */
 const express = require('express');
@@ -52,7 +52,7 @@ router.post('/crear-orden', async (req, res) => {
         } else {
             // 2. Crear Institución en estado pendiente_pago
             const escRes = await db.run(
-                "INSERT INTO Instituciones (nombre, plan, estado, monto_pagado) VALUES ($1, 'vitalicio', 'pendiente_pago', $2)",
+                "INSERT INTO Instituciones (nombre, plan, estado, monto_pagado) VALUES ($1, 'anual', 'pendiente_pago', $2)",
                 [nombre_escuela || 'Mi Escuela', PRECIO_LICENCIA]
             );
             institucionId = escRes.lastID;
@@ -87,8 +87,8 @@ router.post('/crear-orden', async (req, res) => {
                 items: [
                     {
                         id: `licencia-${institucionId}`,
-                        title: 'AsistenciaQR - Licencia Vitalicia Completa',
-                        description: 'Acceso de por vida sin mensualidades para control de asistencia y tareas con QR.',
+                        title: 'AsistenciaQR - Suscripción Anual',
+                        description: 'Acceso por 1 año ($99 MXN / año) para control de asistencia y tareas con QR.',
                         quantity: 1,
                         unit_price: PRECIO_LICENCIA,
                         currency_id: 'MXN'
@@ -233,7 +233,7 @@ router.post('/confirmar-simulacion', permitirSimulacionOAdmin, async (req, res) 
             status: 'ok', 
             message: activacion.plan === 'vitalicio' 
                 ? 'Licencia Vitalicia activada exitosamente.' 
-                : 'Suscripción Anual (365 días) activada exitosamente.',
+                : 'Suscripción Anual ($99 MXN / año) activada exitosamente.',
             plan: activacion.plan
         });
     } catch (error) {
@@ -242,8 +242,7 @@ router.post('/confirmar-simulacion', permitirSimulacionOAdmin, async (req, res) 
 });
 
 // -------------------------------------------------------------
-// 4. CREAR ORDEN DE UPGRADE / DESBLOQUEO ($99 MXN)
-
+// 4. CREAR ORDEN DE UPGRADE / DESBLOQUEO ($99 MXN / AÑO)
 // (Para cuentas en prueba activa o suspendidas por fin de prueba)
 // -------------------------------------------------------------
 router.post('/orden-upgrade', async (req, res) => {
@@ -294,8 +293,8 @@ router.post('/orden-upgrade', async (req, res) => {
                 items: [
                     {
                         id: `upgrade-licencia-${institucionId}`,
-                        title: 'AsistenciaQR - Licencia Vitalicia Completa',
-                        description: 'Activación de por vida del sistema escolar AsistenciaQR ($99 MXN pago único).',
+                        title: 'AsistenciaQR - Suscripción Anual',
+                        description: 'Suscripción Anual del sistema escolar AsistenciaQR ($99 MXN / año).',
                         quantity: 1,
                         unit_price: PRECIO_LICENCIA,
                         currency_id: 'MXN'

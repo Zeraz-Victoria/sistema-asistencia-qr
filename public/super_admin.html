@@ -176,7 +176,7 @@
                 <div class="col-md-6">
                     <div class="stat-card mb-0">
                         <div>
-                            <h6 class="text-muted mb-1">Total Recaudado ($99 MXN Pago Único)</h6>
+                            <h6 class="text-muted mb-1">Total Recaudado ($99 MXN / año)</h6>
                             <h2 class="mb-0 fw-bold text-success" id="totalRecaudado">$0 MXN</h2>
                         </div>
                         <div style="font-size: 2.2rem; color: #10b981;"><i class="fa-solid fa-sack-dollar"></i></div>
@@ -223,7 +223,8 @@
                                 id="nombreEscuela" class="form-control" required></div>
                         <div class="mb-3"><label class="small text-muted">Plan de Licencia</label><select id="planEscuela"
                                 class="form-select">
-                                <option value="vitalicio" selected>Vitalicio ($99 MXN - Pago Único)</option>
+                                <option value="anual" selected>Suscripción Anual ($99 MXN / año)</option>
+                                <option value="vitalicio">Vitalicio ($99 MXN - Pago Único)</option>
                                 <option value="basico">Básico (30 días)</option>
                                 <option value="pro">Pro (1 año)</option>
                             </select></div>
@@ -291,7 +292,7 @@
 
             let recaudadoTotal = 0;
             escuelas.forEach(esc => {
-                if (esc.plan === 'vitalicio' || (Number(esc.monto_pagado) > 0)) {
+                if (esc.plan === 'anual' || esc.plan === 'vitalicio' || (Number(esc.monto_pagado) > 0)) {
                     recaudadoTotal += (Number(esc.monto_pagado) || 99);
                 }
             });
@@ -304,18 +305,21 @@
             escuelas.forEach(esc => {
                 const planLower = (esc.plan || '').toLowerCase();
                 const isVitalicio = (planLower === 'vitalicio' || planLower === 'pago_unico' || planLower === 'pro_vitalicio');
+                const isAnual = (planLower === 'anual');
                 const isTrial = esc.is_trial || planLower.includes('prueba');
                 const estadoReal = esc.sub_status || esc.estado;
                 const diasRestantes = (esc.dias_restantes !== undefined) ? Number(esc.dias_restantes) : 0;
 
                 // 1. Etiqueta del Plan
                 let planTexto = '';
-                if (isVitalicio) {
+                if (isAnual) {
+                    planTexto = '<span class="badge bg-success" style="font-size:0.8rem;">⭐ ANUAL ($99 MXN / año)</span>';
+                } else if (isVitalicio) {
                     planTexto = '<span class="badge bg-success" style="font-size:0.8rem;">⭐ VITALICIO ($99 MXN)</span>';
                 } else if (isTrial) {
                     planTexto = '<span class="badge bg-info text-dark">PRUEBA 30D</span>';
                 } else {
-                    planTexto = `<span class="badge bg-secondary">${(esc.plan || 'BASICO').toUpperCase()}</span>`;
+                    planTexto = `<span class="badge bg-secondary">${(esc.plan || 'ANUAL').toUpperCase()}</span>`;
                 }
 
                 // 2. Etiqueta de Vigencia / Días Restantes
@@ -344,9 +348,11 @@
 
                 // 4. Botones de Acción
                 let btnAction = '';
-                if (!isVitalicio) {
-                    btnAction += `<button class="btn btn-sm btn-success me-1" onclick="activarManual(${esc.id})" title="Convertir a Licencia Vitalicia ($99)"><i class="fa-solid fa-star me-1"></i> Vitalicio</button>`;
+                if (!isVitalicio && !isAnual) {
+                    btnAction += `<button class="btn btn-sm btn-success me-1" onclick="activarManual(${esc.id})" title="Activar Suscripción Anual ($99 / año)"><i class="fa-solid fa-calendar-check me-1"></i> Anual ($99)</button>`;
                     btnAction += `<button class="btn btn-sm btn-outline-primary me-1" onclick="renovar30Dias(${esc.id})" title="Renovar +30 días"><i class="fa-solid fa-calendar-plus me-1"></i> +30 Días</button>`;
+                } else if (isAnual) {
+                    btnAction += `<button class="btn btn-sm btn-outline-success me-1" onclick="activarManual(${esc.id})" title="Renovar 1 Año adicional ($99)"><i class="fa-solid fa-arrows-rotate me-1"></i> Renovar Año</button>`;
                 }
                 
                 if (estadoReal === 'activo' && isVitalicio) {
@@ -378,8 +384,8 @@
         }
 
         async function activarManual(id) {
-            if (!confirm('¿Deseas confirmar el pago y activar esta cuenta con Licencia Vitalicia?')) return;
-            await apiCall(`/escuelas/${id}/vitalicio`, 'PUT', {});
+            if (!confirm('¿Deseas confirmar el pago y activar esta cuenta con Suscripción Anual ($99 MXN / año)?')) return;
+            await apiCall(`/escuelas/${id}/anual`, 'PUT', {});
         }
 
         async function renovar30Dias(id) {
@@ -427,13 +433,13 @@
             if (nuevoNombre && nuevoNombre !== nombreActual) {
                 await apiCall(`/escuelas/${id}/nombre`, 'PUT', { nombre: nuevoNombre });
             }
-            const nuevoPlan = prompt("Cambiar Plan (basico / medio / pro / vitalicio) - Dejar vacío para no cambiar:", planActual);
+            const nuevoPlan = prompt("Cambiar Plan (anual / vitalicio / basico / medio / pro) - Dejar vacío para no cambiar:", planActual);
             if (nuevoPlan && nuevoPlan.trim().toLowerCase() !== planActual.trim().toLowerCase()) {
                 const planLimpio = nuevoPlan.trim().toLowerCase();
-                if (['basico', 'medio', 'pro', 'vitalicio'].includes(planLimpio)) {
+                if (['anual', 'vitalicio', 'basico', 'medio', 'pro'].includes(planLimpio)) {
                     await apiCall(`/escuelas/${id}/plan`, 'PUT', { plan: planLimpio });
                 } else {
-                    alert("Plan no válido. Debe ser: basico, medio, pro o vitalicio.");
+                    alert("Plan no válido. Debe ser: anual, vitalicio, basico, medio o pro.");
                 }
             }
         }

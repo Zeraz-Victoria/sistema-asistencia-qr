@@ -241,7 +241,7 @@ fun LoginScreen(
                                     } else {
                                         val errStr = res.errorBody()?.string() ?: ""
                                         if (res.code() == 402 || errStr.contains("suspendid", ignoreCase = true) || errStr.contains("expirad", ignoreCase = true)) {
-                                            errorMessage = "Tu periodo de prueba ha finalizado. Puedes reactivar tu cuenta vía WhatsApp por $99 MXN."
+                                            errorMessage = "Tu periodo de prueba ha finalizado. Puedes activar tu Suscripción Anual vía WhatsApp por $99 MXN al año."
                                         } else if (errStr.contains("credenciales", ignoreCase = true) || res.code() == 401) {
                                             errorMessage = "Correo o contraseña incorrectos."
                                         } else {
@@ -484,7 +484,7 @@ fun RegistroDocenteSheetModal(
                             }
                             Spacer(modifier = Modifier.height(6.dp))
                             Text(
-                                text = "✓ Acceso completo a todas las funciones por 30 días\n✓ Después solo $99 MXN pago único de por vida",
+                                text = "✓ Acceso completo a todas las funciones por 30 días\n✓ Después solo $99 MXN al año",
                                 color = Color(0xFF047857),
                                 fontSize = 13.sp,
                                 lineHeight = 18.sp
@@ -509,7 +509,7 @@ fun RegistroDocenteSheetModal(
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
-                                    text = "Este dispositivo ya utilizó sus 30 días de prueba gratuita. Para continuar usando AsistenciaQR, puedes activar tu cuenta vitalicia por $99 MXN vía WhatsApp.",
+                                    text = "Este dispositivo ya utilizó sus 30 días de prueba gratuita. Para continuar usando AsistenciaQR, puedes activar tu Suscripción Anual por $99 MXN al año vía WhatsApp.",
                                     color = Color(0xFFB45309),
                                     fontSize = 13.sp,
                                     lineHeight = 18.sp
@@ -520,7 +520,7 @@ fun RegistroDocenteSheetModal(
                                         val escuela = regEscuela.trim().ifBlank { "Mi Escuela" }
                                         val nombre = regNombre.trim().ifBlank { "Docente" }
                                         val mail = regEmail.trim()
-                                        val mensaje = "Hola, mi periodo de prueba de AsistenciaQR ha finalizado y quiero activar mi cuenta ($99 MXN pago único).\n\n*Escuela:* $escuela\n*Docente:* $nombre\n*Correo/Usuario:* $mail"
+                                        val mensaje = "Hola, mi periodo de prueba de AsistenciaQR ha finalizado y quiero activar mi cuenta ($99 MXN al año).\n\n*Escuela:* $escuela\n*Docente:* $nombre\n*Correo/Usuario:* $mail"
                                         abrirWhatsApp(context, adminWhatsApp, mensaje)
                                     },
                                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF25D366)),
@@ -535,7 +535,7 @@ fun RegistroDocenteSheetModal(
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(
-                                        text = "Activar por WhatsApp ($99 MXN)",
+                                        text = "Activar por WhatsApp ($99 MXN / año)",
                                         color = Color.White,
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 14.sp
